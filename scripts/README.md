@@ -2,21 +2,17 @@
 
 | Script | Purpose |
 |---|---|
-| `gen_traces.py` | Generate 3-state (cold/resume/decode) agent traces (Table I distribution). |
-| `serve_llama.py` | Drive llama-server as a baseline (N concurrent, slot-pinned, per-token events). |
-| `serve_backend.py` | Drive vLLM / SGLang / AgentServe backends. |
-| `serve_dualgreen.py` / `serve_dualgreen_controller.py` | Dual-instance green-context serving. |
+| `gen_traces.py` | Generate real-task ToolBench traces (unified task set shared by ReAct & P&E; per-paradigm output + engine `sessions_*.txt`). |
+| `serve_llama.py` | Drive llama.cpp (llama-server) baseline, **self-contained** multi-phase prompt. |
+| `serve_backend.py` | Drive vLLM / SGLang baselines (`--model-path`, self-contained prompt, per-token `yield from`). |
 | `run_engine.sh` | Build + run the single-engine shared-KV runtime (`src/runtime/agentserve_engine.cpp`). |
-| `backend_compare.py` | Aggregate backend events → comparison table + figures. |
-| `make_results_log.py` | Rebuild `results/results_log.md`. |
-| `analyze_sm_profile.py` | Analyze SM-scaling profile. |
-| `verify_distribution.py` | Verify generated trace matches Table I. |
-| `cold_measure.cpp` | Micro-benchmark of cold-prefill cost (full vs system-only vs instruction-only). |
-| `gen_diverse.py` / `gen_diverse_full.py` | Generate a diverse-task trace (shared system + unique instruction). |
-| `plot_*.py` | Regenerate comparison figures. |
-| `plot_4way_nscale.py` | 4-way N-scale figure (engine vs llama.cpp / vLLM / SGLang, N=3…10). |
-| `plot_4way_slo.py` | 4-way session-level SLO-attainment figure. |
-| `compute_slo.py` | Recompute SLO attainment from per-N event logs (server-side). |
-| `plot_4way_v2.py` | Clean 4-way N-scale figure (real-task trace + fixed baselines). |
+| `plot_4way_v2.py` | Combined 4-way N-scale figure (real-task trace + fixed baselines, N=3…10, 3B). |
+| `plot_perparadigm.py` | Per-paradigm (ReAct / P&E) 4-way figures for both 3B and 7B. |
+| `sweep_robust.sh` | Serial benchmark sweep (ReAct + P&E, N=3…6), one backend at a time, GPU freed between runs (3B). |
+| `sweep_robust_7b.sh` | Same serial sweep for Qwen2.5-7B. |
+| `kill_gpu.py` | Kill any leftover serving backend / GPU process (used between runs). |
+| `serve_dualgreen.py` / `serve_dualgreen_controller.py` | Earlier dual-instance green-context serving (pre-final). |
 | `run_llama_baseline.sh` | Thin wrapper for `serve_llama.py`. |
-| `run_hol_sweep.sh` / `run_sm_task.sh` | Head-of-line and SM-scaling sweeps. |
+
+> The unified task set (12 items + schedule) is `data/unified_tasks.json`; regenerate traces with
+> `--pool-file` to reuse the same tasks across runs.

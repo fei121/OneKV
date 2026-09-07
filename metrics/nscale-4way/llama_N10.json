@@ -1,32 +1,32 @@
 {
   "n_sessions": 12,
   "ttft_cold_ms": {
-    "p50": null,
-    "p95": null,
-    "mean": null,
-    "n": 0
+    "p50": 1757.749529,
+    "p95": 3424.601147,
+    "mean": 1724.809,
+    "n": 12
   },
   "ttft_resume_ms": {
-    "p50": null,
-    "p95": null,
-    "mean": null,
-    "n": 0
+    "p50": 155.502402,
+    "p95": 286.104168,
+    "mean": 164.571,
+    "n": 32
   },
   "tpot_benchmark_ms": {
-    "p50": null,
-    "p95": null,
-    "mean": null,
-    "n": 0
+    "p50": 26.162991,
+    "p95": 125.873742,
+    "mean": 44.94,
+    "n": 877
   },
   "tpot_step_ms": {
-    "p50": null,
-    "p95": null,
-    "mean": null,
-    "n": 0
+    "p50": 36.347241076923076,
+    "p95": 71.82422266666667,
+    "mean": 36.212,
+    "n": 44
   },
-  "throughput_tokens_per_s": 0.0,
-  "throughput_excl_tool_wait_tokens_per_s": 0.0,
-  "wall_clock_s": 1.333,
-  "tool_wait_s": 6.423,
+  "throughput_tokens_per_s": 93.366,
+  "throughput_excl_tool_wait_tokens_per_s": 266.525,
+  "wall_clock_s": 9.864,
+  "tool_wait_s": 6.409,
   "slo": null
 }

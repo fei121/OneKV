@@ -87,11 +87,12 @@ Run the full four-way comparison (llama.cpp / vLLM / SGLang / shared-KV engine) 
 baseline:
 
 - **Throughput** (tok/s): engine 165.3 → **351.6** (N=3→10), far above vLLM (138→245), SGLang
-  (133→254), and llama.cpp (which peaks at 113.7 and collapses at N=10).
-- **TPOT p95** (ms): engine is **flat (12.5–15.4 ms)** across all N, while llama.cpp explodes
-  33.8 → 104.4 ms under concurrency. vLLM/SGLang are mild (12–28 ms) but cap throughput.
-- llama.cpp fails at N=10 (0 tokens / empty metrics) — a slot/concurrency limit; the N=3–9 trend
-  is sufficient to establish the ordering.
+  (133→254), and llama.cpp (which plateaus ~93–114 and never approaches the engine).
+- **TPOT p95** (ms): engine is **flat (12.5–15.4 ms)** across all N, while llama.cpp degrades
+  33.8 → **125.9 ms** under concurrency. vLLM/SGLang are mild (12–28 ms) but cap throughput.
+- **llama.cpp N=10 needs a larger context**: with the default `context_length=24576`, `--parallel 10`
+  gives <2693 tokens/slot (smaller than the cold prompt) so it emitted 0 tokens. It was re-run with
+  `context_length=49152` to get the real N=10 point (93.4 tok/s, TPOT p95 125.9 ms).
 
 See [`4way-nscale-3b.md`](../../results/4way-nscale-3b.md), figure
 [`backend-4way-nscale-3b.png`](../../figures/backend-4way-nscale-3b.png), per-N metrics in

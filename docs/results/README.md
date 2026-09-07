@@ -72,3 +72,10 @@ Parsed JSON results live in [`metrics/`](../../metrics/):
 
 The same shared-KV engine beats the llama.cpp 7B baseline on throughput (+25% / +102%) and TPOT
 stability (p95 22.12 vs 109.62 ms). See [`7b-sharedkv-comparison.md`](../../results/7b-sharedkv-comparison.md).
+
+## 4-way backend comparison (3B, N=3)
+
+llama.cpp / vLLM / SGLang / shared-KV engine on the same trace with **per-token streaming TPOT**:
+throughput shared-KV 166.1 > vLLM 138.0 > SGLang 133.2 > llama 77.9; TPOT p95 shared-KV 12.09 (best);
+cold TTFT vLLM/SGLang 68–69 (chunked prefill) < shared-KV 378 < llama 431.
+See [`4way-backend-comparison-3b.md`](../../results/4way-backend-comparison-3b.md).

@@ -12,14 +12,16 @@
       "ttft_cold": 439.487389
     },
     "vllm": {
-      "throughput": 165.409,
-      "tpot_p95": 19.797181,
-      "ttft_cold": 338.084485
+      "throughput": 167.692,
+      "tpot_p95": 19.4943,
+      "tpot_p50": 10.4776,
+      "ttft_cold": 302.722
     },
     "sglang": {
-      "throughput": 104.081,
-      "tpot_p95": 20.62242,
-      "ttft_cold": 525.646051
+      "throughput": 164.16,
+      "tpot_p95": 24.0223,
+      "tpot_p50": 10.4306,
+      "ttft_cold": 302.231
     }
   },
   "4": {
@@ -35,14 +37,16 @@
       "ttft_cold": 509.822522
     },
     "vllm": {
-      "throughput": 186.016,
-      "tpot_p95": 22.370374,
-      "ttft_cold": 293.639623
+      "throughput": 186.325,
+      "tpot_p95": 21.9468,
+      "tpot_p50": 10.7983,
+      "ttft_cold": 302.591
     },
     "sglang": {
-      "throughput": 86.945,
-      "tpot_p95": 22.595667,
-      "ttft_cold": 714.85542
+      "throughput": 182.095,
+      "tpot_p95": 25.0709,
+      "tpot_p50": 10.482,
+      "ttft_cold": 297.462
     }
   },
   "5": {
@@ -58,14 +62,16 @@
       "ttft_cold": 517.223814
     },
     "vllm": {
-      "throughput": 196.092,
-      "tpot_p95": 23.097392,
-      "ttft_cold": 358.24851
+      "throughput": 194.223,
+      "tpot_p95": 22.0851,
+      "tpot_p50": 10.9777,
+      "ttft_cold": 463.998
     },
     "sglang": {
-      "throughput": 91.724,
-      "tpot_p95": 18.230778,
-      "ttft_cold": 1512.336638
+      "throughput": 199.015,
+      "tpot_p95": 25.7164,
+      "tpot_p50": 10.6105,
+      "ttft_cold": 362.064
     }
   },
   "6": {
@@ -81,14 +87,16 @@
       "ttft_cold": 737.771898
     },
     "vllm": {
-      "throughput": 224.718,
-      "tpot_p95": 35.109293,
-      "ttft_cold": 575.921604
+      "throughput": 222.831,
+      "tpot_p95": 23.9555,
+      "tpot_p50": 11.2664,
+      "ttft_cold": 621.364
     },
     "sglang": {
-      "throughput": 82.393,
-      "tpot_p95": 21.058462,
-      "ttft_cold": 1660.875319
+      "throughput": 226.325,
+      "tpot_p95": 27.8706,
+      "tpot_p50": 10.8706,
+      "ttft_cold": 454.764
     }
   }
 }

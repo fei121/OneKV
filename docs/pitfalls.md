@@ -93,6 +93,18 @@ RTX 3090 bench server. Each entry: **symptom → root cause → fix**. Add to th
     at once, so all `TOKEN_EMIT` share one timestamp.
   - **Fix:** `submit()` must `yield from self.stream_completion(...)`.
 - **Symptom:** `serve_backend.py` uses a stale model path (old `/root/autodl-tmp/models`).
+- **Symptom:** SGLang looks like the worst backend (throughput DROPS as N grows, cold TTFT
+  explodes to 1–2 s), yet vLLM is fine.
+  - **Root cause:** `SglangBackend.start()` hard-coded `--max-total-tokens 8192`. In SGLang this is the
+    **total KV-cache pool budget**, not a per-sequence limit. With N concurrent multi-phase sessions
+    (~3 k-token cold prompts) the pool saturates (`token usage` → 0.95), so only 1–2 requests run and
+    the rest queue (`#running-req: 1–2`, `#queue-req: 4–5`, `#pending-token ~14 k`).
+  - **Fix:** give SGLang a pool big enough for N sessions, e.g. `--max-total-tokens 49152`.
+- **Symptom:** vLLM refuses to start with `--max-model-len 49152`.
+  - **Root cause:** `--max-model-len` is a **per-sequence** cap and must not exceed the model's native
+    `max_position_embeddings` (Qwen2.5-3B = 32768). vLLM refuses with
+    `VLLM_ALLOW_LONG_MAX_MODEL_LEN` unless explicitly overridden (which risks RoPE NaN/OOB).
+  - **Fix:** use `--max-model-len 32768` (native max) for Qwen2.5.
 
 ---
 
@@ -102,8 +114,10 @@ RTX 3090 bench server. Each entry: **symptom → root cause → fix**. Add to th
   EOS behavior. (The original engine ran fewer sessions and skipped tool_wait → not comparable.)
 - **tool_wait**: the engine must simulate the 200 ms tool wait (per-session `wait_until` gate), or its
   wall time is compute-only and throughput is overstated vs baselines that include tool_wait.
-- **Context length is not uniform** across backends (engine 65536, llama 24576, vLLM/SGLang 8192).
-  Prompts fit, but document it.
+- **Context must be adequate & semantically matched across backends**: engine `n_ctx` and SGLang
+  `--max-total-tokens` are **pool** budgets (use 49152 for 3B); vLLM `--max-model-len` and llama
+  `context_length` are **per-sequence/per-context** (use 32768 / 65536). Under-sized pools (SGLang
+  8192) starve concurrency and wreck the comparison. See `src/agentserve_repro/backends.py`.
 - `metrics.py`: `throughput_excl_tool_wait_tokens_per_s` is **broken for concurrent** workloads — it
   *sums* per-session tool_wait (which, under concurrency, exceeds wall → denominator ~0 → huge/999…).
   Use the union-of-idle-intervals approach, or report `throughput_tokens_per_s` with the caveat.

@@ -49,7 +49,7 @@ class VllmBackend(StreamMixin, ServingBackend):
     def start(self):
         import subprocess
         cmd=[self.python,"-m","vllm.entrypoints.openai.api_server","--model",self.model_path,
-             "--host",self.host,"--port",str(self.port),"--gpu-memory-utilization","0.9","--max-model-len","49152"]
+             "--host",self.host,"--port",str(self.port),"--gpu-memory-utilization","0.9","--max-model-len","32768"]
         self.proc=subprocess.Popen(cmd, stdout=open("/tmp/vllm_backend.log","w"), stderr=subprocess.STDOUT)
         import urllib.request,time
         for _ in range(200):

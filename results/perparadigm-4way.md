@@ -9,9 +9,9 @@ tool_wait=0, RTX 3090, Qwen2.5-3B (BASE).
 
 | metric (N) | engine | llama.cpp | vLLM | SGLang |
 |---|---|---|---|---|
-| throughput 3→6 (tok/s) | 149.8→175.2 | 131.1→145.0 | 165.4→224.7 | 104.1→82.4 |
-| TPOT p95 3→6 (ms) | **11.9→13.5** | 60.0→72.7 | 19.8→35.1 | 20.6→21.1 |
-| cold TTFT 3→6 (ms) | **308.6→367.6** | 439.5→737.8 | 338.1→575.9 | 525.6→1660.9 |
+| throughput 3→6 (tok/s) | 149.8→175.2 | 131.1→145.0 | 167.7→222.8 | 164.2→226.3 |
+| TPOT p95 3→6 (ms) | **11.9→13.5** | 60.0→72.7 | 19.5→24.0 | 24.0→27.9 |
+| cold TTFT 3→6 (ms) | **308.6→367.6** | 439.5→737.8 | 302.7→621.4 | 302.2→454.8 |
 
 ![ReAct 4-way](figures/react-4way-nscale.png)
 
@@ -19,27 +19,35 @@ tool_wait=0, RTX 3090, Qwen2.5-3B (BASE).
 
 | metric (N) | engine | llama.cpp | vLLM | SGLang |
 |---|---|---|---|---|
-| throughput 3→6 (tok/s) | 162.5→192.2 | 145.1→147.7 | 169.5→255.0 | 105.3→84.2 |
-| TPOT p95 3→6 (ms) | **11.8→13.5** | 50.2→70.7 | 23.3→33.0 | 11.6→11.2 |
-| cold TTFT 3→6 (ms) | **316.5→383.8** | 412.3→773.2 | 443.8→779.6 | 779.6→1975.0 |
+| throughput 3→6 (tok/s) | 162.5→192.2 | 145.1→147.7 | 170.4→259.1 | 179.5→243.1 |
+| TPOT p95 3→6 (ms) | **11.8→13.5** | 50.2→70.7 | 22.0→38.7 | 24.8→31.4 |
+| cold TTFT 3→6 (ms) | **316.5→383.8** | 412.3→773.2 | 343.0→603.4 | 335.0→478.2 |
 
 ![P&E 4-way](figures/pe-4way-nscale.png)
 
 ## Findings (consistent across paradigms)
 
 - **The shared-KV engine is the latency-stability leader in BOTH paradigms**: its **TPOT p95 stays
-  flat at ~12–14 ms** across N=3…6 (llama.cpp explodes to 60–73 ms; vLLM/SGLang rise to 20–35 ms),
-  and its **cold TTFT is the lowest and flat** (~300–380 ms, shared-system-prefix caching) while every
-  baseline degrades with N (SGLang cold TTFT explodes to 1660–1975 ms).
-- **Throughput is NOT the engine's strength**: vLLM is the highest in both paradigms (165→255 tok/s);
-  the engine is consistently 2nd (150→192), ahead of llama.cpp and well ahead of SGLang.
-- **P&E vs ReAct**: the engine behaves the same (flat TPOT/TTFT). SGLang has unusually **low TPOT p95
-  in P&E** (~11 ms) but the **worst cold TTFT** (explodes to 1975 ms) and the lowest throughput — a
-  strong latency-vs-throughput tradeoff.
+  flat at ~12–14 ms** across N=3…6, while llama.cpp explodes (50–73 ms) and vLLM/SGLang rise
+  (20–39 ms). Its **cold TTFT is the lowest and roughly flat** (~310–385 ms, shared-system-prefix
+  caching) while every baseline degrades with N (vLLM 302→621 ms, SGLang 302→455 ms, llama 440→773 ms).
+- **Throughput is NOT the engine's strength**: **vLLM (168→259) and SGLang (164→243) now lead** —
+  once the SGLang harness bug was fixed, SGLang's throughput is on par with vLLM and **above the
+  engine**. The engine is 3rd (150→192), ahead of llama.cpp (131–148).
+- **P&E vs ReAct**: the engine behaves identically (flat TPOT/TTFT). llama.cpp is worst on latency
+  (TPOT p95 50–73 ms, coldest TTFT) in both.
 
-**Conclusion**: this is the honest, per-paradigm serving comparison. The engine delivers **decode
-stability + low cold latency via prefix caching**, at **competitive (not maximal) throughput** — the
-paper's thesis. The absolute numbers are for the BASE Qwen2.5-3B (no native tool-calling; model
+> **Note on SGLang/vLLM numbers.** These were **re-measured with adequate context**. The earlier
+> harness hard-coded `--max-total-tokens 8192` for SGLang, which starved its total KV-cache pool and
+> made it look like the worst backend (throughput dropped with N, cold TTFT exploded to 1–2 s). That
+> was a **harness bug, not an SGLang limitation**. Now SGLang uses `--max-total-tokens 49152`
+> (KV pool) and vLLM uses `--max-model-len 32768` (must not exceed the model's native
+> `max_position_embeddings` = 32768). See [`docs/pitfalls.md`](docs/pitfalls.md).
+
+**Conclusion**: the engine delivers **decode stability + low cold latency via prefix caching** at
+**competitive (not maximal) throughput** — i.e. it trades some throughput for TTFT/TPOT stability
+(paper's thesis). vLLM/SGLang get higher throughput but clearly higher TPOT p95 and cold TTFT under
+concurrency; llama.cpp is worst on latency. The absolute numbers are for the BASE Qwen2.5-3B (no native tool-calling; model
 produces plan-style output), so they measure serving performance, not agent quality.
 
 ## Repro

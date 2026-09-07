@@ -1,0 +1,10 @@
+# Model config — Qwen2.5-3B (large context, used by the unified per-paradigm runs)
+name: Qwen2.5-3B
+model_path: /root/autodl-tmp/models/Qwen2.5-3B-f16.gguf
+quantization: f16
+context_length: 65536   # ctx/N >= max session prompt (cold ~2.7k + resume ~3.5k) for all N
+gpu_layers: 99
+batch_size: 512
+ubatch_size: 512
+kv_cache_type: f16
+n_parallel: 4

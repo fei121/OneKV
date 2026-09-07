@@ -1,4 +1,8 @@
-# Per-Paradigm 4-Way N-Scale — Qwen2.5-7B (real tasks, fixed baselines, tool_wait=0)
+# Per-Paradigm 4-Way N-Scale — Qwen2.5-7B
+
+> **⚠️ Context caveat (7B vLLM/SGLang):** the vLLM/SGLang columns in this file were measured with the **old under-sized context** (`--max-model-len 8192` / `--max-total-tokens 8192`), which starved SGLang's KV pool. Those numbers are **for reference only** and should be **re-measured** with `--max-model-len 32768` (vLLM) / `--max-total-tokens 49152` (SGLang) before being quoted. The engine and llama.cpp columns are valid. See [`docs/pitfalls.md`](docs/pitfalls.md).
+
+ (real tasks, fixed baselines, tool_wait=0)
 
 Status: **clean, sequential** (one backend at a time, GPU freed between runs). Same unified 12-task
 set as the 3B run (`data/unified_tasks.json`; 3B/7B share the Qwen tokenizer, so task text is

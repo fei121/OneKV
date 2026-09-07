@@ -19,12 +19,18 @@ freed between runs).
 - [`perparadigm-4way-7b.md`](../../results/perparadigm-4way-7b.md) — Qwen2.5-**7B**, ReAct + P&E.
 - [`v2-4way-nscale.md`](../../results/v2-4way-nscale.md) — combined 4-way N=3…10 (3B).
 
-**Bottom line (consistent across ReAct/P&E and 3B/7B):**
-- The **shared-KV engine is the latency-stability leader**: TPOT p95 stays **flat** (~12–14 ms on 3B,
-  ~20–22 ms on 7B) while llama.cpp explodes (60–126 ms) and vLLM/SGLang rise; cold TTFT is **lowest &
-  flat** (prefix-cache amortization) while baselines degrade with N (SGLang explodes to 1k–4k ms).
-- **Throughput is not the engine's strength**: vLLM is highest; the engine is consistently 2nd
-  (ahead of llama.cpp and well above SGLang).
+**Bottom line (consistent across ReAct/P&E for 3B; 7B noted separately):**
+- The **shared-KV engine is the latency-stability leader**: TPOT p95 stays **flat** (~12–14 ms on 3B)
+  while llama.cpp explodes (50–73 ms) and vLLM/SGLang rise (20–39 ms); cold TTFT is **lowest & flat**
+  (prefix-cache amortization) while baselines degrade with N.
+- **Throughput is NOT the engine's strength**: **vLLM ≈ SGLang > engine > llama.cpp**. With the SGLang
+  harness bug fixed, vLLM (168→259) and SGLang (164→243) both lead; the engine is 3rd (150→192).
+
+> **Context fix note.** vLLM/SGLang were re-measured with correct context (vLLM `--max-model-len
+> 32768`, SGLang `--max-total-tokens 49152`). The old `--max-total-tokens 8192` starved SGLang's KV
+> pool and made it look worst — a harness bug, not an SGLang limitation. See
+> [`pitfalls.md`](../pitfalls.md). The **7B** vLLM/SGLang columns and the **v2 (N=3…10)** file were
+> measured before that fix and are **for reference only** (see [`perparadigm-4way-7b.md`](../../results/perparadigm-4way-7b.md) / [`v2-4way-nscale.md`](../../results/v2-4way-nscale.md)).
 
 ### Verdict
 

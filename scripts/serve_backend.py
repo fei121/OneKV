@@ -65,7 +65,7 @@ def run_session(logger, backend, session, tool_wait_s):
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--backend", required=True, choices=["vllm","sglang","llama","agentserve"])
-    ap.add_argument("--config", default="/root/autodl-tmp/exp/configs/serving.yaml")
+    ap.add_argument("--config", default="/root/autodl-tmp/exp/configs/serving_react_u.yaml")
     ap.add_argument("--agents", type=int, default=3)
     ap.add_argument("--sessions", type=int, default=12)
     ap.add_argument("--tag", default="")

@@ -1,5 +1,9 @@
 # Qwen2.5-3B — 4-Way N-Scale (real-task trace, fixed baselines)
 
+> **⚠️ Context caveat (v2):** this N=3…10 series used `tool_wait=200` and was measured **before the context fix**, so the vLLM/SGLang columns used the old under-sized context (`--max-model-len 8192` / `--max-total-tokens 8192`). Those numbers should be re-measured with a correct context before quoting. The per-paradigm series (`tool_wait=0`, N=3…6) in [`perparadigm-4way.md`](perparadigm-4way.md) is the currently-aligned comparison.
+
+
+
 Status: **verified, clean comparison.** Uses (a) a regenerated **real-task** ToolBench trace (the
 model actually performs tasks — no more placeholder refusal), and (b) **fixed baselines** that
 drive multi-phase agents via a self-contained prompt (no `cache_prompt` collapse). Same 12 sessions,

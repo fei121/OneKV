@@ -14,7 +14,7 @@
 
 我做到了**单引擎内跨 context 共享 KV（无需跨进程拷贝）**。**有效结论**是：engine 是**延迟稳定性
 领先者**——TPOT p95 全程平稳（3B ~12–14ms、7B ~20–22ms），冷 TTFT 因前缀缓存最低且几乎不随
-并发 N 增长；**但吞吐并非最高**（vLLM 更高，engine 稳定第二，领先 llama.cpp、远高于 SGLang）。
+并发 N 增长；**但吞吐并非最高**（**vLLM ≈ SGLang > engine > llama.cpp**，SGLang 在修正上下文后与 vLLM 相当）。
 这一结论**复现了论文论点**：*在不牺牲吞吐的前提下提升 TTFT/TPOT 稳定性*。
 
 > 早前"三项全反超（吞吐/TPOT/TTFT 都碾压）"的结论因测量伪影（engine 无视 EOS、基线
@@ -96,21 +96,24 @@ Agent（ReAct / Plan-and-Execute）负载 = 长冷预填 + 短 resume 预填（�
 
 ### 5.1 Qwen2.5-3B（N=3→6，tool_wait=0）
 
+> vLLM/SGLang 用**修正后的上下文**重测（vLLM `--max-model-len 32768`、SGLang `--max-total-tokens 49152`）。
+> 5.2（7B）与 5.3（v2）里的 vLLM/SGLang 是**旧上下文**测得，仅供参考。
+
 **ReAct**
 
 | metric | shared-KV engine | llama.cpp | vLLM | SGLang |
 |---|---|---|---|---|
-| throughput (tok/s) | 149.8→175.2 | 131.1→145.0 | 165.4→224.7 | 104.1→82.4 |
-| TPOT p95 (ms) | **11.9→13.5** | 60.0→72.7 | 19.8→35.1 | 20.6→21.1 |
-| cold TTFT (ms) | **308.6→367.6** | 439.5→737.8 | 338.1→575.9 | 525.6→1660.9 |
+| throughput (tok/s) | 149.8→175.2 | 131.1→145.0 | 167.7→222.8 | 164.2→226.3 |
+| TPOT p95 (ms) | **11.9→13.5** | 60.0→72.7 | 19.5→24.0 | 24.0→27.9 |
+| cold TTFT (ms) | **308.6→367.6** | 439.5→737.8 | 302.7→621.4 | 302.2→454.8 |
 
 **Plan-and-Execute**
 
 | metric | shared-KV engine | llama.cpp | vLLM | SGLang |
 |---|---|---|---|---|
-| throughput (tok/s) | 162.5→192.2 | 145.1→147.7 | 169.5→255.0 | 105.3→84.2 |
-| TPOT p95 (ms) | **11.8→13.5** | 50.2→70.7 | 23.3→33.0 | 11.6→11.2 |
-| cold TTFT (ms) | **316.5→383.8** | 412.3→773.2 | 443.8→779.6 | 779.6→1975.0 |
+| throughput (tok/s) | 162.5→192.2 | 145.1→147.7 | 170.4→259.1 | 179.5→243.1 |
+| TPOT p95 (ms) | **11.8→13.5** | 50.2→70.7 | 22.0→38.7 | 24.8→31.4 |
+| cold TTFT (ms) | **316.5→383.8** | 412.3→773.2 | 343.0→603.4 | 335.0→478.2 |
 
 ### 5.2 Qwen2.5-7B（N=3→6，tool_wait=0）
 
@@ -141,14 +144,13 @@ Agent（ReAct / Plan-and-Execute）负载 = 长冷预填 + 短 resume 预填（�
 ## 6. 关键发现
 
 1. **engine 是延迟稳定性领先者**（ReAct / P&E、3B / 7B 一致）：TPOT p95 全程平稳（3B 12–14ms、
-   7B 20–22ms），而 llama.cpp 爆到 60–126ms，vLLM/SGLang 随 N 上升。其冷 TTFT 因**共享 system
-   前缀缓存**最低且几乎不随 N 增长，而所有基线都随 N 恶化（SGLang 冲到 1k–4k ms）。
-2. **吞吐不是 engine 强项**：vLLM 最高（3B 165→255 tok/s），engine 稳定第二（150→192），领先
-   llama.cpp、远高于 SGLang。engine 是"competitive、not maximal"。
-3. **优势随模型规模放大**：7B 上 TPOT-p95 差距更大（22 vs 126ms @N=6），冷 TTFT 前缀缓存优势
-   更明显（646 vs 4251ms vs SGLang）。
-4. **P&E vs ReAct**：engine 在两种范式下行为一致（TPOT/TTFT 都平）。SGLang 在 P&E 上 TPOT p95 很低
-   （~11ms）但冷 TTFT 最差、吞吐最低——典型的 latency/throughput 强权衡。
+   7B 20–22ms），而 llama.cpp 爆到 50–126ms，vLLM/SGLang 随 N 上升（20–39ms）。其冷 TTFT 因**共享
+   system 前缀缓存**最低且几乎不随 N 增长，而所有基线都随 N 恶化。
+2. **吞吐不是 engine 强项**：**vLLM ≈ SGLang > engine > llama.cpp**。修正 SGLang 上下文后，SGLang
+   吞吐与 vLLM 相当（3B 164→243 / 168→259），都**超过 engine**（150→192）。engine 是 competitive、not maximal。
+3. **优势随模型规模放大**：7B 上 TPOT-p95 差距更大（22 vs 126ms @N=6），冷 TTFT 前缀缓存优势更明显。
+4. **P&E vs ReAct**：engine 在两种范式下行为一致（TPOT/TTFT 都平）。vLLM/SGLang 在 P&E 上吞吐最高
+   但 TPOT p95 / 冷 TTFT 随 N 上升——典型的 latency/throughput 强权衡。
 5. **前缀缓存是通用优化**：会话冷 prompt 共享 system 前缀（约 87%），缓存后每会话只预填自己的
    instruction，冷 TTFT 降 ~2.4×；prompt 完全相同时收益更大。
 6. **连续批处理已保护 decode**，无需绿分区（见 §7）。

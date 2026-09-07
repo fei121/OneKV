@@ -4,7 +4,7 @@ set -e
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LLAMA_BUILD="${LLAMA_BUILD:-/root/autodl-tmp/agentserve-reproduction/third_party/llama.cpp/build}"
 MODEL="${MODEL:-/root/autodl-tmp/models/Qwen2.5-3B-f16.gguf}"
-TRACE="${TRACE:-/root/autodl-tmp/exp/traces/sessions.txt}"
+TRACE="${TRACE:-/root/autodl-tmp/exp/traces_unified/sessions_react.txt}"
 AGENTS="${AGENTS:-3}"
 PRE_STREAM="${PRE_STREAM:--1}"
 DEC_STREAM="${DEC_STREAM:-1}"
@@ -19,4 +19,4 @@ g++ -std=c++17 -O2 \
   -Wl,-rpath,"$LLAMA_BUILD/bin"
 
 echo "running engine: agents=$AGENTS ctx=$N_CTX"
-AGENTSERVE_PREFILL_PCT=60 "${ROOT}/build/agentserve_engine" "$TRACE" "$AGENTS" "$PRE_STREAM" "$DEC_STREAM" "$N_CTX"
+env -u AGENTSERVE_PREFILL_PCT -u AGENTSERVE_DECODE_PCT "${ROOT}/build/agentserve_engine" "$TRACE" "$AGENTS" "$PRE_STREAM" "$DEC_STREAM" "$N_CTX"

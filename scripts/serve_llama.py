@@ -131,7 +131,7 @@ def run_session(logger, sess_http, host, port, session, slot_id, tool_wait_s,
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--config", default="/root/autodl-tmp/exp/configs/serving.yaml")
+    ap.add_argument("--config", default="/root/autodl-tmp/exp/configs/serving_react_u.yaml")
     ap.add_argument("--sessions", type=int, default=None)
     ap.add_argument("--agents", type=int, default=None)
     ap.add_argument("--paradigm", default=None)

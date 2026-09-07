@@ -1,168 +1,201 @@
-> **⚠️ RETRACTED (old data) / see the clean verified result** — The headline numbers in `results/` and `figures/` were produced by an engine that **ignored EOS**, **ran fewer sessions**, and **skipped tool_wait**; **and** the llama.cpp baseline used `cache_prompt`, which cannot drive multi-phase agents (it collapsed to 1-token replies after the first resume). Those comparisons are **invalid** and are being re-worked.
->
-> **The clean, verified 4-way comparison** (real-task trace + fixed baselines, N=3…10) is in [`results/v2-4way-nscale.md`](results/v2-4way-nscale.md) / [`figures/v2-4way-nscale.png`](figures/v2-4way-nscale.png). It shows the engine is **comparable on throughput**, and **best on latency stability** (flat TPOT p95 ~12–16 ms and flat cold TTFT ~300 ms), matching the paper's thesis. See [`docs/known-limitations.md`](docs/known-limitations.md).
-
 # AgentServe Reproduction
 
-**Single-Engine Shared-KV Serving for Agentic AI on a Consumer GPU.**
+**Single-engine shared-KV serving for agentic AI on a consumer GPU.**
 
-This repository is a faithful, from-scratch reproduction of the
-[AgentServe](https://arxiv.org/abs/2603.10342) system (**arXiv 2603.10342**):
-*Algorithm–System Co-Design for Efficient Agentic AI Serving on a Consumer-Grade GPU*.
+This repository reproduces the *serving system* of
+**[AgentServe](https://arxiv.org/abs/2603.10342)** — *Algorithm-System Co-Design for Efficient
+Agentic AI Serving on a Consumer-Grade GPU* — and evaluates it against the state of the art
+(llama.cpp / vLLM / SGLang) on a single **RTX 3090**.
 
-We re-implemented the paper's central system contribution — **prefill/decode (P/D)
-disaggregation inside a *single* engine with a shared KV cache** — and validated it on an
-**RTX 3090** with **Qwen2.5-3B (F16)**. The reproduction **outperforms the llama.cpp
-baseline on throughput, per-token latency (TPOT), and cold time-to-first-token (TTFT)**.
+The central contribution is a **prefill/decode (P/D) disaggregation inside *one* engine with a
+shared KV cache** — no cross-process KV transfer. We implement it by patching llama.cpp so two
+`llama_context`s (A = prefill, B = decode) share one KV pool (`ctx_other = A`), and drive them with
+**continuous batching + prefix caching** to keep decode latency stable while a long prefill runs.
 
----
-
-## Why this matters
-
-Agent workloads (ReAct / Plan-and-Execute) alternate between **long cold prefills**, **short
-resume prefills** (tool outputs), and **very short decodes**. On a single GPU this creates
-head-of-line blocking. The paper's key idea is not to shard across engines (which pays KV
-transfer) but to disaggregate *within* one engine so that decode is never starved by prefill.
-
-The core obstacle is that a single `llama_context` is not re-entrant and cannot share its KV
-across a prefill context and a decode context. This repo shows **how to make that work** by
-patching llama.cpp so two contexts share one KV pool (`ctx_other`), then driving them with a
-continuous-batching + prefix-caching scheduler.
+> **This project measures *serving performance*, not agent quality.** The model is Qwen2.5-**BASE**
+> (no native tool-calling), so outputs are plan-style text.
 
 ---
 
-## Results (honest, clean, per-paradigm)
+## Why it matters
 
-The **valid** comparisons use a real-task ToolBench trace, **fixed** baselines (self-contained
-multi-phase prompt), a **unified 12-task set** shared by ReAct and P&E, **N=3…6**, **tool_wait=0**,
-and **serial** measurement (one backend at a time, GPU freed between runs).
+Agent workloads (ReAct / Plan-and-Execute) alternate between **long cold prefills**, **short resume
+prefills** (tool outputs), and **very short decodes**. On a single GPU this causes **head-of-line
+blocking** — a long prefill starves the tiny decodes of every other session.
 
-- [`results/perparadigm-4way.md`](results/perparadigm-4way.md) — Qwen2.5-3B, ReAct + P&E.
-- [`results/perparadigm-4way-7b.md`](results/perparadigm-4way-7b.md) — Qwen2.5-7B, ReAct + P&E.
-- [`results/v2-4way-nscale.md`](results/v2-4way-nscale.md) — combined 4-way N=3…10 (3B).
-
-**Conclusion (consistent across ReAct/P&E and 3B/7B):** the shared-KV engine is the **latency-stability
-leader** — TPOT p95 stays **flat** (~12–14 ms on 3B, ~20–22 ms on 7B) while llama.cpp explodes and
-vLLM/SGLang rise; cold TTFT is **lowest & flat** (prefix-cache amortization) while baselines degrade.
-**Throughput is not the engine's strength**: vLLM is highest, the engine is consistently 2nd.
-
-See [`docs/known-limitations.md`](docs/known-limitations.md) for methodology + honest boundaries.
+The paper's idea is *not* to shard across engines (which pays KV transfer cost), but to disaggregate
+**within one engine**: let one context write the long K/V (prefill) while another context reads it to
+decode (decode), sharing a single KV pool so nothing is copied.
 
 ---
 
-## Layout
+## Key result (Qwen2.5-3B, 4-way, N=3→6, tool_wait=0)
+
+| Paradigm | Metric | engine | llama.cpp | vLLM | SGLang |
+|---|---|---|---|---|---|
+| **ReAct** | throughput (tok/s) | 149.8→175.2 | 131.1→145.0 | **167.7→222.8** | **164.2→226.3** |
+| | TPOT p95 (ms) | **11.9→13.5** | 60.0→72.7 | 19.5→24.0 | 24.0→27.9 |
+| | cold TTFT p50 (ms) | **308.6→367.6** | 439.5→737.8 | 302.7→621.4 | 302.2→454.8 |
+| **P&E** | throughput (tok/s) | 162.5→192.2 | 145.1→147.7 | **170.4→259.1** | **179.5→243.1** |
+| | TPOT p95 (ms) | **11.8→13.5** | 50.2→70.7 | 22.0→38.7 | 24.8→31.4 |
+| | cold TTFT p50 (ms) | **316.5→383.8** | 412.3→773.2 | 343.0→603.4 | 335.0→478.2 |
+
+**Conclusion:** the shared-KV engine is the **latency-stability leader** — its TPOT p95 stays **flat
+at ~12–14 ms** (llama.cpp explodes to 50–73 ms; vLLM/SGLang rise to 20–39 ms) and its **cold TTFT is
+lowest & roughly flat** (~310–385 ms, prefix-cache amortization) while every baseline degrades with N.
+**Throughput is not its strength**: **vLLM ≈ SGLang > engine > llama.cpp.** This is exactly the paper's
+thesis: *improve TTFT/TPOT stability while sustaining competitive (not maximal) throughput.*
+
+![ReAct 4-way](figures/react-4way-nscale.png)
+![P&E 4-way](figures/pe-4way-nscale.png)
+
+> **About the baselines.** vLLM and SGLang were re-measured with **adequate context** (vLLM
+> `--max-model-len 32768`, SGLang `--max-total-tokens 49152`). The earlier `--max-total-tokens 8192`
+> starved SGLang's KV pool and made it look like the worst backend — that was a **harness bug, not an
+> SGLang limitation**. See [`docs/pitfalls.md`](docs/pitfalls.md).
+
+See [`results/`](results/) for the full tables and [`docs/results/README.md`](docs/results/README.md).
+
+---
+
+## Architecture
 
 ```
-agentserve-repro/
-├── README.md
-├── LICENSE                 MIT
-├── pyproject.toml          Python package (scheduler / metrics / events / trace)
-├── Makefile
-├── src/
-│   ├── agentserve_repro/     Python package: backends, scheduler, phase, metrics, events, trace
-│   └── runtime/
-│       ├── agentserve_engine.cpp   The single-engine shared-KV serving engine (C++)
-│       └── legacy/                 Earlier/experimental engine variants
-├── patches/                 llama.cpp patches that enable cross-context shared KV
-├── configs/                 Model / serving / trace / metrics configuration
-├── scripts/                 Trace generation, baselines, plotting, analysis
-├── docs/
-│   ├── architecture.md       System + engine + patch design
-│   ├── paper-alignment.md    Mechanism vs. the paper, differences, honest boundaries
-│   ├── experiments.md        Task matrix / methodology
-│   └── results/              Final report and per-task write-ups
-├── figures/                 Generated plots
-├── metrics/                 Parsed metrics (JSON)
-└── tests/                   Unit tests
+             ┌──────────────────────────────────────────────┐
+             │            one model · one KV cache          │
+             │        (llama_kv_cache, ctx_other = A)       │
+             │                                              │
+             │   seq 0 = template                            │
+             │        └─ shared system prefix (seq_cp)      │
+             │   seq 1..N = live sessions                   │
+             └──────────────────────────────────────────────┘
+                   ▲                    ▲
+        write K/V │            read K/V │ + append new token
+       ┌──────────┴─────────┐  ┌────────┴─────────┐
+       │ context A (prefill) │  │ context B (decode) │
+       │ llama_decode(A, ...) │  │ llama_decode(B, ...) │
+       │ CUDA stream: pre     │  │ CUDA stream: dec     │
+       └──────────────────────┘  └──────────────────────┘
 ```
 
+- **A (prefill)** batches each session's *cold* prompt (with the shared system prefix cached once and
+  `llama_memory_seq_cp`'d to each session) and its *resume* prompts (tool results) into
+  multi-sequence `llama_decode(A)` calls.
+- **B (decode)** does continuous batching — one token per ready session per `llama_decode(B)` — reading
+  the KV that A wrote and appending each generated token.
+- `g_kv` mutex only serializes host-side cell bookkeeping; the two kernels run on separate CUDA streams.
+- **Prefix caching**: the shared system prompt is prefilled once on `seq 0` and copied to every session,
+  so cold TTFT is amortized.
+
+### How the shared KV is enabled (the hard part)
+
+A single `llama_context` in llama.cpp is not re-entrant and its KV cache is bound to it. To make two
+contexts share one pool, this repo patches llama.cpp (see [`patches/`](patches/)):
+
+| File | Change |
+|---|---|
+| `llama-model.cpp` | Qwen branch passes `mem_other` + a share callback → decode K/V points at prefill K/V. |
+| `llama-context.cpp` | Propagate `params.ctx_other` → `cparams.ctx_other`. |
+| `llama-kv-cache.cpp` | `apply_ubatch` allows the mirror to write the shared cells; `seq_pos_min/max` read shared cells. |
+| `ggml-cuda-common.cuh` | `as_sidx()` keys cuBLAS handles/workspaces/pools by the active stream index. |
+
+The engine: [`src/runtime/agentserve_engine.cpp`](src/runtime/agentserve_engine.cpp).
+
 ---
 
-## The core mechanism
+## Install
 
-Most LLM serving separates prefill and decode by running **two engines/processes** and copying
-KV between them. AgentServe instead keeps **one engine** and splits the GPU at the **CUDA Green
-Context / SM** level. We reproduce the *shared-KV single-engine* part with a different, more
-efficient path:
+### 1. Hardware / OS
+- NVIDIA GPU (tested **RTX 3090**, 24 GB), **CUDA 12.8**, Ubuntu 22.04.
 
-1. **One model, two `llama_context`s** — a *prefill engine* (A) and a *decode engine* (B) that
-   **share the same KV cache** via `ctx_other=A`. This gives `B` read/write access to `A`'s KV
-   cells without any inter-process copy.
-2. **Concurrent P/D streams** — P-and-D kernels are launched on separate CUDA streams and
-   synchronized with `cudaEvent` (so decode only reads KV that prefill has finished writing),
-   protected by a mutex over the shared cell bookkeeping.
-3. **Continuous batching** — the decode thread packs one token per ready session into a single
-   `llama_decode`, which amortizes kernel launch and feeds SMs efficiently.
-4. **Prefix caching** — sessions share the long system prompt; we prefill it once and share those
-   KV cells across sequences (`llama_memory_seq_cp`), so each session only prefills its unique
-   instruction (≈13% of the prompt).
-
-The engine lives in [`src/runtime/agentserve_engine.cpp`](src/runtime/agentserve_engine.cpp).
-The llama.cpp patches in [`patches/`](patches/) are what make the shared KV possible.
-
----
-
-## Getting started
-
-### Prerequisites
-- NVIDIA GPU (tested: RTX 3090, 24 GB), CUDA 12.x, Ubuntu 22.04
-- `llama.cpp` (built with CUDA; see [`docs/llama-cpp-patch.md`](docs/llama-cpp-patch.md))
-- **Exact server environment (hardware / CUDA / llama.cpp build flags / model SHA / conda versions):** [`docs/environment.md`](docs/environment.md)
-- Python 3.10+ (`pip install -e .`), `aria2c` for model download via `hfd`
-
-### 1. Install
+### 2. Get the models
 ```bash
-pip install -e .            # Python package (scheduler/metrics/events/trace)
-```
-
-### 2. Get the model (Qwen2.5-3B F16, on the data disk)
-```bash
+wget https://hf-mirror.com/hfd/hfd.sh && chmod a+x hfd.sh
+apt update && apt install -y aria2
 export HF_ENDPOINT=https://hf-mirror.com
 export HFD_DOWNLOADER="aria2c -x 16 -s 16 -k 1M"
+# GGUF (engine + llama.cpp baseline)
 hfd Qwen/Qwen2.5-3B-GGUF --include "*qwen2.5-3b-f16*.gguf"
+# HF safetensors (vLLM / SGLang + trace generation)
+hfd Qwen/Qwen2.5-3B
 ```
 
 ### 3. Build llama.cpp with the patches
-See [`docs/llama-cpp-patch.md`](docs/llama-cpp-patch.md) for the exact diff + build steps.
+See [`docs/llama-cpp-patch.md`](docs/llama-cpp-patch.md) and [`docs/environment.md`](docs/environment.md)
+for the exact source, build flags, and pinned environment.
 
-### 4. Generate the agent trace
 ```bash
-python scripts/gen_traces.py --config configs/trace-gen.yaml
+cmake -DHF_ENABLED=OFF -DBUILD_UI=OFF -B build .
+cmake --build build --target llama-cli llama-server
+# copy the 4 patched files from patches/ over the corresponding source, then rebuild
 ```
 
-### 5. Run the baseline
+### 4. Python package
 ```bash
-./scripts/run_llama_baseline.sh --agents 4 --sessions 12
-```
-
-### 6. Run the shared-KV engine
-```bash
-# Build the engine (link against the patched llama.cpp)
-./scripts/run_engine.sh --model /root/autodl-tmp/models/Qwen2.5-3B-f16.gguf \
-                        --trace /root/autodl-tmp/exp/traces/sessions.txt --agents 6
-```
-
-### 7. Analyze + plot
-```bash
-python scripts/backend_compare.py
-python scripts/plot_final.py
+pip install -e .   # requests, pyyaml, matplotlib, numpy, pytest
 ```
 
 ---
 
-## Reproduction facts (honest notes)
+## Usage
 
-- **Hardware in the paper:** RTX A5000 (64 SM) and RTX 5090 (128 SM). **We reproduce on RTX 3090
-  (82 SM).** Cross-hardware absolute numbers differ; we compare against *our own* llama.cpp
-  baseline on the same GPU/trace.
-- **CUDA Green Contexts** are central to the paper, but in our engine continuous batching already
-  delivers decode protection **without** the SM reservation, and we measured that reserving SMs
-  (Green Context) *degrades* throughput here. So we use the shared-KV + continuous-batching path.
-- **Prefix caching** is general; it caches the shared system prompt and benefits even diverse-task
-  workloads (≈2.4× on cold TTFT, see [`docs/results/`](docs/results/)).
+```bash
+# generate the unified 12-task trace (shared by ReAct & P&E)
+make trace
 
-See [`docs/paper-alignment.md`](docs/paper-alignment.md) for a precise mechanism-by-mechanism
-comparison and the honest boundaries of the reproduction.
+# run the single-engine shared-KV runtime (A = # concurrent agents)
+make engine A=3
+
+# baselines (self-contained multi-phase prompt)
+make serve-llama A=3 S=12
+make serve-vllm  A=3 S=12
+make serve-sglang A=3 S=12
+
+# serial benchmark sweep (ReAct + P&E, N=3…6, one backend at a time)
+make sweep
+
+# plots
+python scripts/plot_perparadigm.py
+python scripts/plot_4way_v2.py
+```
+
+---
+
+## Reproducibility
+
+The exact server environment (hardware, CUDA, llama.cpp version + build flags, model SHA-256, conda
+versions) is pinned in [`docs/environment.md`](docs/environment.md). Every backend is driven by the
+same harness, same unified 12-task set, same `N`, same `tool_wait`, serial measurement (one backend at
+a time, GPU freed between runs).
+
+---
+
+## Docs
+
+| Doc | Content |
+|---|---|
+| [`docs/architecture.md`](docs/architecture.md) | System + engine + patch design. |
+| [`docs/paper-alignment.md`](docs/paper-alignment.md) | What aligns with the paper, what we did differently, and why. |
+| [`docs/environment.md`](docs/environment.md) | Pinned environment for bit-for-bit reproduction. |
+| [`docs/known-limitations.md`](docs/known-limitations.md) | Honest boundaries + methodology pitfalls. |
+| [`docs/experiments.md`](docs/experiments.md) | Workload, backends, metrics, experiment matrix. |
+| [`docs/pitfalls.md`](docs/pitfalls.md) | Service-startup / benchmark lessons learned. |
+| [`results/`](results/) | Clean per-paradigm 4-way tables + summaries. |
+| [`REPORT.md`](REPORT.md) | Full written report (design, engine, results). |
+
+---
+
+## Honest boundaries / limitations
+
+1. **Absolute numbers are not cross-hardware comparable** — RTX 3090 (82 SM) vs the paper's A5000/5090.
+   We always compare to *our own* baselines on the same GPU/trace.
+2. **The 10-slot Green Context pool + TPOT-driven `Rmin` controller are not reproduced.** We replaced
+   the decode-protection benefit with *continuous batching*, which we measured to be cheaper (SM
+   reservation actually *hurt* on the 3090). See [`docs/paper-alignment.md`](docs/paper-alignment.md).
+3. **7B vLLM/SGLang and the v2 (N=3…10) series** were measured before the context fix — **for reference
+   only** (see [`results/perparadigm-4way-7b.md`](results/perparadigm-4way-7b.md) and
+   [`results/v2-4way-nscale.md`](results/v2-4way-nscale.md)).
+4. **BASE model, no native tool-calling** → this measures serving performance, not agent quality.
 
 ---
 

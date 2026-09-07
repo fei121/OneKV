@@ -47,8 +47,7 @@ Agent（ReAct / Plan-and-Execute）负载 = 长冷预填 + 短 resume 预填（�
 | 基线 | llama.cpp(llama-server) / vLLM / SGLang |
 
 **统一 workload**：`data/unified_tasks.json`（12 条真实 ToolBench 任务），ReAct 与 P&E 共用同一
-任务集，仅 prompt 模板与 token 分布不同。12 sessions，并发 N=3…6（+ v2 合并 N=3…10），tool_wait=0
-（v2 图为 tool_wait=200ms）。
+任务集，仅 prompt 模板与 token 分布不同。12 sessions，并发 N=3…6，tool_wait=0。
 
 ## 3. 系统设计与攻坚
 
@@ -92,12 +91,11 @@ Agent（ReAct / Plan-and-Execute）负载 = 长冷预填 + 短 resume 预填（�
 
 - [`results/perparadigm-4way.md`](results/perparadigm-4way.md) — Qwen2.5-3B，ReAct + P&E 分开。
 - [`results/perparadigm-4way-7b.md`](results/perparadigm-4way-7b.md) — Qwen2.5-7B，ReAct + P&E 分开。
-- [`results/v2-4way-nscale.md`](results/v2-4way-nscale.md) — 3B 合并 4-way N=3…10（tool_wait=200ms）。
 
 ### 5.1 Qwen2.5-3B（N=3→6，tool_wait=0）
 
 > vLLM/SGLang 用**修正后的上下文**重测（vLLM `--max-model-len 32768`、SGLang `--max-total-tokens 49152`）。
-> 5.2（7B）与 5.3（v2）里的 vLLM/SGLang 是**旧上下文**测得，仅供参考。
+> 5.2（7B）里的 vLLM/SGLang 是**旧上下文**测得，仅供参考。
 
 **ReAct**
 
@@ -132,14 +130,6 @@ Agent（ReAct / Plan-and-Execute）负载 = 长冷预填 + 短 resume 预填（�
 | throughput (tok/s) | 93.2→115.8 | 92.1→108.1 | 93.2→132.7 | 55.3→47.5 |
 | TPOT p95 (ms) | **20.4→22.1** | 71.5→111.1 | 21.9→83.1 | 21.0→21.1 |
 | cold TTFT (ms) | **540.9→646.0** | 803.2→1252.2 | 756.9→1041.9 | 1079.5→4250.8 |
-
-### 5.3 3B 合并 N=3…10（tool_wait=200ms）
-
-| metric | shared-KV engine | llama.cpp | vLLM | SGLang |
-|---|---|---|---|---|
-| throughput (tok/s) | 114.9→169.1 | 115.3→130.3 | 153.8→257.9 | 90.3→95.9 |
-| TPOT p95 (ms) | **12.6–15.5**（平） | 21.9→115.5 | 11.4→24.3 | 12.9→25.0 |
-| cold TTFT (ms) | **279.5–320.3**（平） | 505.2→1735.1 | 336.9→1168.5 | 449.1→2578.1 |
 
 ## 6. 关键发现
 
@@ -210,5 +200,5 @@ python scripts/serve_llama.py --config configs/serving_react_u.yaml --agents N -
 python scripts/serve_backend.py --backend {vllm,sglang} --model-path /root/models/Qwen2.5-3B --config configs/serving_react_u.yaml --agents N --sessions 12
 ```
 
-数据来源：`metrics/perparadigm/{react,pe,react7,pe7}.json`、`metrics/v2/v2_fourway.json`；
-画图：`scripts/plot_perparadigm.py`、`scripts/plot_4way_v2.py`。
+数据来源：`metrics/perparadigm/{react,pe,react7,pe7}.json`；
+画图：`scripts/plot_perparadigm.py`。

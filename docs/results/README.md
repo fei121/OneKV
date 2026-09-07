@@ -17,7 +17,6 @@ freed between runs).
 
 - [`perparadigm-4way.md`](../../results/perparadigm-4way.md) — Qwen2.5-**3B**, ReAct + P&E.
 - [`perparadigm-4way-7b.md`](../../results/perparadigm-4way-7b.md) — Qwen2.5-**7B**, ReAct + P&E.
-- [`v2-4way-nscale.md`](../../results/v2-4way-nscale.md) — combined 4-way N=3…10 (3B).
 
 **Bottom line (consistent across ReAct/P&E for 3B; 7B noted separately):**
 - The **shared-KV engine is the latency-stability leader**: TPOT p95 stays **flat** (~12–14 ms on 3B)
@@ -29,8 +28,8 @@ freed between runs).
 > **Context fix note.** vLLM/SGLang were re-measured with correct context (vLLM `--max-model-len
 > 32768`, SGLang `--max-total-tokens 49152`). The old `--max-total-tokens 8192` starved SGLang's KV
 > pool and made it look worst — a harness bug, not an SGLang limitation. See
-> [`pitfalls.md`](../pitfalls.md). The **7B** vLLM/SGLang columns and the **v2 (N=3…10)** file were
-> measured before that fix and are **for reference only** (see [`perparadigm-4way-7b.md`](../../results/perparadigm-4way-7b.md) / [`v2-4way-nscale.md`](../../results/v2-4way-nscale.md)).
+> [`pitfalls.md`](../pitfalls.md). The **7B** vLLM/SGLang columns were measured before that fix and
+> are **for reference only** (see [`perparadigm-4way-7b.md`](../../results/perparadigm-4way-7b.md)).
 
 ### Verdict
 
@@ -57,5 +56,4 @@ python scripts/serve_llama.py --config configs/serving_{react|pe}_{u|7b}.yaml --
 python scripts/serve_backend.py --backend {vllm,sglang} --model-path /root/models/Qwen2.5-{3B|7B} --config configs/serving_{react|pe}_{u|7b}.yaml --agents N --sessions 12
 # figures:
 python scripts/plot_perparadigm.py   # per-paradigm (3B + 7B)
-python scripts/plot_4way_v2.py      # combined
 ```

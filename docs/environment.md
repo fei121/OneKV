@@ -161,8 +161,8 @@ python scripts/serve_backend.py --backend {vllm,sglang} --model-path /root/model
   --config configs/serving_{react|pe}_u.yaml --agents N --sessions 12
 ```
 
-- Metrics: `metrics/perparadigm/{react,pe,react7,pe7}.json`, `metrics/v2/v2_fourway.json`.
-- Figures: `scripts/plot_perparadigm.py`, `scripts/plot_4way_v2.py`.
+- Metrics: `metrics/perparadigm/{react,pe,react7,pe7}.json`.
+- Figures: `scripts/plot_perparadigm.py`.
 
 ---
 

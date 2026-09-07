@@ -156,7 +156,6 @@ make sweep
 
 # plots
 python scripts/plot_perparadigm.py
-python scripts/plot_4way_v2.py
 ```
 
 ---
@@ -192,9 +191,8 @@ a time, GPU freed between runs).
 2. **The 10-slot Green Context pool + TPOT-driven `Rmin` controller are not reproduced.** We replaced
    the decode-protection benefit with *continuous batching*, which we measured to be cheaper (SM
    reservation actually *hurt* on the 3090). See [`docs/paper-alignment.md`](docs/paper-alignment.md).
-3. **7B vLLM/SGLang and the v2 (N=3…10) series** were measured before the context fix — **for reference
-   only** (see [`results/perparadigm-4way-7b.md`](results/perparadigm-4way-7b.md) and
-   [`results/v2-4way-nscale.md`](results/v2-4way-nscale.md)).
+3. **7B vLLM/SGLang** were measured before the context fix — **for reference only** (see
+   [`results/perparadigm-4way-7b.md`](results/perparadigm-4way-7b.md)).
 4. **BASE model, no native tool-calling** → this measures serving performance, not agent quality.
 
 ---

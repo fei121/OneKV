@@ -137,22 +137,40 @@ int main(int argc,char**argv){
     while(guard<200000){
         guard++;
         // 1) resume prefills for sessions past their tool_wait door
-        bool any_pre=false;
-        for(int s=0;s<N;s++) if(ses[s].active && !ses[s].done && ses[s].need_pre && now_ms()>=ses[s].wait_until) any_pre=true;
-        if(any_pre){
-            for(int s=0;s<N;s++){ Session& S=ses[s]; if(!S.active||S.done||!S.need_pre||now_ms()<S.wait_until) continue;
-                int ph=S.phase; std::string text=b64d(S.parts[1+2*ph]);
-                // Match the baseline's resume context: the tool result is wrapped in <tool_result>...</tool_result>
-                // (verified == jsonl phase[i].prompt - phase[i-1].prompt for every phase/session).
-                text = "\n\n<tool_result>\n" + text + "\n</tool_result>\n";
-                int nt=llama_tokenize(v,(const char*)text.c_str(),(int)text.size(),toks.data(),(int)toks.size(),false,true);
-                llama_batch pb=llama_batch_init(nt,0,1);
-                for(int k=0;k<nt;k++){ pb.token[k]=toks[k]; pb.pos[k]=S.n_past+k; pb.n_seq_id[k]=1; pb.seq_id[k][0]=S.seq; pb.logits[k]=(k==nt-1);} pb.n_tokens=nt;
-                double t0=now_ms(); { std::lock_guard<std::mutex> lk(g_kv); ggml_cuda_as_set_stream(pre_stream); llama_decode(A,pb); if(S.pfill_ev) cudaEventRecord(S.pfill_ev); }
+        // 1) BATCHED resume prefills: combine EVERY pending resume prefill into ONE multi-sequence
+        //    llama_decode(A) call (innovation #1).  Uses the shared-KV pool's multi-sequence
+        //    capability so the prefill batch isn't serialized one-session-at-a-time.
+        {
+            std::vector<int> pending;
+            for(int s=0;s<N;s++) if(ses[s].active && !ses[s].done && ses[s].need_pre && now_ms()>=ses[s].wait_until) pending.push_back(s);
+            if(!pending.empty()){
+                std::vector<std::vector<llama_token>> ptoks(pending.size());
+                std::vector<int> pnt(pending.size());
+                std::vector<int> plogit(pending.size(), -1);   // batch token index of each session's last token
+                int total=0;
+                for(int i=0;i<(int)pending.size();i++){ Session& S=ses[pending[i]];
+                    int ph=S.phase; std::string text=b64d(S.parts[1+2*ph]);
+                    text = "\n\n<tool_result>\n" + text + "\n</tool_result>\n";
+                    int nt=llama_tokenize(v,(const char*)text.c_str(),(int)text.size(),toks.data(),(int)toks.size(),false,true);
+                    ptoks[i].assign(toks.begin(),toks.begin()+nt); pnt[i]=nt; total+=nt;
+                }
+                llama_batch pb=llama_batch_init(total,0,N+1);
+                int idx=0;
+                for(int i=0;i<(int)pending.size();i++){ Session& S=ses[pending[i]];
+                    for(int k=0;k<pnt[i];k++){ pb.token[idx]=ptoks[i][k]; pb.pos[idx]=S.n_past+k; pb.n_seq_id[idx]=1; pb.seq_id[idx][0]=S.seq; pb.logits[idx]=(k==pnt[i]-1); idx++; }
+                    plogit[i]=idx-1;
+                }
+                pb.n_tokens=idx;
+                double t0=now_ms();
+                { std::lock_guard<std::mutex> lk(g_kv); ggml_cuda_as_set_stream(pre_stream); llama_decode(A,pb); }
                 cudaDeviceSynchronize(); double el=now_ms()-t0; llama_batch_free(pb);
-                S.n_past+=nt; const float* L=llama_get_logits(A); S.tok=argmax(L,nv); S.drem=atoi(S.parts[2+2*ph].c_str()); S.need_pre=0;
-                evput("TTFT_resume",S.sid,"r",el);
-                fprintf(stderr,"[engine] %s phase%d resume TTFT=%.1fms drem=%d\n",S.sid.c_str(),ph,el,S.drem);
+                for(int i=0;i<(int)pending.size();i++){ Session& S=ses[pending[i]]; int ph=S.phase; int nt=pnt[i];
+                    S.n_past+=nt;
+                    const float* L=llama_get_logits_ith(A, plogit[i]);
+                    S.tok=argmax(L,nv); S.drem=atoi(S.parts[2+2*ph].c_str()); S.need_pre=0;
+                    evput("TTFT_resume",S.sid,"r",el);
+                    fprintf(stderr,"[engine] %s phase%d resume TTFT=%.1fms drem=%d\n",S.sid.c_str(),ph,el,S.drem);
+                }
             }
         }
         // 2) batched decode rounds

@@ -1,0 +1,1865 @@
+{
+  "pool": [
+    {
+      "task": "{'category': 'Tools', 'tool_name': 'HTML-2-JSON', 'api_name': 'cheerio', 'tool_input': '{\"selector\": \"h1,h2,h3,p,img\", \"ur\": \"https://www.competitor-website.com\"}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "cheerio",
+        "api_description": "returns the HTML page as JSON or Markdown",
+        "required_parameters": [
+          {
+            "name": "selector",
+            "type": "STRING",
+            "description": "",
+            "default": "div"
+          },
+          {
+            "name": "ur",
+            "type": "STRING",
+            "description": "",
+            "default": "https://www.google.com"
+          }
+        ],
+        "optional_parameters": [
+          {
+            "name": "markdown",
+            "type": "STRING",
+            "description": "",
+            "default": "true"
+          },
+          {
+            "name": "json",
+            "type": "STRING",
+            "description": "",
+            "default": "true"
+          }
+        ],
+        "tool_description": "Convert a public HTML page into JSON (or Markdown)",
+        "tool_name": "HTML-2-JSON",
+        "tool_category": "Tools"
+      },
+      "output": "{\"error\": \"\", \"response\": \"{'selector': 'h1,h2,h3,p,img', 'json': True, 'markdown': True, 'data': [[{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-icon'}, {'key': 'src', 'value': '/static/images/icons/wikipedia.png'}, {'key': 'alt', 'value': ''}, {'key': 'aria-hidden', 'value': 'true'}], 'children': []}, {'type': 'element', 'tagName': 'span', 'attributes': [{'key': 'class', 'value': 'mw-logo-container skin-invert'}], 'children': [{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-wordmark'}, {'key': 'alt', 'value': 'Wikipedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-wordmark-en.svg'}, {'key': 'style', 'value': 'width: 7.5em; height: 1.125em;'}], 'children': []}, {'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-tagline'}, {'key': 'alt', 'value': 'The Free Encyclopedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-tagline-en.svg'}, {'key': 'style', 'value': 'width: 7.3125em; height: 0.8125em;'}], 'children': []}]}], [{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-wordmark'}, {'key': 'alt', 'value': 'Wikipedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-wordmark-en.svg'}, {'key': 'style', 'value': 'width: 7.5em; height: 1.125em;'}], 'children': []}, {'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-tagline'}, {'key': 'alt', 'value': 'T\"}"
+    },
+    {
+      "task": "{'category': 'Commerce', 'tool_name': 'E-mail Check Invalid or Disposable Domain', 'api_name': 'emailValidation', 'tool_input': '{\"email\": \"example@domain.com\"}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "emailValidation",
+        "api_description": "Clean your email list database with our free email checker and verifier",
+        "required_parameters": [
+          {
+            "name": "email",
+            "type": "STRING",
+            "description": "Email to be verified",
+            "default": "info@peekdomain.com"
+          }
+        ],
+        "optional_parameters": [],
+        "tool_description": "Easily check if a certain e-mail address is valid. Is it a valid domain? Is the e-mail a temporary/disposable e-mail? That’s a common indicator of spamming/trolling, so now there’s an API for you so you can easily block it!",
+        "tool_name": "E-mail Check Invalid or Disposable Domain",
+        "tool_category": "Commerce"
+      },
+      "output": "{\"error\": \"\", \"response\": \"{'domain': 'domain.com', 'account': 'example', 'block': False, 'disposable': False, 'dns': True, 'syntaxVerified': True, 'mxHosts': ['MX pointer domain-com.mail.protection.outlook.com. from DNS with priority: 10'], 'mailStatus': 'accept_all', 'reason': 'accepted_email', 'role': False}\"}"
+    },
+    {
+      "task": "{'category': 'Data', 'tool_name': 'Location and Time', 'api_name': 'Get Time Diff by City', 'tool_input': '{\"from_city\": \"Los Angeles\", \"to_city\": \"New York\", \"from_time\": \"2023-01-01 10:00:00\", \"to_time\": \"2023-01-01 12:00:00\"}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "Get Time Diff by City",
+        "api_description": "Find out time difference from `from_time` to `to_time` for specified cities. Daylight saving time are taken care of.  **Note**: the fuzzy search of provided city may not be the one you want due to multiple cities may have the same name, the most common one will be used. In this case, use a geocoding service to find the exact geolocation of the city, use `/timediff/bylocation` endpoint instead.",
+        "required_parameters": [
+          {
+            "name": "from_city",
+            "type": "STRING",
+            "description": "Name of the city.",
+            "default": "Los Angeles"
+          },
+          {
+            "name": "to_city",
+            "type": "STRING",
+            "description": "Name of the city.",
+            "default": "New York"
+          },
+          {
+            "name": "to_time",
+            "type": "STRING",
+            "description": "Time, fuzzy search is supported.",
+            "default": "2023-01-01 12:34:56"
+          },
+          {
+            "name": "from_time",
+            "type": "STRING",
+            "description": "Time, fuzzy search is supported.",
+            "default": "2020-01-01 12:34:56"
+          }
+        ],
+        "optional_parameters": [],
+        "tool_description": "A collection of location and time utilities. You can search for country/city information worldwide, find out distance between two locations/cities, get location data from IP address, solve any time questions regarding different timezones, get sunrise/sunset times at any location, get holiday information worldwide, and much more!",
+        "tool_name": "Location and Time",
+        "tool_category": "Data"
+      },
+      "output": "{\"error\": \"\", \"response\": \"{'request': {'from_time': '2023-01-01T10:00:00-08:00', 'from_city': 'Los Angeles, US', 'from_timezone': 'America/Los_Angeles', 'to_time': '2023-01-01T12:00:00-05:00', 'to_city': 'New York City, US', 'to_timezone': 'America/Los_Angeles'}, 'response': {'years': 0, 'months': 0, 'days': 0, 'hours': -1, 'minutes': 0, 'seconds': 0}}\"}"
+    },
+    {
+      "task": "{'category': 'Data', 'tool_name': 'JoJ Web Search', 'api_name': 'Search', 'tool_input': '{\"query\": \"nike running shoes site:instagram.com\", \"related_keywords\": \"true\", \"limit\": 300}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "Search",
+        "api_description": "Web Search",
+        "required_parameters": [
+          {
+            "name": "query",
+            "type": "STRING",
+            "description": "Search query. You can use Google Search parameters.\n\ne.g. `adele site:youtube.com`\ne.g. `harry potter filetype:pdf`\ne.g. `inurl:store`\ne.g. `ronaldo -cristiano`",
+            "default": "Nike"
+          }
+        ],
+        "optional_parameters": [
+          {
+            "name": "related_keywords",
+            "type": "STRING",
+            "description": "Shows related keywords. Default: `false`\n\n*Entering `true`, increases API latency*",
+            "default": "true"
+          },
+          {
+            "name": "limit",
+            "type": "NUMBER",
+            "description": "Max results number. Max recommended value is `300`.",
+            "default": "10"
+          }
+        ],
+        "tool_description": "JoJ Web Search API. Search the world's information, including webpages, related keywords and more.",
+        "tool_name": "JoJ Web Search",
+        "tool_category": "Data"
+      },
+      "output": "{\"error\": \"\", \"response\": \"{'search_term': 'nike running shoes site:instagram.com', 'knowledge_panel': None, 'results': [{'position': 1, 'url': 'https://www.instagram.com/nikerunning/', 'title': 'Nike Running (@nikerunning) \\u2022 Instagram photos and videos', 'description': 'Max comfort. More miles. The Vomero 18 sets a new standard in maximum cushioning and road running comfort with double-stacked ZoomX and ReactX foams to keep\\\\xa0...'}, {'position': 2, 'url': 'https://www.instagram.com/therunningshoegeek/p/DCmn8Wotxwk/', 'title': 'Get a look of the upcoming Nike Vomero 18, launching 27-Feb 2025 ...', 'description': 'Get a look of the upcoming Nike Vomero 18, launching 27-Feb 2025. @nikerunning are making big changes to their range next year,\\\\xa0...'}, {'position': 3, 'url': 'https://www.instagram.com/ryansrunningreviews/reel/DCtq8PJxeb4/', 'title': 'Nike just launched two new running shoes. The Vomero ... - Instagram', 'description': 'The Vomero 18 and the Pegasus Premium. Nike also is trying to categorize their running shoe ...'}, {'position': 4, 'url': 'https://www.instagram.com/nikerunning/p/DBRlwgUy9ox/', 'title': 'Run in the rain. The Nike Pegasus 41 GORE-TEX is ... - Instagram', 'description': 'Run in the rain. The Nike Pegasus 41 GORE-TEX is waterproof, responsive, and built to propel you in wet conditions.'}, {'position': 5, 'url': 'https://www.instagram.com/therunningshoegeek/reel/DC3NJ8VNakU/', 'title': \\\"Running Shoe Geek | Dylan Stevenson | Nike's 2025 Ekiden Pack at ...\\\", 'description': '14 l\"}"
+    },
+    {
+      "task": "{'category': 'Social', 'tool_name': 'Tagdef', 'api_name': 'Get list of definitions', 'tool_input': '{\"hashtag\":\"fitness\"}, {\"hashtag\":\"healthyliving\"}, {\"hashtag\":\"workout\"}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "Get list of definitions",
+        "api_description": "Returns the top definitions, currently max 5. Ordered by popularity. This popularity is based on user votes, but is weighed using an intern algorithm on Tagdef.com",
+        "required_parameters": [
+          {
+            "name": "hashtag",
+            "type": "STRING",
+            "description": "The name of the hashtag",
+            "default": "ff"
+          }
+        ],
+        "optional_parameters": [],
+        "tool_description": "Tagdef.com is the worlds largest hashtag dictionary. Use this api to access these definitions. The content is user-generated, and the directory currently contains over 60.000 definitions. The hashtags can have many definitions each, ordered by user-votes.\r\n\r\nThe hashtags are often related to Twitter , but is also commonly used on Pinterest and Google+ .\r\n\r\nThis API is free to use, but you must provide a clickable link back to the tagdef.com page for the given tag when using information from the API. This link can be found in the uri part of the reply.",
+        "tool_name": "Tagdef",
+        "tool_category": "Social"
+      },
+      "output": "{\"error\": \"Tool input parse error...\", \"response\": \"\"}"
+    },
+    {
+      "task": "{'category': 'Location', 'tool_name': 'World Time', 'api_name': 'Timezone for Location', 'tool_input': '{\"location\":\"New York\",\"area\":\"America\"}, {\"location\":\"Tokyo\",\"area\":\"Asia\"}, {\"location\":\"Berlin\",\"area\":\"Europe\"}, {\"location\":\"Sydney\",\"area\":\"Australia\"}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "Timezone for Location",
+        "api_description": "Request the current time for a timezone (in plain text or JSON)",
+        "required_parameters": [
+          {
+            "name": "location",
+            "type": "STRING",
+            "description": "Location, example:\"London\" or \"London.txt\"",
+            "default": "London"
+          },
+          {
+            "name": "area",
+            "type": "STRING",
+            "description": "Area, example:\"Europe\"",
+            "default": "Europe"
+          }
+        ],
+        "optional_parameters": [],
+        "tool_description": "WorldTimeAPI is a simple web service which returns the local-time for a given timezone as either JSON or plain-text. Some additional information is provided, such as whether that timezone is currently in Daylight Savings Time, when DST starts and ends, the UTC offset, etc.",
+        "tool_name": "World Time",
+        "tool_category": "Location"
+      },
+      "output": "{\"error\": \"Tool input parse error...\", \"response\": \"\"}"
+    },
+    {
+      "task": "{'category': 'Finance', 'tool_name': 'Seeking Alpha', 'api_name': 'symbols/v2/get-momentum', 'tool_input': '{\"symbols\": \"aapl,tsla,msft\", \"fields\": \"movAvg50d,chgp1m,chgp3m,chgp1y,low52,high52\"}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "symbols/v2/get-momentum",
+        "api_description": "Get momentum of specific symbol",
+        "required_parameters": [
+          {
+            "name": "symbols",
+            "type": "STRING",
+            "description": "Symbol to query for data.  Separating  by comma to query multiple symbols at once, ex : aapl,tsla",
+            "default": "aapl,tsla"
+          }
+        ],
+        "optional_parameters": [
+          {
+            "name": "fields",
+            "type": "STRING",
+            "description": "One of the following : movAvg10d|movAvg50d|movAvg100d|movAvg200d|pClose10d|pClose50d|pClose100d|pClose200d|pWeekVolShares|low52|high52|chgp5d|chgp1m|chgp3m|chgp6m|chgp9m|chgpYtd|chgp1y|chgp3y|chgt3y|chgp5y|chgt5y|chgp10y|chgt10y|chgt1m|chgtYtd|chgt1y\nSeparated by comma for multiple options. Ex : chgp3m,chgp6m,chgp9m,chgp1y,low52,high52,movAvg10d",
+            "default": "chgp3m,chgp6m,chgp9m,chgp1y,low52,high52"
+          }
+        ],
+        "tool_description": "Query for news, market moving, price quotes, chart, indices, analysis from investors and experts, etc...",
+        "tool_name": "Seeking Alpha",
+        "tool_category": "Finance"
+      },
+      "output": "{\"error\": \"\", \"response\": \"{'data': [{'id': 'AAPL', 'tickerId': 146, 'attributes': {'movAvg50d': 228.7152, 'chgp1m': 1.52110971868113, 'chgp3m': 3.02591764241547, 'chgp1y': 23.7841825175194, 'low52': None, 'high52': None}}, {'id': 'TSLA', 'tickerId': 16123, 'attributes': {'movAvg50d': 270.619, 'chgp1m': 23.6635833426204, 'chgp3m': 59.1176330003346, 'chgp1y': 41.007285665876, 'low52': None, 'high52': None}}, {'id': 'MSFT', 'tickerId': 575, 'attributes': {'movAvg50d': 421.3598, 'chgp1m': -1.20518509868037, 'chgp3m': 2.21099942006573, 'chgp1y': 11.7218245688175, 'low52': None, 'high52': None}}]}\"}"
+    },
+    {
+      "task": "{'category': 'Health_and_Fitness', 'tool_name': 'Flexpa', 'api_name': 'Endpoints', 'tool_input': '{}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "Endpoints",
+        "api_description": "Retrieves a list of covered FHIR server endpoints.",
+        "required_parameters": [],
+        "optional_parameters": [],
+        "tool_description": "Flexpa is a digital health API that allows patients and health plan members to access, manage, and provision access to their medical records. Whilst Rapid's 'Endpoints' tab shows a preview of the Flexpa API, the API is only fully usable once your app is authenticated. To get started and authenticate your app, read the Flexpa developer docs at: https://www.flexpa.com/docs",
+        "tool_name": "Flexpa",
+        "tool_category": "Health_and_Fitness"
+      },
+      "output": "{\"error\": \"\", \"response\": \"[{'name': 'viva-health', 'id': '764174af-c302-4d9e-840a-c155e4c35ceb', 'mode': 'LIVE', 'label': ['Viva Health'], 'refreshable': True, 'refreshValidFor': 7200, 'maxAuthPeriod': 0, 'resources': ['Account', 'ActivityDefinition', 'AdverseEvent', 'AllergyIntolerance', 'Appointment', 'AppointmentResponse', 'AuditEvent', 'Basic', 'BodyStructure', 'Bundle', 'CapabilityStatement', 'CarePlan', 'CareTeam', 'ChargeItem', 'ChargeItemDefinition', 'Claim', 'ClaimResponse', 'ClinicalImpression', 'CodeSystem', 'Communication', 'CommunicationRequest', 'CompartmentDefinition', 'Composition', 'ConceptMap', 'Condition', 'Consent', 'Contract', 'Coverage', 'CoverageEligibilityRequest', 'CoverageEligibilityResponse', 'DetectedIssue', 'Device', 'DeviceDefinition', 'DeviceMetric', 'DeviceRequest', 'DeviceUseStatement', 'DiagnosticReport', 'DocumentManifest', 'DocumentReference', 'EffectEvidenceSynthesis', 'Encounter', 'Endpoint', 'EnrollmentRequest', 'EnrollmentResponse', 'EpisodeOfCare', 'EventDefinition', 'Evidence', 'EvidenceVariable', 'ExampleScenario', 'ExplanationOfBenefit', 'FamilyMemberHistory', 'Flag', 'Goal', 'GraphDefinition', 'Group', 'GuidanceResponse', 'HealthcareService', 'ImagingStudy', 'Immunization', 'ImmunizationEvaluation', 'ImmunizationRecommendation', 'ImplementationGuide', 'InsurancePlan', 'Invoice', 'Library', 'Linkage', 'List', 'Location', 'Measure', 'MeasureReport', 'Media', 'Medication', 'MedicationAdministration', 'MedicationDispense', 'MedicationKnowledge', 'MedicationRequ\"}"
+    },
+    {
+      "task": "{'category': 'Data', 'tool_name': 'Store Apps', 'api_name': 'App Reviews', 'tool_input': '{\"app_id\":\"com.example.app1\",\"device\":\"PHONE\",\"region\":\"us\",\"sort_by\":\"MOST_RELEVANT\",\"rating\":\"FOUR_STARS\",\"limit\":10,\"language\":\"en\"}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "App Reviews",
+        "api_description": "Get all app reviews.",
+        "required_parameters": [
+          {
+            "name": "app_id",
+            "type": "STRING",
+            "description": "App Id of the app for which to get reviews.",
+            "default": "com.snapchat.android"
+          }
+        ],
+        "optional_parameters": [
+          {
+            "name": "device",
+            "type": "ENUM",
+            "description": "Only return reviews made on a specific device type.\nAllowed values: `PHONE`, `TABLET`, `CHROMEBOOK`.\nDefault: `PHONE`.",
+            "default": ""
+          },
+          {
+            "name": "region",
+            "type": "STRING",
+            "description": "The country code of country/region to use, specified as a 2-letter country code - see [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).\n**Default**: `us`.",
+            "default": "us"
+          },
+          {
+            "name": "sort_by",
+            "type": "ENUM",
+            "description": "How to sort the reviews in the results.\nAllowed values: `MOST_RELEVANT`, `NEWEST`, `RATING`.\nDefault: `MOST_RELEVANT`.",
+            "default": ""
+          },
+          {
+            "name": "rating",
+            "type": "ENUM",
+            "description": "Only return reviews with a certain star rating.\nAllowed values: `ANY`, `ONE_STAR`, `TWO_STARS`, `THREE_STARS`, `FOUR_STARS`, `FIVE_STARS`.\nDefault: `ANY`.",
+            "default": ""
+          },
+          {
+            "name": "limit",
+            "type": "NUMBER",
+            "description": "Maximum number of reviews in the results.",
+            "default": "10"
+          },
+          {
+            "name": "cursor",
+            "type": "STRING",
+            "description": "Specify a cursor from the previous request to get the next set of results.",
+            "default": ""
+          },
+          {
+            "name": "language",
+            "type": "STRING",
+            "description": "The language to use, specified as a 2-letter language code - see [ISO 639-1 alpha-2](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).\n**Default**: `en`.",
+            "default": "en"
+          }
+        ],
+        "tool_description": "Extremely Comprehensive API to search and list apps/games top charts on the Google Play Apps Store, including extensive app details and reviews in real-time.",
+        "tool_name": "Store Apps",
+        "tool_category": "Data"
+      },
+      "output": "{\"error\": \"\", \"response\": \"{'status': 'OK', 'request_id': 'b941fad9-9fd4-4fa0-ad0e-51307abd63c1', 'data': {'reviews': [], 'cursor': None}}\"}"
+    },
+    {
+      "task": "{'category': 'Media', 'tool_name': 'Instagram Unofficial', 'api_name': 'User followers', 'tool_input': '{\"session_key\": \"your_session_key_here\", \"user_id\": \"influencer_user_id_here\", \"insta-proxy\": \"your_insta_proxy_here\"}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "User followers",
+        "api_description": "Get user followers.",
+        "required_parameters": [
+          {
+            "name": "session_key",
+            "type": "STRING",
+            "description": "Use our login api to get the session_key",
+            "default": ""
+          }
+        ],
+        "optional_parameters": [
+          {
+            "name": "insta-proxy",
+            "type": "STRING",
+            "description": "",
+            "default": ""
+          },
+          {
+            "name": "username",
+            "type": "STRING",
+            "description": "",
+            "default": ""
+          },
+          {
+            "name": "max_id",
+            "type": "STRING",
+            "description": "",
+            "default": ""
+          },
+          {
+            "name": "user_id",
+            "type": "STRING",
+            "description": "",
+            "default": ""
+          }
+        ],
+        "tool_description": "Instagram Unofficial API",
+        "tool_name": "Instagram Unofficial",
+        "tool_category": "Media"
+      },
+      "output": "{\"error\": \"Function executing from toolenv.tools.Media.instagram_unofficial.api import user_followers error...\\nexpression cannot contain assignment, perhaps you meant \\\"==\\\"? (<string>, line 1)\", \"response\": \"\"}"
+    },
+    {
+      "task": "{'category': 'Data', 'tool_name': 'Geography', 'api_name': 'Search Countries By Continent', 'tool_input': '{\"continent\": \"Europe\", \"limit\": 5, \"fields\": \"name,population\"}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "Search Countries By Continent",
+        "api_description": "Search Countries by its Continent",
+        "required_parameters": [
+          {
+            "name": "continent",
+            "type": "STRING",
+            "description": "The continent of the country. This search is case insensitive and exact match",
+            "default": "North America"
+          }
+        ],
+        "optional_parameters": [
+          {
+            "name": "offset",
+            "type": "NUMBER",
+            "description": "The page number from which the search should continue. Its zero indexed, hence, starts with 0",
+            "default": 0
+          },
+          {
+            "name": "fields",
+            "type": "STRING",
+            "description": "Comma separated fields list to filter response",
+            "default": ""
+          },
+          {
+            "name": "limit",
+            "type": "NUMBER",
+            "description": "The maximum records that can be returned within a page",
+            "default": 10
+          }
+        ],
+        "tool_description": "Powerful APIs for getting information about Countries and Cities",
+        "tool_name": "Geography",
+        "tool_category": "Data"
+      },
+      "output": "{\"error\": \"\", \"response\": \"[{'href': '/apis/geography/v1/country/ALA', 'name': {'common': 'Aland Islands', 'official': 'Aland Islands', 'nativeName': [{'lang': 'swe', 'official': 'Landskapet Aland', 'common': 'Aland'}], 'translations': [{'lang': 'ara', 'official': '\\u062c\\u0632\\u0631 \\u0627\\u0654\\u0648\\u0644\\u0627\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0631 \\u0627\\u0654\\u0648\\u0644\\u0627\\u0646\\u062f'}, {'lang': 'bre', 'official': 'Inizi Aland', 'common': 'Aland'}, {'lang': 'ces', 'official': 'Alandske ostrovy', 'common': 'Alandy'}, {'lang': 'cym', 'official': 'Aland Islands', 'common': 'Aland Islands'}, {'lang': 'deu', 'official': 'Aland-Inseln', 'common': 'Aland'}, {'lang': 'est', 'official': 'Ahvenamaa maakond', 'common': 'Ahvenamaa'}, {'lang': 'fin', 'official': 'Ahvenanmaan maakunta', 'common': 'Ahvenanmaa'}, {'lang': 'fra', 'official': 'Ahvenanmaa', 'common': 'Ahvenanmaa'}, {'lang': 'hrv', 'official': 'Aland Islands', 'common': 'Alandski otoci'}, {'lang': 'hun', 'official': 'Aland-szigetek', 'common': 'Aland-szigetek'}, {'lang': 'ita', 'official': 'Isole Aland', 'common': 'Isole Aland'}, {'lang': 'jpn', 'official': '\\u30aa\\u30fc\\u30e9\\u30f3\\u30c8\\u3099\\u8af8\\u5cf6', 'common': '\\u30aa\\u30fc\\u30e9\\u30f3\\u30c8\\u3099\\u8af8\\u5cf6'}, {'lang': 'kor', 'official': '\\u110b\\u1169\\u11af\\u1105\\u1161\\u11ab\\u1103\\u1173 \\u110c\\u1166\\u1103\\u1169', 'common': '\\u110b\\u1169\\u11af\\u1105\\u1161\\u11ab\\u1103\\u1173 \\u110c\\u1166\\u1103\\u1169'}, {'lang': 'nld', 'official': 'Aland eilanden', 'common': 'Alandeilanden'}, {'lang': 'per', 'official': '\\u062c\\u0632\\u0627\\u06cc\\u0631 \\u0627\\u0644\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0627\\u06cc\\u0631 \\u0627\\u0644\\u0646\\u062f'}, {'lang': 'pol', 'official': 'Wyspy Alandzkie', 'common': 'Wyspy Alandzkie'}, {'lang': 'por', 'official': 'Ilhas Aland', 'common': 'Alandia'}, {'lang': 'rus', 'official': '\\u0410\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0438\\u0435 \\u043e\\u0441\\u0442\\u0440\\u043e\\u0432\\u0430', 'common': '\\u0410\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0438\\u0435 \\u043e\\u0441\\u0442\\u0440\\u043e\\u0432\\u0430'}, {'lang': 'slk', 'official': 'Alandske ostrovy', 'common': 'Alandy'}, {'lang': 'spa', 'official': 'Islas Aland', 'common': 'Alandia'}, {'lang': 'srp', 'official': '\\u041e\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0430 \\u041e\\u0441\\u0442\\u0440\\u0432\\u0430', 'common': '\\u041e\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0430 \\u041e\\u0441\\u0442\\u0440\\u0432\\u0430'}, {'lang': 'swe', 'official': 'Aland', 'common': 'Aland'}, {'lang': 'tur', 'official': 'Aland Adalar\\u0131', 'common': 'Aland'}, {'lang': 'urd', 'official': '\\u062c\\u0632\\u0627\\u064a\\u0654\\u0631 \\u0627\\u0648\\u0644\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0627\\u064a\\u0654\\u0631 \\u0627\\u0648\\u0644\\u0646\\u062f'}, {'lang': 'zho', 'official': '\\u5965\\u5170\\u7fa4\\u5c9b', 'common': '\\u5965\\u5170\\u7fa4\\u5c9b'}]}, 'population': 29458}, {'href': '/apis/geography/v1/country/ALB', 'name': {'common': 'Albania', 'official\"}"
+    },
+    {
+      "task": "{'category': 'Data', 'tool_name': 'Screenshot URL to image', 'api_name': 'Screenshot Endpoint', 'tool_input': '{\"url\": \"https://www.competitor-website.com\", \"width\": \"1920\", \"height\": \"1080\"}', 'strip': 'filter'}",
+      "schema": {
+        "api_name": "Screenshot Endpoint",
+        "api_description": "Take a screenshot from a webpage url.",
+        "required_parameters": [
+          {
+            "name": "height",
+            "type": "STRING",
+            "description": "",
+            "default": "1080"
+          },
+          {
+            "name": "url",
+            "type": "STRING",
+            "description": "",
+            "default": "https://rapidapi.com/marketplace"
+          },
+          {
+            "name": "width",
+            "type": "STRING",
+            "description": "",
+            "default": "1920"
+          }
+        ],
+        "optional_parameters": [
+          {
+            "name": "fullscreen",
+            "type": "STRING",
+            "description": "",
+            "default": "true"
+          }
+        ],
+        "tool_description": "Generate screenshots of websites with simple api, accept various parameters such as width, height, full page",
+        "tool_name": "Screenshot URL to image",
+        "tool_category": "Data"
+      },
+      "output": "{\"error\": \"\", \"response\": \"{'screenshotUrl': 'https://storage.linebot.site/screenshotpxpfdd1733153478200.png'}\"}"
+    }
+  ],
+  "sched": [
+    [
+      {
+        "task": "{'category': 'Commerce', 'tool_name': 'E-mail Check Invalid or Disposable Domain', 'api_name': 'emailValidation', 'tool_input': '{\"email\": \"example@domain.com\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "emailValidation",
+          "api_description": "Clean your email list database with our free email checker and verifier",
+          "required_parameters": [
+            {
+              "name": "email",
+              "type": "STRING",
+              "description": "Email to be verified",
+              "default": "info@peekdomain.com"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "Easily check if a certain e-mail address is valid. Is it a valid domain? Is the e-mail a temporary/disposable e-mail? That’s a common indicator of spamming/trolling, so now there’s an API for you so you can easily block it!",
+          "tool_name": "E-mail Check Invalid or Disposable Domain",
+          "tool_category": "Commerce"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'domain': 'domain.com', 'account': 'example', 'block': False, 'disposable': False, 'dns': True, 'syntaxVerified': True, 'mxHosts': ['MX pointer domain-com.mail.protection.outlook.com. from DNS with priority: 10'], 'mailStatus': 'accept_all', 'reason': 'accepted_email', 'role': False}\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Screenshot URL to image', 'api_name': 'Screenshot Endpoint', 'tool_input': '{\"url\": \"https://www.competitor-website.com\", \"width\": \"1920\", \"height\": \"1080\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Screenshot Endpoint",
+          "api_description": "Take a screenshot from a webpage url.",
+          "required_parameters": [
+            {
+              "name": "height",
+              "type": "STRING",
+              "description": "",
+              "default": "1080"
+            },
+            {
+              "name": "url",
+              "type": "STRING",
+              "description": "",
+              "default": "https://rapidapi.com/marketplace"
+            },
+            {
+              "name": "width",
+              "type": "STRING",
+              "description": "",
+              "default": "1920"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "fullscreen",
+              "type": "STRING",
+              "description": "",
+              "default": "true"
+            }
+          ],
+          "tool_description": "Generate screenshots of websites with simple api, accept various parameters such as width, height, full page",
+          "tool_name": "Screenshot URL to image",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'screenshotUrl': 'https://storage.linebot.site/screenshotpxpfdd1733153478200.png'}\"}"
+      },
+      {
+        "task": "{'category': 'Finance', 'tool_name': 'Seeking Alpha', 'api_name': 'symbols/v2/get-momentum', 'tool_input': '{\"symbols\": \"aapl,tsla,msft\", \"fields\": \"movAvg50d,chgp1m,chgp3m,chgp1y,low52,high52\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "symbols/v2/get-momentum",
+          "api_description": "Get momentum of specific symbol",
+          "required_parameters": [
+            {
+              "name": "symbols",
+              "type": "STRING",
+              "description": "Symbol to query for data.  Separating  by comma to query multiple symbols at once, ex : aapl,tsla",
+              "default": "aapl,tsla"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "fields",
+              "type": "STRING",
+              "description": "One of the following : movAvg10d|movAvg50d|movAvg100d|movAvg200d|pClose10d|pClose50d|pClose100d|pClose200d|pWeekVolShares|low52|high52|chgp5d|chgp1m|chgp3m|chgp6m|chgp9m|chgpYtd|chgp1y|chgp3y|chgt3y|chgp5y|chgt5y|chgp10y|chgt10y|chgt1m|chgtYtd|chgt1y\nSeparated by comma for multiple options. Ex : chgp3m,chgp6m,chgp9m,chgp1y,low52,high52,movAvg10d",
+              "default": "chgp3m,chgp6m,chgp9m,chgp1y,low52,high52"
+            }
+          ],
+          "tool_description": "Query for news, market moving, price quotes, chart, indices, analysis from investors and experts, etc...",
+          "tool_name": "Seeking Alpha",
+          "tool_category": "Finance"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'data': [{'id': 'AAPL', 'tickerId': 146, 'attributes': {'movAvg50d': 228.7152, 'chgp1m': 1.52110971868113, 'chgp3m': 3.02591764241547, 'chgp1y': 23.7841825175194, 'low52': None, 'high52': None}}, {'id': 'TSLA', 'tickerId': 16123, 'attributes': {'movAvg50d': 270.619, 'chgp1m': 23.6635833426204, 'chgp3m': 59.1176330003346, 'chgp1y': 41.007285665876, 'low52': None, 'high52': None}}, {'id': 'MSFT', 'tickerId': 575, 'attributes': {'movAvg50d': 421.3598, 'chgp1m': -1.20518509868037, 'chgp3m': 2.21099942006573, 'chgp1y': 11.7218245688175, 'low52': None, 'high52': None}}]}\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Store Apps', 'api_name': 'App Reviews', 'tool_input': '{\"app_id\":\"com.example.app1\",\"device\":\"PHONE\",\"region\":\"us\",\"sort_by\":\"MOST_RELEVANT\",\"rating\":\"FOUR_STARS\",\"limit\":10,\"language\":\"en\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "App Reviews",
+          "api_description": "Get all app reviews.",
+          "required_parameters": [
+            {
+              "name": "app_id",
+              "type": "STRING",
+              "description": "App Id of the app for which to get reviews.",
+              "default": "com.snapchat.android"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "device",
+              "type": "ENUM",
+              "description": "Only return reviews made on a specific device type.\nAllowed values: `PHONE`, `TABLET`, `CHROMEBOOK`.\nDefault: `PHONE`.",
+              "default": ""
+            },
+            {
+              "name": "region",
+              "type": "STRING",
+              "description": "The country code of country/region to use, specified as a 2-letter country code - see [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).\n**Default**: `us`.",
+              "default": "us"
+            },
+            {
+              "name": "sort_by",
+              "type": "ENUM",
+              "description": "How to sort the reviews in the results.\nAllowed values: `MOST_RELEVANT`, `NEWEST`, `RATING`.\nDefault: `MOST_RELEVANT`.",
+              "default": ""
+            },
+            {
+              "name": "rating",
+              "type": "ENUM",
+              "description": "Only return reviews with a certain star rating.\nAllowed values: `ANY`, `ONE_STAR`, `TWO_STARS`, `THREE_STARS`, `FOUR_STARS`, `FIVE_STARS`.\nDefault: `ANY`.",
+              "default": ""
+            },
+            {
+              "name": "limit",
+              "type": "NUMBER",
+              "description": "Maximum number of reviews in the results.",
+              "default": "10"
+            },
+            {
+              "name": "cursor",
+              "type": "STRING",
+              "description": "Specify a cursor from the previous request to get the next set of results.",
+              "default": ""
+            },
+            {
+              "name": "language",
+              "type": "STRING",
+              "description": "The language to use, specified as a 2-letter language code - see [ISO 639-1 alpha-2](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).\n**Default**: `en`.",
+              "default": "en"
+            }
+          ],
+          "tool_description": "Extremely Comprehensive API to search and list apps/games top charts on the Google Play Apps Store, including extensive app details and reviews in real-time.",
+          "tool_name": "Store Apps",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'status': 'OK', 'request_id': 'b941fad9-9fd4-4fa0-ad0e-51307abd63c1', 'data': {'reviews': [], 'cursor': None}}\"}"
+      }
+    ],
+    [
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Store Apps', 'api_name': 'App Reviews', 'tool_input': '{\"app_id\":\"com.example.app1\",\"device\":\"PHONE\",\"region\":\"us\",\"sort_by\":\"MOST_RELEVANT\",\"rating\":\"FOUR_STARS\",\"limit\":10,\"language\":\"en\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "App Reviews",
+          "api_description": "Get all app reviews.",
+          "required_parameters": [
+            {
+              "name": "app_id",
+              "type": "STRING",
+              "description": "App Id of the app for which to get reviews.",
+              "default": "com.snapchat.android"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "device",
+              "type": "ENUM",
+              "description": "Only return reviews made on a specific device type.\nAllowed values: `PHONE`, `TABLET`, `CHROMEBOOK`.\nDefault: `PHONE`.",
+              "default": ""
+            },
+            {
+              "name": "region",
+              "type": "STRING",
+              "description": "The country code of country/region to use, specified as a 2-letter country code - see [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).\n**Default**: `us`.",
+              "default": "us"
+            },
+            {
+              "name": "sort_by",
+              "type": "ENUM",
+              "description": "How to sort the reviews in the results.\nAllowed values: `MOST_RELEVANT`, `NEWEST`, `RATING`.\nDefault: `MOST_RELEVANT`.",
+              "default": ""
+            },
+            {
+              "name": "rating",
+              "type": "ENUM",
+              "description": "Only return reviews with a certain star rating.\nAllowed values: `ANY`, `ONE_STAR`, `TWO_STARS`, `THREE_STARS`, `FOUR_STARS`, `FIVE_STARS`.\nDefault: `ANY`.",
+              "default": ""
+            },
+            {
+              "name": "limit",
+              "type": "NUMBER",
+              "description": "Maximum number of reviews in the results.",
+              "default": "10"
+            },
+            {
+              "name": "cursor",
+              "type": "STRING",
+              "description": "Specify a cursor from the previous request to get the next set of results.",
+              "default": ""
+            },
+            {
+              "name": "language",
+              "type": "STRING",
+              "description": "The language to use, specified as a 2-letter language code - see [ISO 639-1 alpha-2](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).\n**Default**: `en`.",
+              "default": "en"
+            }
+          ],
+          "tool_description": "Extremely Comprehensive API to search and list apps/games top charts on the Google Play Apps Store, including extensive app details and reviews in real-time.",
+          "tool_name": "Store Apps",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'status': 'OK', 'request_id': 'b941fad9-9fd4-4fa0-ad0e-51307abd63c1', 'data': {'reviews': [], 'cursor': None}}\"}"
+      },
+      {
+        "task": "{'category': 'Media', 'tool_name': 'Instagram Unofficial', 'api_name': 'User followers', 'tool_input': '{\"session_key\": \"your_session_key_here\", \"user_id\": \"influencer_user_id_here\", \"insta-proxy\": \"your_insta_proxy_here\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "User followers",
+          "api_description": "Get user followers.",
+          "required_parameters": [
+            {
+              "name": "session_key",
+              "type": "STRING",
+              "description": "Use our login api to get the session_key",
+              "default": ""
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "insta-proxy",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "username",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "max_id",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "user_id",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            }
+          ],
+          "tool_description": "Instagram Unofficial API",
+          "tool_name": "Instagram Unofficial",
+          "tool_category": "Media"
+        },
+        "output": "{\"error\": \"Function executing from toolenv.tools.Media.instagram_unofficial.api import user_followers error...\\nexpression cannot contain assignment, perhaps you meant \\\"==\\\"? (<string>, line 1)\", \"response\": \"\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Geography', 'api_name': 'Search Countries By Continent', 'tool_input': '{\"continent\": \"Europe\", \"limit\": 5, \"fields\": \"name,population\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Search Countries By Continent",
+          "api_description": "Search Countries by its Continent",
+          "required_parameters": [
+            {
+              "name": "continent",
+              "type": "STRING",
+              "description": "The continent of the country. This search is case insensitive and exact match",
+              "default": "North America"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "offset",
+              "type": "NUMBER",
+              "description": "The page number from which the search should continue. Its zero indexed, hence, starts with 0",
+              "default": 0
+            },
+            {
+              "name": "fields",
+              "type": "STRING",
+              "description": "Comma separated fields list to filter response",
+              "default": ""
+            },
+            {
+              "name": "limit",
+              "type": "NUMBER",
+              "description": "The maximum records that can be returned within a page",
+              "default": 10
+            }
+          ],
+          "tool_description": "Powerful APIs for getting information about Countries and Cities",
+          "tool_name": "Geography",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"[{'href': '/apis/geography/v1/country/ALA', 'name': {'common': 'Aland Islands', 'official': 'Aland Islands', 'nativeName': [{'lang': 'swe', 'official': 'Landskapet Aland', 'common': 'Aland'}], 'translations': [{'lang': 'ara', 'official': '\\u062c\\u0632\\u0631 \\u0627\\u0654\\u0648\\u0644\\u0627\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0631 \\u0627\\u0654\\u0648\\u0644\\u0627\\u0646\\u062f'}, {'lang': 'bre', 'official': 'Inizi Aland', 'common': 'Aland'}, {'lang': 'ces', 'official': 'Alandske ostrovy', 'common': 'Alandy'}, {'lang': 'cym', 'official': 'Aland Islands', 'common': 'Aland Islands'}, {'lang': 'deu', 'official': 'Aland-Inseln', 'common': 'Aland'}, {'lang': 'est', 'official': 'Ahvenamaa maakond', 'common': 'Ahvenamaa'}, {'lang': 'fin', 'official': 'Ahvenanmaan maakunta', 'common': 'Ahvenanmaa'}, {'lang': 'fra', 'official': 'Ahvenanmaa', 'common': 'Ahvenanmaa'}, {'lang': 'hrv', 'official': 'Aland Islands', 'common': 'Alandski otoci'}, {'lang': 'hun', 'official': 'Aland-szigetek', 'common': 'Aland-szigetek'}, {'lang': 'ita', 'official': 'Isole Aland', 'common': 'Isole Aland'}, {'lang': 'jpn', 'official': '\\u30aa\\u30fc\\u30e9\\u30f3\\u30c8\\u3099\\u8af8\\u5cf6', 'common': '\\u30aa\\u30fc\\u30e9\\u30f3\\u30c8\\u3099\\u8af8\\u5cf6'}, {'lang': 'kor', 'official': '\\u110b\\u1169\\u11af\\u1105\\u1161\\u11ab\\u1103\\u1173 \\u110c\\u1166\\u1103\\u1169', 'common': '\\u110b\\u1169\\u11af\\u1105\\u1161\\u11ab\\u1103\\u1173 \\u110c\\u1166\\u1103\\u1169'}, {'lang': 'nld', 'official': 'Aland eilanden', 'common': 'Alandeilanden'}, {'lang': 'per', 'official': '\\u062c\\u0632\\u0627\\u06cc\\u0631 \\u0627\\u0644\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0627\\u06cc\\u0631 \\u0627\\u0644\\u0646\\u062f'}, {'lang': 'pol', 'official': 'Wyspy Alandzkie', 'common': 'Wyspy Alandzkie'}, {'lang': 'por', 'official': 'Ilhas Aland', 'common': 'Alandia'}, {'lang': 'rus', 'official': '\\u0410\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0438\\u0435 \\u043e\\u0441\\u0442\\u0440\\u043e\\u0432\\u0430', 'common': '\\u0410\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0438\\u0435 \\u043e\\u0441\\u0442\\u0440\\u043e\\u0432\\u0430'}, {'lang': 'slk', 'official': 'Alandske ostrovy', 'common': 'Alandy'}, {'lang': 'spa', 'official': 'Islas Aland', 'common': 'Alandia'}, {'lang': 'srp', 'official': '\\u041e\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0430 \\u041e\\u0441\\u0442\\u0440\\u0432\\u0430', 'common': '\\u041e\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0430 \\u041e\\u0441\\u0442\\u0440\\u0432\\u0430'}, {'lang': 'swe', 'official': 'Aland', 'common': 'Aland'}, {'lang': 'tur', 'official': 'Aland Adalar\\u0131', 'common': 'Aland'}, {'lang': 'urd', 'official': '\\u062c\\u0632\\u0627\\u064a\\u0654\\u0631 \\u0627\\u0648\\u0644\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0627\\u064a\\u0654\\u0631 \\u0627\\u0648\\u0644\\u0646\\u062f'}, {'lang': 'zho', 'official': '\\u5965\\u5170\\u7fa4\\u5c9b', 'common': '\\u5965\\u5170\\u7fa4\\u5c9b'}]}, 'population': 29458}, {'href': '/apis/geography/v1/country/ALB', 'name': {'common': 'Albania', 'official\"}"
+      },
+      {
+        "task": "{'category': 'Tools', 'tool_name': 'HTML-2-JSON', 'api_name': 'cheerio', 'tool_input': '{\"selector\": \"h1,h2,h3,p,img\", \"ur\": \"https://www.competitor-website.com\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "cheerio",
+          "api_description": "returns the HTML page as JSON or Markdown",
+          "required_parameters": [
+            {
+              "name": "selector",
+              "type": "STRING",
+              "description": "",
+              "default": "div"
+            },
+            {
+              "name": "ur",
+              "type": "STRING",
+              "description": "",
+              "default": "https://www.google.com"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "markdown",
+              "type": "STRING",
+              "description": "",
+              "default": "true"
+            },
+            {
+              "name": "json",
+              "type": "STRING",
+              "description": "",
+              "default": "true"
+            }
+          ],
+          "tool_description": "Convert a public HTML page into JSON (or Markdown)",
+          "tool_name": "HTML-2-JSON",
+          "tool_category": "Tools"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'selector': 'h1,h2,h3,p,img', 'json': True, 'markdown': True, 'data': [[{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-icon'}, {'key': 'src', 'value': '/static/images/icons/wikipedia.png'}, {'key': 'alt', 'value': ''}, {'key': 'aria-hidden', 'value': 'true'}], 'children': []}, {'type': 'element', 'tagName': 'span', 'attributes': [{'key': 'class', 'value': 'mw-logo-container skin-invert'}], 'children': [{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-wordmark'}, {'key': 'alt', 'value': 'Wikipedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-wordmark-en.svg'}, {'key': 'style', 'value': 'width: 7.5em; height: 1.125em;'}], 'children': []}, {'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-tagline'}, {'key': 'alt', 'value': 'The Free Encyclopedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-tagline-en.svg'}, {'key': 'style', 'value': 'width: 7.3125em; height: 0.8125em;'}], 'children': []}]}], [{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-wordmark'}, {'key': 'alt', 'value': 'Wikipedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-wordmark-en.svg'}, {'key': 'style', 'value': 'width: 7.5em; height: 1.125em;'}], 'children': []}, {'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-tagline'}, {'key': 'alt', 'value': 'T\"}"
+      }
+    ],
+    [
+      {
+        "task": "{'category': 'Finance', 'tool_name': 'Seeking Alpha', 'api_name': 'symbols/v2/get-momentum', 'tool_input': '{\"symbols\": \"aapl,tsla,msft\", \"fields\": \"movAvg50d,chgp1m,chgp3m,chgp1y,low52,high52\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "symbols/v2/get-momentum",
+          "api_description": "Get momentum of specific symbol",
+          "required_parameters": [
+            {
+              "name": "symbols",
+              "type": "STRING",
+              "description": "Symbol to query for data.  Separating  by comma to query multiple symbols at once, ex : aapl,tsla",
+              "default": "aapl,tsla"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "fields",
+              "type": "STRING",
+              "description": "One of the following : movAvg10d|movAvg50d|movAvg100d|movAvg200d|pClose10d|pClose50d|pClose100d|pClose200d|pWeekVolShares|low52|high52|chgp5d|chgp1m|chgp3m|chgp6m|chgp9m|chgpYtd|chgp1y|chgp3y|chgt3y|chgp5y|chgt5y|chgp10y|chgt10y|chgt1m|chgtYtd|chgt1y\nSeparated by comma for multiple options. Ex : chgp3m,chgp6m,chgp9m,chgp1y,low52,high52,movAvg10d",
+              "default": "chgp3m,chgp6m,chgp9m,chgp1y,low52,high52"
+            }
+          ],
+          "tool_description": "Query for news, market moving, price quotes, chart, indices, analysis from investors and experts, etc...",
+          "tool_name": "Seeking Alpha",
+          "tool_category": "Finance"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'data': [{'id': 'AAPL', 'tickerId': 146, 'attributes': {'movAvg50d': 228.7152, 'chgp1m': 1.52110971868113, 'chgp3m': 3.02591764241547, 'chgp1y': 23.7841825175194, 'low52': None, 'high52': None}}, {'id': 'TSLA', 'tickerId': 16123, 'attributes': {'movAvg50d': 270.619, 'chgp1m': 23.6635833426204, 'chgp3m': 59.1176330003346, 'chgp1y': 41.007285665876, 'low52': None, 'high52': None}}, {'id': 'MSFT', 'tickerId': 575, 'attributes': {'movAvg50d': 421.3598, 'chgp1m': -1.20518509868037, 'chgp3m': 2.21099942006573, 'chgp1y': 11.7218245688175, 'low52': None, 'high52': None}}]}\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Store Apps', 'api_name': 'App Reviews', 'tool_input': '{\"app_id\":\"com.example.app1\",\"device\":\"PHONE\",\"region\":\"us\",\"sort_by\":\"MOST_RELEVANT\",\"rating\":\"FOUR_STARS\",\"limit\":10,\"language\":\"en\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "App Reviews",
+          "api_description": "Get all app reviews.",
+          "required_parameters": [
+            {
+              "name": "app_id",
+              "type": "STRING",
+              "description": "App Id of the app for which to get reviews.",
+              "default": "com.snapchat.android"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "device",
+              "type": "ENUM",
+              "description": "Only return reviews made on a specific device type.\nAllowed values: `PHONE`, `TABLET`, `CHROMEBOOK`.\nDefault: `PHONE`.",
+              "default": ""
+            },
+            {
+              "name": "region",
+              "type": "STRING",
+              "description": "The country code of country/region to use, specified as a 2-letter country code - see [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).\n**Default**: `us`.",
+              "default": "us"
+            },
+            {
+              "name": "sort_by",
+              "type": "ENUM",
+              "description": "How to sort the reviews in the results.\nAllowed values: `MOST_RELEVANT`, `NEWEST`, `RATING`.\nDefault: `MOST_RELEVANT`.",
+              "default": ""
+            },
+            {
+              "name": "rating",
+              "type": "ENUM",
+              "description": "Only return reviews with a certain star rating.\nAllowed values: `ANY`, `ONE_STAR`, `TWO_STARS`, `THREE_STARS`, `FOUR_STARS`, `FIVE_STARS`.\nDefault: `ANY`.",
+              "default": ""
+            },
+            {
+              "name": "limit",
+              "type": "NUMBER",
+              "description": "Maximum number of reviews in the results.",
+              "default": "10"
+            },
+            {
+              "name": "cursor",
+              "type": "STRING",
+              "description": "Specify a cursor from the previous request to get the next set of results.",
+              "default": ""
+            },
+            {
+              "name": "language",
+              "type": "STRING",
+              "description": "The language to use, specified as a 2-letter language code - see [ISO 639-1 alpha-2](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).\n**Default**: `en`.",
+              "default": "en"
+            }
+          ],
+          "tool_description": "Extremely Comprehensive API to search and list apps/games top charts on the Google Play Apps Store, including extensive app details and reviews in real-time.",
+          "tool_name": "Store Apps",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'status': 'OK', 'request_id': 'b941fad9-9fd4-4fa0-ad0e-51307abd63c1', 'data': {'reviews': [], 'cursor': None}}\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'JoJ Web Search', 'api_name': 'Search', 'tool_input': '{\"query\": \"nike running shoes site:instagram.com\", \"related_keywords\": \"true\", \"limit\": 300}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Search",
+          "api_description": "Web Search",
+          "required_parameters": [
+            {
+              "name": "query",
+              "type": "STRING",
+              "description": "Search query. You can use Google Search parameters.\n\ne.g. `adele site:youtube.com`\ne.g. `harry potter filetype:pdf`\ne.g. `inurl:store`\ne.g. `ronaldo -cristiano`",
+              "default": "Nike"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "related_keywords",
+              "type": "STRING",
+              "description": "Shows related keywords. Default: `false`\n\n*Entering `true`, increases API latency*",
+              "default": "true"
+            },
+            {
+              "name": "limit",
+              "type": "NUMBER",
+              "description": "Max results number. Max recommended value is `300`.",
+              "default": "10"
+            }
+          ],
+          "tool_description": "JoJ Web Search API. Search the world's information, including webpages, related keywords and more.",
+          "tool_name": "JoJ Web Search",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'search_term': 'nike running shoes site:instagram.com', 'knowledge_panel': None, 'results': [{'position': 1, 'url': 'https://www.instagram.com/nikerunning/', 'title': 'Nike Running (@nikerunning) \\u2022 Instagram photos and videos', 'description': 'Max comfort. More miles. The Vomero 18 sets a new standard in maximum cushioning and road running comfort with double-stacked ZoomX and ReactX foams to keep\\\\xa0...'}, {'position': 2, 'url': 'https://www.instagram.com/therunningshoegeek/p/DCmn8Wotxwk/', 'title': 'Get a look of the upcoming Nike Vomero 18, launching 27-Feb 2025 ...', 'description': 'Get a look of the upcoming Nike Vomero 18, launching 27-Feb 2025. @nikerunning are making big changes to their range next year,\\\\xa0...'}, {'position': 3, 'url': 'https://www.instagram.com/ryansrunningreviews/reel/DCtq8PJxeb4/', 'title': 'Nike just launched two new running shoes. The Vomero ... - Instagram', 'description': 'The Vomero 18 and the Pegasus Premium. Nike also is trying to categorize their running shoe ...'}, {'position': 4, 'url': 'https://www.instagram.com/nikerunning/p/DBRlwgUy9ox/', 'title': 'Run in the rain. The Nike Pegasus 41 GORE-TEX is ... - Instagram', 'description': 'Run in the rain. The Nike Pegasus 41 GORE-TEX is waterproof, responsive, and built to propel you in wet conditions.'}, {'position': 5, 'url': 'https://www.instagram.com/therunningshoegeek/reel/DC3NJ8VNakU/', 'title': \\\"Running Shoe Geek | Dylan Stevenson | Nike's 2025 Ekiden Pack at ...\\\", 'description': '14 l\"}"
+      }
+    ],
+    [
+      {
+        "task": "{'category': 'Social', 'tool_name': 'Tagdef', 'api_name': 'Get list of definitions', 'tool_input': '{\"hashtag\":\"fitness\"}, {\"hashtag\":\"healthyliving\"}, {\"hashtag\":\"workout\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Get list of definitions",
+          "api_description": "Returns the top definitions, currently max 5. Ordered by popularity. This popularity is based on user votes, but is weighed using an intern algorithm on Tagdef.com",
+          "required_parameters": [
+            {
+              "name": "hashtag",
+              "type": "STRING",
+              "description": "The name of the hashtag",
+              "default": "ff"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "Tagdef.com is the worlds largest hashtag dictionary. Use this api to access these definitions. The content is user-generated, and the directory currently contains over 60.000 definitions. The hashtags can have many definitions each, ordered by user-votes.\r\n\r\nThe hashtags are often related to Twitter , but is also commonly used on Pinterest and Google+ .\r\n\r\nThis API is free to use, but you must provide a clickable link back to the tagdef.com page for the given tag when using information from the API. This link can be found in the uri part of the reply.",
+          "tool_name": "Tagdef",
+          "tool_category": "Social"
+        },
+        "output": "{\"error\": \"Tool input parse error...\", \"response\": \"\"}"
+      },
+      {
+        "task": "{'category': 'Finance', 'tool_name': 'Seeking Alpha', 'api_name': 'symbols/v2/get-momentum', 'tool_input': '{\"symbols\": \"aapl,tsla,msft\", \"fields\": \"movAvg50d,chgp1m,chgp3m,chgp1y,low52,high52\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "symbols/v2/get-momentum",
+          "api_description": "Get momentum of specific symbol",
+          "required_parameters": [
+            {
+              "name": "symbols",
+              "type": "STRING",
+              "description": "Symbol to query for data.  Separating  by comma to query multiple symbols at once, ex : aapl,tsla",
+              "default": "aapl,tsla"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "fields",
+              "type": "STRING",
+              "description": "One of the following : movAvg10d|movAvg50d|movAvg100d|movAvg200d|pClose10d|pClose50d|pClose100d|pClose200d|pWeekVolShares|low52|high52|chgp5d|chgp1m|chgp3m|chgp6m|chgp9m|chgpYtd|chgp1y|chgp3y|chgt3y|chgp5y|chgt5y|chgp10y|chgt10y|chgt1m|chgtYtd|chgt1y\nSeparated by comma for multiple options. Ex : chgp3m,chgp6m,chgp9m,chgp1y,low52,high52,movAvg10d",
+              "default": "chgp3m,chgp6m,chgp9m,chgp1y,low52,high52"
+            }
+          ],
+          "tool_description": "Query for news, market moving, price quotes, chart, indices, analysis from investors and experts, etc...",
+          "tool_name": "Seeking Alpha",
+          "tool_category": "Finance"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'data': [{'id': 'AAPL', 'tickerId': 146, 'attributes': {'movAvg50d': 228.7152, 'chgp1m': 1.52110971868113, 'chgp3m': 3.02591764241547, 'chgp1y': 23.7841825175194, 'low52': None, 'high52': None}}, {'id': 'TSLA', 'tickerId': 16123, 'attributes': {'movAvg50d': 270.619, 'chgp1m': 23.6635833426204, 'chgp3m': 59.1176330003346, 'chgp1y': 41.007285665876, 'low52': None, 'high52': None}}, {'id': 'MSFT', 'tickerId': 575, 'attributes': {'movAvg50d': 421.3598, 'chgp1m': -1.20518509868037, 'chgp3m': 2.21099942006573, 'chgp1y': 11.7218245688175, 'low52': None, 'high52': None}}]}\"}"
+      },
+      {
+        "task": "{'category': 'Media', 'tool_name': 'Instagram Unofficial', 'api_name': 'User followers', 'tool_input': '{\"session_key\": \"your_session_key_here\", \"user_id\": \"influencer_user_id_here\", \"insta-proxy\": \"your_insta_proxy_here\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "User followers",
+          "api_description": "Get user followers.",
+          "required_parameters": [
+            {
+              "name": "session_key",
+              "type": "STRING",
+              "description": "Use our login api to get the session_key",
+              "default": ""
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "insta-proxy",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "username",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "max_id",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "user_id",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            }
+          ],
+          "tool_description": "Instagram Unofficial API",
+          "tool_name": "Instagram Unofficial",
+          "tool_category": "Media"
+        },
+        "output": "{\"error\": \"Function executing from toolenv.tools.Media.instagram_unofficial.api import user_followers error...\\nexpression cannot contain assignment, perhaps you meant \\\"==\\\"? (<string>, line 1)\", \"response\": \"\"}"
+      }
+    ],
+    [
+      {
+        "task": "{'category': 'Social', 'tool_name': 'Tagdef', 'api_name': 'Get list of definitions', 'tool_input': '{\"hashtag\":\"fitness\"}, {\"hashtag\":\"healthyliving\"}, {\"hashtag\":\"workout\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Get list of definitions",
+          "api_description": "Returns the top definitions, currently max 5. Ordered by popularity. This popularity is based on user votes, but is weighed using an intern algorithm on Tagdef.com",
+          "required_parameters": [
+            {
+              "name": "hashtag",
+              "type": "STRING",
+              "description": "The name of the hashtag",
+              "default": "ff"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "Tagdef.com is the worlds largest hashtag dictionary. Use this api to access these definitions. The content is user-generated, and the directory currently contains over 60.000 definitions. The hashtags can have many definitions each, ordered by user-votes.\r\n\r\nThe hashtags are often related to Twitter , but is also commonly used on Pinterest and Google+ .\r\n\r\nThis API is free to use, but you must provide a clickable link back to the tagdef.com page for the given tag when using information from the API. This link can be found in the uri part of the reply.",
+          "tool_name": "Tagdef",
+          "tool_category": "Social"
+        },
+        "output": "{\"error\": \"Tool input parse error...\", \"response\": \"\"}"
+      },
+      {
+        "task": "{'category': 'Tools', 'tool_name': 'HTML-2-JSON', 'api_name': 'cheerio', 'tool_input': '{\"selector\": \"h1,h2,h3,p,img\", \"ur\": \"https://www.competitor-website.com\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "cheerio",
+          "api_description": "returns the HTML page as JSON or Markdown",
+          "required_parameters": [
+            {
+              "name": "selector",
+              "type": "STRING",
+              "description": "",
+              "default": "div"
+            },
+            {
+              "name": "ur",
+              "type": "STRING",
+              "description": "",
+              "default": "https://www.google.com"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "markdown",
+              "type": "STRING",
+              "description": "",
+              "default": "true"
+            },
+            {
+              "name": "json",
+              "type": "STRING",
+              "description": "",
+              "default": "true"
+            }
+          ],
+          "tool_description": "Convert a public HTML page into JSON (or Markdown)",
+          "tool_name": "HTML-2-JSON",
+          "tool_category": "Tools"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'selector': 'h1,h2,h3,p,img', 'json': True, 'markdown': True, 'data': [[{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-icon'}, {'key': 'src', 'value': '/static/images/icons/wikipedia.png'}, {'key': 'alt', 'value': ''}, {'key': 'aria-hidden', 'value': 'true'}], 'children': []}, {'type': 'element', 'tagName': 'span', 'attributes': [{'key': 'class', 'value': 'mw-logo-container skin-invert'}], 'children': [{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-wordmark'}, {'key': 'alt', 'value': 'Wikipedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-wordmark-en.svg'}, {'key': 'style', 'value': 'width: 7.5em; height: 1.125em;'}], 'children': []}, {'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-tagline'}, {'key': 'alt', 'value': 'The Free Encyclopedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-tagline-en.svg'}, {'key': 'style', 'value': 'width: 7.3125em; height: 0.8125em;'}], 'children': []}]}], [{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-wordmark'}, {'key': 'alt', 'value': 'Wikipedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-wordmark-en.svg'}, {'key': 'style', 'value': 'width: 7.5em; height: 1.125em;'}], 'children': []}, {'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-tagline'}, {'key': 'alt', 'value': 'T\"}"
+      },
+      {
+        "task": "{'category': 'Commerce', 'tool_name': 'E-mail Check Invalid or Disposable Domain', 'api_name': 'emailValidation', 'tool_input': '{\"email\": \"example@domain.com\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "emailValidation",
+          "api_description": "Clean your email list database with our free email checker and verifier",
+          "required_parameters": [
+            {
+              "name": "email",
+              "type": "STRING",
+              "description": "Email to be verified",
+              "default": "info@peekdomain.com"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "Easily check if a certain e-mail address is valid. Is it a valid domain? Is the e-mail a temporary/disposable e-mail? That’s a common indicator of spamming/trolling, so now there’s an API for you so you can easily block it!",
+          "tool_name": "E-mail Check Invalid or Disposable Domain",
+          "tool_category": "Commerce"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'domain': 'domain.com', 'account': 'example', 'block': False, 'disposable': False, 'dns': True, 'syntaxVerified': True, 'mxHosts': ['MX pointer domain-com.mail.protection.outlook.com. from DNS with priority: 10'], 'mailStatus': 'accept_all', 'reason': 'accepted_email', 'role': False}\"}"
+      },
+      {
+        "task": "{'category': 'Media', 'tool_name': 'Instagram Unofficial', 'api_name': 'User followers', 'tool_input': '{\"session_key\": \"your_session_key_here\", \"user_id\": \"influencer_user_id_here\", \"insta-proxy\": \"your_insta_proxy_here\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "User followers",
+          "api_description": "Get user followers.",
+          "required_parameters": [
+            {
+              "name": "session_key",
+              "type": "STRING",
+              "description": "Use our login api to get the session_key",
+              "default": ""
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "insta-proxy",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "username",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "max_id",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "user_id",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            }
+          ],
+          "tool_description": "Instagram Unofficial API",
+          "tool_name": "Instagram Unofficial",
+          "tool_category": "Media"
+        },
+        "output": "{\"error\": \"Function executing from toolenv.tools.Media.instagram_unofficial.api import user_followers error...\\nexpression cannot contain assignment, perhaps you meant \\\"==\\\"? (<string>, line 1)\", \"response\": \"\"}"
+      }
+    ],
+    [
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Screenshot URL to image', 'api_name': 'Screenshot Endpoint', 'tool_input': '{\"url\": \"https://www.competitor-website.com\", \"width\": \"1920\", \"height\": \"1080\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Screenshot Endpoint",
+          "api_description": "Take a screenshot from a webpage url.",
+          "required_parameters": [
+            {
+              "name": "height",
+              "type": "STRING",
+              "description": "",
+              "default": "1080"
+            },
+            {
+              "name": "url",
+              "type": "STRING",
+              "description": "",
+              "default": "https://rapidapi.com/marketplace"
+            },
+            {
+              "name": "width",
+              "type": "STRING",
+              "description": "",
+              "default": "1920"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "fullscreen",
+              "type": "STRING",
+              "description": "",
+              "default": "true"
+            }
+          ],
+          "tool_description": "Generate screenshots of websites with simple api, accept various parameters such as width, height, full page",
+          "tool_name": "Screenshot URL to image",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'screenshotUrl': 'https://storage.linebot.site/screenshotpxpfdd1733153478200.png'}\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Store Apps', 'api_name': 'App Reviews', 'tool_input': '{\"app_id\":\"com.example.app1\",\"device\":\"PHONE\",\"region\":\"us\",\"sort_by\":\"MOST_RELEVANT\",\"rating\":\"FOUR_STARS\",\"limit\":10,\"language\":\"en\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "App Reviews",
+          "api_description": "Get all app reviews.",
+          "required_parameters": [
+            {
+              "name": "app_id",
+              "type": "STRING",
+              "description": "App Id of the app for which to get reviews.",
+              "default": "com.snapchat.android"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "device",
+              "type": "ENUM",
+              "description": "Only return reviews made on a specific device type.\nAllowed values: `PHONE`, `TABLET`, `CHROMEBOOK`.\nDefault: `PHONE`.",
+              "default": ""
+            },
+            {
+              "name": "region",
+              "type": "STRING",
+              "description": "The country code of country/region to use, specified as a 2-letter country code - see [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).\n**Default**: `us`.",
+              "default": "us"
+            },
+            {
+              "name": "sort_by",
+              "type": "ENUM",
+              "description": "How to sort the reviews in the results.\nAllowed values: `MOST_RELEVANT`, `NEWEST`, `RATING`.\nDefault: `MOST_RELEVANT`.",
+              "default": ""
+            },
+            {
+              "name": "rating",
+              "type": "ENUM",
+              "description": "Only return reviews with a certain star rating.\nAllowed values: `ANY`, `ONE_STAR`, `TWO_STARS`, `THREE_STARS`, `FOUR_STARS`, `FIVE_STARS`.\nDefault: `ANY`.",
+              "default": ""
+            },
+            {
+              "name": "limit",
+              "type": "NUMBER",
+              "description": "Maximum number of reviews in the results.",
+              "default": "10"
+            },
+            {
+              "name": "cursor",
+              "type": "STRING",
+              "description": "Specify a cursor from the previous request to get the next set of results.",
+              "default": ""
+            },
+            {
+              "name": "language",
+              "type": "STRING",
+              "description": "The language to use, specified as a 2-letter language code - see [ISO 639-1 alpha-2](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes).\n**Default**: `en`.",
+              "default": "en"
+            }
+          ],
+          "tool_description": "Extremely Comprehensive API to search and list apps/games top charts on the Google Play Apps Store, including extensive app details and reviews in real-time.",
+          "tool_name": "Store Apps",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'status': 'OK', 'request_id': 'b941fad9-9fd4-4fa0-ad0e-51307abd63c1', 'data': {'reviews': [], 'cursor': None}}\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'JoJ Web Search', 'api_name': 'Search', 'tool_input': '{\"query\": \"nike running shoes site:instagram.com\", \"related_keywords\": \"true\", \"limit\": 300}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Search",
+          "api_description": "Web Search",
+          "required_parameters": [
+            {
+              "name": "query",
+              "type": "STRING",
+              "description": "Search query. You can use Google Search parameters.\n\ne.g. `adele site:youtube.com`\ne.g. `harry potter filetype:pdf`\ne.g. `inurl:store`\ne.g. `ronaldo -cristiano`",
+              "default": "Nike"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "related_keywords",
+              "type": "STRING",
+              "description": "Shows related keywords. Default: `false`\n\n*Entering `true`, increases API latency*",
+              "default": "true"
+            },
+            {
+              "name": "limit",
+              "type": "NUMBER",
+              "description": "Max results number. Max recommended value is `300`.",
+              "default": "10"
+            }
+          ],
+          "tool_description": "JoJ Web Search API. Search the world's information, including webpages, related keywords and more.",
+          "tool_name": "JoJ Web Search",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'search_term': 'nike running shoes site:instagram.com', 'knowledge_panel': None, 'results': [{'position': 1, 'url': 'https://www.instagram.com/nikerunning/', 'title': 'Nike Running (@nikerunning) \\u2022 Instagram photos and videos', 'description': 'Max comfort. More miles. The Vomero 18 sets a new standard in maximum cushioning and road running comfort with double-stacked ZoomX and ReactX foams to keep\\\\xa0...'}, {'position': 2, 'url': 'https://www.instagram.com/therunningshoegeek/p/DCmn8Wotxwk/', 'title': 'Get a look of the upcoming Nike Vomero 18, launching 27-Feb 2025 ...', 'description': 'Get a look of the upcoming Nike Vomero 18, launching 27-Feb 2025. @nikerunning are making big changes to their range next year,\\\\xa0...'}, {'position': 3, 'url': 'https://www.instagram.com/ryansrunningreviews/reel/DCtq8PJxeb4/', 'title': 'Nike just launched two new running shoes. The Vomero ... - Instagram', 'description': 'The Vomero 18 and the Pegasus Premium. Nike also is trying to categorize their running shoe ...'}, {'position': 4, 'url': 'https://www.instagram.com/nikerunning/p/DBRlwgUy9ox/', 'title': 'Run in the rain. The Nike Pegasus 41 GORE-TEX is ... - Instagram', 'description': 'Run in the rain. The Nike Pegasus 41 GORE-TEX is waterproof, responsive, and built to propel you in wet conditions.'}, {'position': 5, 'url': 'https://www.instagram.com/therunningshoegeek/reel/DC3NJ8VNakU/', 'title': \\\"Running Shoe Geek | Dylan Stevenson | Nike's 2025 Ekiden Pack at ...\\\", 'description': '14 l\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Location and Time', 'api_name': 'Get Time Diff by City', 'tool_input': '{\"from_city\": \"Los Angeles\", \"to_city\": \"New York\", \"from_time\": \"2023-01-01 10:00:00\", \"to_time\": \"2023-01-01 12:00:00\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Get Time Diff by City",
+          "api_description": "Find out time difference from `from_time` to `to_time` for specified cities. Daylight saving time are taken care of.  **Note**: the fuzzy search of provided city may not be the one you want due to multiple cities may have the same name, the most common one will be used. In this case, use a geocoding service to find the exact geolocation of the city, use `/timediff/bylocation` endpoint instead.",
+          "required_parameters": [
+            {
+              "name": "from_city",
+              "type": "STRING",
+              "description": "Name of the city.",
+              "default": "Los Angeles"
+            },
+            {
+              "name": "to_city",
+              "type": "STRING",
+              "description": "Name of the city.",
+              "default": "New York"
+            },
+            {
+              "name": "to_time",
+              "type": "STRING",
+              "description": "Time, fuzzy search is supported.",
+              "default": "2023-01-01 12:34:56"
+            },
+            {
+              "name": "from_time",
+              "type": "STRING",
+              "description": "Time, fuzzy search is supported.",
+              "default": "2020-01-01 12:34:56"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "A collection of location and time utilities. You can search for country/city information worldwide, find out distance between two locations/cities, get location data from IP address, solve any time questions regarding different timezones, get sunrise/sunset times at any location, get holiday information worldwide, and much more!",
+          "tool_name": "Location and Time",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'request': {'from_time': '2023-01-01T10:00:00-08:00', 'from_city': 'Los Angeles, US', 'from_timezone': 'America/Los_Angeles', 'to_time': '2023-01-01T12:00:00-05:00', 'to_city': 'New York City, US', 'to_timezone': 'America/Los_Angeles'}, 'response': {'years': 0, 'months': 0, 'days': 0, 'hours': -1, 'minutes': 0, 'seconds': 0}}\"}"
+      }
+    ],
+    [
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Geography', 'api_name': 'Search Countries By Continent', 'tool_input': '{\"continent\": \"Europe\", \"limit\": 5, \"fields\": \"name,population\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Search Countries By Continent",
+          "api_description": "Search Countries by its Continent",
+          "required_parameters": [
+            {
+              "name": "continent",
+              "type": "STRING",
+              "description": "The continent of the country. This search is case insensitive and exact match",
+              "default": "North America"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "offset",
+              "type": "NUMBER",
+              "description": "The page number from which the search should continue. Its zero indexed, hence, starts with 0",
+              "default": 0
+            },
+            {
+              "name": "fields",
+              "type": "STRING",
+              "description": "Comma separated fields list to filter response",
+              "default": ""
+            },
+            {
+              "name": "limit",
+              "type": "NUMBER",
+              "description": "The maximum records that can be returned within a page",
+              "default": 10
+            }
+          ],
+          "tool_description": "Powerful APIs for getting information about Countries and Cities",
+          "tool_name": "Geography",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"[{'href': '/apis/geography/v1/country/ALA', 'name': {'common': 'Aland Islands', 'official': 'Aland Islands', 'nativeName': [{'lang': 'swe', 'official': 'Landskapet Aland', 'common': 'Aland'}], 'translations': [{'lang': 'ara', 'official': '\\u062c\\u0632\\u0631 \\u0627\\u0654\\u0648\\u0644\\u0627\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0631 \\u0627\\u0654\\u0648\\u0644\\u0627\\u0646\\u062f'}, {'lang': 'bre', 'official': 'Inizi Aland', 'common': 'Aland'}, {'lang': 'ces', 'official': 'Alandske ostrovy', 'common': 'Alandy'}, {'lang': 'cym', 'official': 'Aland Islands', 'common': 'Aland Islands'}, {'lang': 'deu', 'official': 'Aland-Inseln', 'common': 'Aland'}, {'lang': 'est', 'official': 'Ahvenamaa maakond', 'common': 'Ahvenamaa'}, {'lang': 'fin', 'official': 'Ahvenanmaan maakunta', 'common': 'Ahvenanmaa'}, {'lang': 'fra', 'official': 'Ahvenanmaa', 'common': 'Ahvenanmaa'}, {'lang': 'hrv', 'official': 'Aland Islands', 'common': 'Alandski otoci'}, {'lang': 'hun', 'official': 'Aland-szigetek', 'common': 'Aland-szigetek'}, {'lang': 'ita', 'official': 'Isole Aland', 'common': 'Isole Aland'}, {'lang': 'jpn', 'official': '\\u30aa\\u30fc\\u30e9\\u30f3\\u30c8\\u3099\\u8af8\\u5cf6', 'common': '\\u30aa\\u30fc\\u30e9\\u30f3\\u30c8\\u3099\\u8af8\\u5cf6'}, {'lang': 'kor', 'official': '\\u110b\\u1169\\u11af\\u1105\\u1161\\u11ab\\u1103\\u1173 \\u110c\\u1166\\u1103\\u1169', 'common': '\\u110b\\u1169\\u11af\\u1105\\u1161\\u11ab\\u1103\\u1173 \\u110c\\u1166\\u1103\\u1169'}, {'lang': 'nld', 'official': 'Aland eilanden', 'common': 'Alandeilanden'}, {'lang': 'per', 'official': '\\u062c\\u0632\\u0627\\u06cc\\u0631 \\u0627\\u0644\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0627\\u06cc\\u0631 \\u0627\\u0644\\u0646\\u062f'}, {'lang': 'pol', 'official': 'Wyspy Alandzkie', 'common': 'Wyspy Alandzkie'}, {'lang': 'por', 'official': 'Ilhas Aland', 'common': 'Alandia'}, {'lang': 'rus', 'official': '\\u0410\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0438\\u0435 \\u043e\\u0441\\u0442\\u0440\\u043e\\u0432\\u0430', 'common': '\\u0410\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0438\\u0435 \\u043e\\u0441\\u0442\\u0440\\u043e\\u0432\\u0430'}, {'lang': 'slk', 'official': 'Alandske ostrovy', 'common': 'Alandy'}, {'lang': 'spa', 'official': 'Islas Aland', 'common': 'Alandia'}, {'lang': 'srp', 'official': '\\u041e\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0430 \\u041e\\u0441\\u0442\\u0440\\u0432\\u0430', 'common': '\\u041e\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0430 \\u041e\\u0441\\u0442\\u0440\\u0432\\u0430'}, {'lang': 'swe', 'official': 'Aland', 'common': 'Aland'}, {'lang': 'tur', 'official': 'Aland Adalar\\u0131', 'common': 'Aland'}, {'lang': 'urd', 'official': '\\u062c\\u0632\\u0627\\u064a\\u0654\\u0631 \\u0627\\u0648\\u0644\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0627\\u064a\\u0654\\u0631 \\u0627\\u0648\\u0644\\u0646\\u062f'}, {'lang': 'zho', 'official': '\\u5965\\u5170\\u7fa4\\u5c9b', 'common': '\\u5965\\u5170\\u7fa4\\u5c9b'}]}, 'population': 29458}, {'href': '/apis/geography/v1/country/ALB', 'name': {'common': 'Albania', 'official\"}"
+      },
+      {
+        "task": "{'category': 'Tools', 'tool_name': 'HTML-2-JSON', 'api_name': 'cheerio', 'tool_input': '{\"selector\": \"h1,h2,h3,p,img\", \"ur\": \"https://www.competitor-website.com\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "cheerio",
+          "api_description": "returns the HTML page as JSON or Markdown",
+          "required_parameters": [
+            {
+              "name": "selector",
+              "type": "STRING",
+              "description": "",
+              "default": "div"
+            },
+            {
+              "name": "ur",
+              "type": "STRING",
+              "description": "",
+              "default": "https://www.google.com"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "markdown",
+              "type": "STRING",
+              "description": "",
+              "default": "true"
+            },
+            {
+              "name": "json",
+              "type": "STRING",
+              "description": "",
+              "default": "true"
+            }
+          ],
+          "tool_description": "Convert a public HTML page into JSON (or Markdown)",
+          "tool_name": "HTML-2-JSON",
+          "tool_category": "Tools"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'selector': 'h1,h2,h3,p,img', 'json': True, 'markdown': True, 'data': [[{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-icon'}, {'key': 'src', 'value': '/static/images/icons/wikipedia.png'}, {'key': 'alt', 'value': ''}, {'key': 'aria-hidden', 'value': 'true'}], 'children': []}, {'type': 'element', 'tagName': 'span', 'attributes': [{'key': 'class', 'value': 'mw-logo-container skin-invert'}], 'children': [{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-wordmark'}, {'key': 'alt', 'value': 'Wikipedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-wordmark-en.svg'}, {'key': 'style', 'value': 'width: 7.5em; height: 1.125em;'}], 'children': []}, {'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-tagline'}, {'key': 'alt', 'value': 'The Free Encyclopedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-tagline-en.svg'}, {'key': 'style', 'value': 'width: 7.3125em; height: 0.8125em;'}], 'children': []}]}], [{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-wordmark'}, {'key': 'alt', 'value': 'Wikipedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-wordmark-en.svg'}, {'key': 'style', 'value': 'width: 7.5em; height: 1.125em;'}], 'children': []}, {'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-tagline'}, {'key': 'alt', 'value': 'T\"}"
+      }
+    ],
+    [
+      {
+        "task": "{'category': 'Social', 'tool_name': 'Tagdef', 'api_name': 'Get list of definitions', 'tool_input': '{\"hashtag\":\"fitness\"}, {\"hashtag\":\"healthyliving\"}, {\"hashtag\":\"workout\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Get list of definitions",
+          "api_description": "Returns the top definitions, currently max 5. Ordered by popularity. This popularity is based on user votes, but is weighed using an intern algorithm on Tagdef.com",
+          "required_parameters": [
+            {
+              "name": "hashtag",
+              "type": "STRING",
+              "description": "The name of the hashtag",
+              "default": "ff"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "Tagdef.com is the worlds largest hashtag dictionary. Use this api to access these definitions. The content is user-generated, and the directory currently contains over 60.000 definitions. The hashtags can have many definitions each, ordered by user-votes.\r\n\r\nThe hashtags are often related to Twitter , but is also commonly used on Pinterest and Google+ .\r\n\r\nThis API is free to use, but you must provide a clickable link back to the tagdef.com page for the given tag when using information from the API. This link can be found in the uri part of the reply.",
+          "tool_name": "Tagdef",
+          "tool_category": "Social"
+        },
+        "output": "{\"error\": \"Tool input parse error...\", \"response\": \"\"}"
+      },
+      {
+        "task": "{'category': 'Location', 'tool_name': 'World Time', 'api_name': 'Timezone for Location', 'tool_input': '{\"location\":\"New York\",\"area\":\"America\"}, {\"location\":\"Tokyo\",\"area\":\"Asia\"}, {\"location\":\"Berlin\",\"area\":\"Europe\"}, {\"location\":\"Sydney\",\"area\":\"Australia\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Timezone for Location",
+          "api_description": "Request the current time for a timezone (in plain text or JSON)",
+          "required_parameters": [
+            {
+              "name": "location",
+              "type": "STRING",
+              "description": "Location, example:\"London\" or \"London.txt\"",
+              "default": "London"
+            },
+            {
+              "name": "area",
+              "type": "STRING",
+              "description": "Area, example:\"Europe\"",
+              "default": "Europe"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "WorldTimeAPI is a simple web service which returns the local-time for a given timezone as either JSON or plain-text. Some additional information is provided, such as whether that timezone is currently in Daylight Savings Time, when DST starts and ends, the UTC offset, etc.",
+          "tool_name": "World Time",
+          "tool_category": "Location"
+        },
+        "output": "{\"error\": \"Tool input parse error...\", \"response\": \"\"}"
+      }
+    ],
+    [
+      {
+        "task": "{'category': 'Location', 'tool_name': 'World Time', 'api_name': 'Timezone for Location', 'tool_input': '{\"location\":\"New York\",\"area\":\"America\"}, {\"location\":\"Tokyo\",\"area\":\"Asia\"}, {\"location\":\"Berlin\",\"area\":\"Europe\"}, {\"location\":\"Sydney\",\"area\":\"Australia\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Timezone for Location",
+          "api_description": "Request the current time for a timezone (in plain text or JSON)",
+          "required_parameters": [
+            {
+              "name": "location",
+              "type": "STRING",
+              "description": "Location, example:\"London\" or \"London.txt\"",
+              "default": "London"
+            },
+            {
+              "name": "area",
+              "type": "STRING",
+              "description": "Area, example:\"Europe\"",
+              "default": "Europe"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "WorldTimeAPI is a simple web service which returns the local-time for a given timezone as either JSON or plain-text. Some additional information is provided, such as whether that timezone is currently in Daylight Savings Time, when DST starts and ends, the UTC offset, etc.",
+          "tool_name": "World Time",
+          "tool_category": "Location"
+        },
+        "output": "{\"error\": \"Tool input parse error...\", \"response\": \"\"}"
+      },
+      {
+        "task": "{'category': 'Social', 'tool_name': 'Tagdef', 'api_name': 'Get list of definitions', 'tool_input': '{\"hashtag\":\"fitness\"}, {\"hashtag\":\"healthyliving\"}, {\"hashtag\":\"workout\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Get list of definitions",
+          "api_description": "Returns the top definitions, currently max 5. Ordered by popularity. This popularity is based on user votes, but is weighed using an intern algorithm on Tagdef.com",
+          "required_parameters": [
+            {
+              "name": "hashtag",
+              "type": "STRING",
+              "description": "The name of the hashtag",
+              "default": "ff"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "Tagdef.com is the worlds largest hashtag dictionary. Use this api to access these definitions. The content is user-generated, and the directory currently contains over 60.000 definitions. The hashtags can have many definitions each, ordered by user-votes.\r\n\r\nThe hashtags are often related to Twitter , but is also commonly used on Pinterest and Google+ .\r\n\r\nThis API is free to use, but you must provide a clickable link back to the tagdef.com page for the given tag when using information from the API. This link can be found in the uri part of the reply.",
+          "tool_name": "Tagdef",
+          "tool_category": "Social"
+        },
+        "output": "{\"error\": \"Tool input parse error...\", \"response\": \"\"}"
+      }
+    ],
+    [
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Screenshot URL to image', 'api_name': 'Screenshot Endpoint', 'tool_input': '{\"url\": \"https://www.competitor-website.com\", \"width\": \"1920\", \"height\": \"1080\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Screenshot Endpoint",
+          "api_description": "Take a screenshot from a webpage url.",
+          "required_parameters": [
+            {
+              "name": "height",
+              "type": "STRING",
+              "description": "",
+              "default": "1080"
+            },
+            {
+              "name": "url",
+              "type": "STRING",
+              "description": "",
+              "default": "https://rapidapi.com/marketplace"
+            },
+            {
+              "name": "width",
+              "type": "STRING",
+              "description": "",
+              "default": "1920"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "fullscreen",
+              "type": "STRING",
+              "description": "",
+              "default": "true"
+            }
+          ],
+          "tool_description": "Generate screenshots of websites with simple api, accept various parameters such as width, height, full page",
+          "tool_name": "Screenshot URL to image",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'screenshotUrl': 'https://storage.linebot.site/screenshotpxpfdd1733153478200.png'}\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Location and Time', 'api_name': 'Get Time Diff by City', 'tool_input': '{\"from_city\": \"Los Angeles\", \"to_city\": \"New York\", \"from_time\": \"2023-01-01 10:00:00\", \"to_time\": \"2023-01-01 12:00:00\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Get Time Diff by City",
+          "api_description": "Find out time difference from `from_time` to `to_time` for specified cities. Daylight saving time are taken care of.  **Note**: the fuzzy search of provided city may not be the one you want due to multiple cities may have the same name, the most common one will be used. In this case, use a geocoding service to find the exact geolocation of the city, use `/timediff/bylocation` endpoint instead.",
+          "required_parameters": [
+            {
+              "name": "from_city",
+              "type": "STRING",
+              "description": "Name of the city.",
+              "default": "Los Angeles"
+            },
+            {
+              "name": "to_city",
+              "type": "STRING",
+              "description": "Name of the city.",
+              "default": "New York"
+            },
+            {
+              "name": "to_time",
+              "type": "STRING",
+              "description": "Time, fuzzy search is supported.",
+              "default": "2023-01-01 12:34:56"
+            },
+            {
+              "name": "from_time",
+              "type": "STRING",
+              "description": "Time, fuzzy search is supported.",
+              "default": "2020-01-01 12:34:56"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "A collection of location and time utilities. You can search for country/city information worldwide, find out distance between two locations/cities, get location data from IP address, solve any time questions regarding different timezones, get sunrise/sunset times at any location, get holiday information worldwide, and much more!",
+          "tool_name": "Location and Time",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'request': {'from_time': '2023-01-01T10:00:00-08:00', 'from_city': 'Los Angeles, US', 'from_timezone': 'America/Los_Angeles', 'to_time': '2023-01-01T12:00:00-05:00', 'to_city': 'New York City, US', 'to_timezone': 'America/Los_Angeles'}, 'response': {'years': 0, 'months': 0, 'days': 0, 'hours': -1, 'minutes': 0, 'seconds': 0}}\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Geography', 'api_name': 'Search Countries By Continent', 'tool_input': '{\"continent\": \"Europe\", \"limit\": 5, \"fields\": \"name,population\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Search Countries By Continent",
+          "api_description": "Search Countries by its Continent",
+          "required_parameters": [
+            {
+              "name": "continent",
+              "type": "STRING",
+              "description": "The continent of the country. This search is case insensitive and exact match",
+              "default": "North America"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "offset",
+              "type": "NUMBER",
+              "description": "The page number from which the search should continue. Its zero indexed, hence, starts with 0",
+              "default": 0
+            },
+            {
+              "name": "fields",
+              "type": "STRING",
+              "description": "Comma separated fields list to filter response",
+              "default": ""
+            },
+            {
+              "name": "limit",
+              "type": "NUMBER",
+              "description": "The maximum records that can be returned within a page",
+              "default": 10
+            }
+          ],
+          "tool_description": "Powerful APIs for getting information about Countries and Cities",
+          "tool_name": "Geography",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"[{'href': '/apis/geography/v1/country/ALA', 'name': {'common': 'Aland Islands', 'official': 'Aland Islands', 'nativeName': [{'lang': 'swe', 'official': 'Landskapet Aland', 'common': 'Aland'}], 'translations': [{'lang': 'ara', 'official': '\\u062c\\u0632\\u0631 \\u0627\\u0654\\u0648\\u0644\\u0627\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0631 \\u0627\\u0654\\u0648\\u0644\\u0627\\u0646\\u062f'}, {'lang': 'bre', 'official': 'Inizi Aland', 'common': 'Aland'}, {'lang': 'ces', 'official': 'Alandske ostrovy', 'common': 'Alandy'}, {'lang': 'cym', 'official': 'Aland Islands', 'common': 'Aland Islands'}, {'lang': 'deu', 'official': 'Aland-Inseln', 'common': 'Aland'}, {'lang': 'est', 'official': 'Ahvenamaa maakond', 'common': 'Ahvenamaa'}, {'lang': 'fin', 'official': 'Ahvenanmaan maakunta', 'common': 'Ahvenanmaa'}, {'lang': 'fra', 'official': 'Ahvenanmaa', 'common': 'Ahvenanmaa'}, {'lang': 'hrv', 'official': 'Aland Islands', 'common': 'Alandski otoci'}, {'lang': 'hun', 'official': 'Aland-szigetek', 'common': 'Aland-szigetek'}, {'lang': 'ita', 'official': 'Isole Aland', 'common': 'Isole Aland'}, {'lang': 'jpn', 'official': '\\u30aa\\u30fc\\u30e9\\u30f3\\u30c8\\u3099\\u8af8\\u5cf6', 'common': '\\u30aa\\u30fc\\u30e9\\u30f3\\u30c8\\u3099\\u8af8\\u5cf6'}, {'lang': 'kor', 'official': '\\u110b\\u1169\\u11af\\u1105\\u1161\\u11ab\\u1103\\u1173 \\u110c\\u1166\\u1103\\u1169', 'common': '\\u110b\\u1169\\u11af\\u1105\\u1161\\u11ab\\u1103\\u1173 \\u110c\\u1166\\u1103\\u1169'}, {'lang': 'nld', 'official': 'Aland eilanden', 'common': 'Alandeilanden'}, {'lang': 'per', 'official': '\\u062c\\u0632\\u0627\\u06cc\\u0631 \\u0627\\u0644\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0627\\u06cc\\u0631 \\u0627\\u0644\\u0646\\u062f'}, {'lang': 'pol', 'official': 'Wyspy Alandzkie', 'common': 'Wyspy Alandzkie'}, {'lang': 'por', 'official': 'Ilhas Aland', 'common': 'Alandia'}, {'lang': 'rus', 'official': '\\u0410\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0438\\u0435 \\u043e\\u0441\\u0442\\u0440\\u043e\\u0432\\u0430', 'common': '\\u0410\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0438\\u0435 \\u043e\\u0441\\u0442\\u0440\\u043e\\u0432\\u0430'}, {'lang': 'slk', 'official': 'Alandske ostrovy', 'common': 'Alandy'}, {'lang': 'spa', 'official': 'Islas Aland', 'common': 'Alandia'}, {'lang': 'srp', 'official': '\\u041e\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0430 \\u041e\\u0441\\u0442\\u0440\\u0432\\u0430', 'common': '\\u041e\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0430 \\u041e\\u0441\\u0442\\u0440\\u0432\\u0430'}, {'lang': 'swe', 'official': 'Aland', 'common': 'Aland'}, {'lang': 'tur', 'official': 'Aland Adalar\\u0131', 'common': 'Aland'}, {'lang': 'urd', 'official': '\\u062c\\u0632\\u0627\\u064a\\u0654\\u0631 \\u0627\\u0648\\u0644\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0627\\u064a\\u0654\\u0631 \\u0627\\u0648\\u0644\\u0646\\u062f'}, {'lang': 'zho', 'official': '\\u5965\\u5170\\u7fa4\\u5c9b', 'common': '\\u5965\\u5170\\u7fa4\\u5c9b'}]}, 'population': 29458}, {'href': '/apis/geography/v1/country/ALB', 'name': {'common': 'Albania', 'official\"}"
+      },
+      {
+        "task": "{'category': 'Finance', 'tool_name': 'Seeking Alpha', 'api_name': 'symbols/v2/get-momentum', 'tool_input': '{\"symbols\": \"aapl,tsla,msft\", \"fields\": \"movAvg50d,chgp1m,chgp3m,chgp1y,low52,high52\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "symbols/v2/get-momentum",
+          "api_description": "Get momentum of specific symbol",
+          "required_parameters": [
+            {
+              "name": "symbols",
+              "type": "STRING",
+              "description": "Symbol to query for data.  Separating  by comma to query multiple symbols at once, ex : aapl,tsla",
+              "default": "aapl,tsla"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "fields",
+              "type": "STRING",
+              "description": "One of the following : movAvg10d|movAvg50d|movAvg100d|movAvg200d|pClose10d|pClose50d|pClose100d|pClose200d|pWeekVolShares|low52|high52|chgp5d|chgp1m|chgp3m|chgp6m|chgp9m|chgpYtd|chgp1y|chgp3y|chgt3y|chgp5y|chgt5y|chgp10y|chgt10y|chgt1m|chgtYtd|chgt1y\nSeparated by comma for multiple options. Ex : chgp3m,chgp6m,chgp9m,chgp1y,low52,high52,movAvg10d",
+              "default": "chgp3m,chgp6m,chgp9m,chgp1y,low52,high52"
+            }
+          ],
+          "tool_description": "Query for news, market moving, price quotes, chart, indices, analysis from investors and experts, etc...",
+          "tool_name": "Seeking Alpha",
+          "tool_category": "Finance"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'data': [{'id': 'AAPL', 'tickerId': 146, 'attributes': {'movAvg50d': 228.7152, 'chgp1m': 1.52110971868113, 'chgp3m': 3.02591764241547, 'chgp1y': 23.7841825175194, 'low52': None, 'high52': None}}, {'id': 'TSLA', 'tickerId': 16123, 'attributes': {'movAvg50d': 270.619, 'chgp1m': 23.6635833426204, 'chgp3m': 59.1176330003346, 'chgp1y': 41.007285665876, 'low52': None, 'high52': None}}, {'id': 'MSFT', 'tickerId': 575, 'attributes': {'movAvg50d': 421.3598, 'chgp1m': -1.20518509868037, 'chgp3m': 2.21099942006573, 'chgp1y': 11.7218245688175, 'low52': None, 'high52': None}}]}\"}"
+      }
+    ],
+    [
+      {
+        "task": "{'category': 'Tools', 'tool_name': 'HTML-2-JSON', 'api_name': 'cheerio', 'tool_input': '{\"selector\": \"h1,h2,h3,p,img\", \"ur\": \"https://www.competitor-website.com\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "cheerio",
+          "api_description": "returns the HTML page as JSON or Markdown",
+          "required_parameters": [
+            {
+              "name": "selector",
+              "type": "STRING",
+              "description": "",
+              "default": "div"
+            },
+            {
+              "name": "ur",
+              "type": "STRING",
+              "description": "",
+              "default": "https://www.google.com"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "markdown",
+              "type": "STRING",
+              "description": "",
+              "default": "true"
+            },
+            {
+              "name": "json",
+              "type": "STRING",
+              "description": "",
+              "default": "true"
+            }
+          ],
+          "tool_description": "Convert a public HTML page into JSON (or Markdown)",
+          "tool_name": "HTML-2-JSON",
+          "tool_category": "Tools"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'selector': 'h1,h2,h3,p,img', 'json': True, 'markdown': True, 'data': [[{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-icon'}, {'key': 'src', 'value': '/static/images/icons/wikipedia.png'}, {'key': 'alt', 'value': ''}, {'key': 'aria-hidden', 'value': 'true'}], 'children': []}, {'type': 'element', 'tagName': 'span', 'attributes': [{'key': 'class', 'value': 'mw-logo-container skin-invert'}], 'children': [{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-wordmark'}, {'key': 'alt', 'value': 'Wikipedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-wordmark-en.svg'}, {'key': 'style', 'value': 'width: 7.5em; height: 1.125em;'}], 'children': []}, {'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-tagline'}, {'key': 'alt', 'value': 'The Free Encyclopedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-tagline-en.svg'}, {'key': 'style', 'value': 'width: 7.3125em; height: 0.8125em;'}], 'children': []}]}], [{'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-wordmark'}, {'key': 'alt', 'value': 'Wikipedia'}, {'key': 'src', 'value': '/static/images/mobile/copyright/wikipedia-wordmark-en.svg'}, {'key': 'style', 'value': 'width: 7.5em; height: 1.125em;'}], 'children': []}, {'type': 'element', 'tagName': 'img', 'attributes': [{'key': 'class', 'value': 'mw-logo-tagline'}, {'key': 'alt', 'value': 'T\"}"
+      },
+      {
+        "task": "{'category': 'Location', 'tool_name': 'World Time', 'api_name': 'Timezone for Location', 'tool_input': '{\"location\":\"New York\",\"area\":\"America\"}, {\"location\":\"Tokyo\",\"area\":\"Asia\"}, {\"location\":\"Berlin\",\"area\":\"Europe\"}, {\"location\":\"Sydney\",\"area\":\"Australia\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Timezone for Location",
+          "api_description": "Request the current time for a timezone (in plain text or JSON)",
+          "required_parameters": [
+            {
+              "name": "location",
+              "type": "STRING",
+              "description": "Location, example:\"London\" or \"London.txt\"",
+              "default": "London"
+            },
+            {
+              "name": "area",
+              "type": "STRING",
+              "description": "Area, example:\"Europe\"",
+              "default": "Europe"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "WorldTimeAPI is a simple web service which returns the local-time for a given timezone as either JSON or plain-text. Some additional information is provided, such as whether that timezone is currently in Daylight Savings Time, when DST starts and ends, the UTC offset, etc.",
+          "tool_name": "World Time",
+          "tool_category": "Location"
+        },
+        "output": "{\"error\": \"Tool input parse error...\", \"response\": \"\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Location and Time', 'api_name': 'Get Time Diff by City', 'tool_input': '{\"from_city\": \"Los Angeles\", \"to_city\": \"New York\", \"from_time\": \"2023-01-01 10:00:00\", \"to_time\": \"2023-01-01 12:00:00\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Get Time Diff by City",
+          "api_description": "Find out time difference from `from_time` to `to_time` for specified cities. Daylight saving time are taken care of.  **Note**: the fuzzy search of provided city may not be the one you want due to multiple cities may have the same name, the most common one will be used. In this case, use a geocoding service to find the exact geolocation of the city, use `/timediff/bylocation` endpoint instead.",
+          "required_parameters": [
+            {
+              "name": "from_city",
+              "type": "STRING",
+              "description": "Name of the city.",
+              "default": "Los Angeles"
+            },
+            {
+              "name": "to_city",
+              "type": "STRING",
+              "description": "Name of the city.",
+              "default": "New York"
+            },
+            {
+              "name": "to_time",
+              "type": "STRING",
+              "description": "Time, fuzzy search is supported.",
+              "default": "2023-01-01 12:34:56"
+            },
+            {
+              "name": "from_time",
+              "type": "STRING",
+              "description": "Time, fuzzy search is supported.",
+              "default": "2020-01-01 12:34:56"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "A collection of location and time utilities. You can search for country/city information worldwide, find out distance between two locations/cities, get location data from IP address, solve any time questions regarding different timezones, get sunrise/sunset times at any location, get holiday information worldwide, and much more!",
+          "tool_name": "Location and Time",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'request': {'from_time': '2023-01-01T10:00:00-08:00', 'from_city': 'Los Angeles, US', 'from_timezone': 'America/Los_Angeles', 'to_time': '2023-01-01T12:00:00-05:00', 'to_city': 'New York City, US', 'to_timezone': 'America/Los_Angeles'}, 'response': {'years': 0, 'months': 0, 'days': 0, 'hours': -1, 'minutes': 0, 'seconds': 0}}\"}"
+      },
+      {
+        "task": "{'category': 'Data', 'tool_name': 'JoJ Web Search', 'api_name': 'Search', 'tool_input': '{\"query\": \"nike running shoes site:instagram.com\", \"related_keywords\": \"true\", \"limit\": 300}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Search",
+          "api_description": "Web Search",
+          "required_parameters": [
+            {
+              "name": "query",
+              "type": "STRING",
+              "description": "Search query. You can use Google Search parameters.\n\ne.g. `adele site:youtube.com`\ne.g. `harry potter filetype:pdf`\ne.g. `inurl:store`\ne.g. `ronaldo -cristiano`",
+              "default": "Nike"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "related_keywords",
+              "type": "STRING",
+              "description": "Shows related keywords. Default: `false`\n\n*Entering `true`, increases API latency*",
+              "default": "true"
+            },
+            {
+              "name": "limit",
+              "type": "NUMBER",
+              "description": "Max results number. Max recommended value is `300`.",
+              "default": "10"
+            }
+          ],
+          "tool_description": "JoJ Web Search API. Search the world's information, including webpages, related keywords and more.",
+          "tool_name": "JoJ Web Search",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'search_term': 'nike running shoes site:instagram.com', 'knowledge_panel': None, 'results': [{'position': 1, 'url': 'https://www.instagram.com/nikerunning/', 'title': 'Nike Running (@nikerunning) \\u2022 Instagram photos and videos', 'description': 'Max comfort. More miles. The Vomero 18 sets a new standard in maximum cushioning and road running comfort with double-stacked ZoomX and ReactX foams to keep\\\\xa0...'}, {'position': 2, 'url': 'https://www.instagram.com/therunningshoegeek/p/DCmn8Wotxwk/', 'title': 'Get a look of the upcoming Nike Vomero 18, launching 27-Feb 2025 ...', 'description': 'Get a look of the upcoming Nike Vomero 18, launching 27-Feb 2025. @nikerunning are making big changes to their range next year,\\\\xa0...'}, {'position': 3, 'url': 'https://www.instagram.com/ryansrunningreviews/reel/DCtq8PJxeb4/', 'title': 'Nike just launched two new running shoes. The Vomero ... - Instagram', 'description': 'The Vomero 18 and the Pegasus Premium. Nike also is trying to categorize their running shoe ...'}, {'position': 4, 'url': 'https://www.instagram.com/nikerunning/p/DBRlwgUy9ox/', 'title': 'Run in the rain. The Nike Pegasus 41 GORE-TEX is ... - Instagram', 'description': 'Run in the rain. The Nike Pegasus 41 GORE-TEX is waterproof, responsive, and built to propel you in wet conditions.'}, {'position': 5, 'url': 'https://www.instagram.com/therunningshoegeek/reel/DC3NJ8VNakU/', 'title': \\\"Running Shoe Geek | Dylan Stevenson | Nike's 2025 Ekiden Pack at ...\\\", 'description': '14 l\"}"
+      }
+    ],
+    [
+      {
+        "task": "{'category': 'Data', 'tool_name': 'Geography', 'api_name': 'Search Countries By Continent', 'tool_input': '{\"continent\": \"Europe\", \"limit\": 5, \"fields\": \"name,population\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Search Countries By Continent",
+          "api_description": "Search Countries by its Continent",
+          "required_parameters": [
+            {
+              "name": "continent",
+              "type": "STRING",
+              "description": "The continent of the country. This search is case insensitive and exact match",
+              "default": "North America"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "offset",
+              "type": "NUMBER",
+              "description": "The page number from which the search should continue. Its zero indexed, hence, starts with 0",
+              "default": 0
+            },
+            {
+              "name": "fields",
+              "type": "STRING",
+              "description": "Comma separated fields list to filter response",
+              "default": ""
+            },
+            {
+              "name": "limit",
+              "type": "NUMBER",
+              "description": "The maximum records that can be returned within a page",
+              "default": 10
+            }
+          ],
+          "tool_description": "Powerful APIs for getting information about Countries and Cities",
+          "tool_name": "Geography",
+          "tool_category": "Data"
+        },
+        "output": "{\"error\": \"\", \"response\": \"[{'href': '/apis/geography/v1/country/ALA', 'name': {'common': 'Aland Islands', 'official': 'Aland Islands', 'nativeName': [{'lang': 'swe', 'official': 'Landskapet Aland', 'common': 'Aland'}], 'translations': [{'lang': 'ara', 'official': '\\u062c\\u0632\\u0631 \\u0627\\u0654\\u0648\\u0644\\u0627\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0631 \\u0627\\u0654\\u0648\\u0644\\u0627\\u0646\\u062f'}, {'lang': 'bre', 'official': 'Inizi Aland', 'common': 'Aland'}, {'lang': 'ces', 'official': 'Alandske ostrovy', 'common': 'Alandy'}, {'lang': 'cym', 'official': 'Aland Islands', 'common': 'Aland Islands'}, {'lang': 'deu', 'official': 'Aland-Inseln', 'common': 'Aland'}, {'lang': 'est', 'official': 'Ahvenamaa maakond', 'common': 'Ahvenamaa'}, {'lang': 'fin', 'official': 'Ahvenanmaan maakunta', 'common': 'Ahvenanmaa'}, {'lang': 'fra', 'official': 'Ahvenanmaa', 'common': 'Ahvenanmaa'}, {'lang': 'hrv', 'official': 'Aland Islands', 'common': 'Alandski otoci'}, {'lang': 'hun', 'official': 'Aland-szigetek', 'common': 'Aland-szigetek'}, {'lang': 'ita', 'official': 'Isole Aland', 'common': 'Isole Aland'}, {'lang': 'jpn', 'official': '\\u30aa\\u30fc\\u30e9\\u30f3\\u30c8\\u3099\\u8af8\\u5cf6', 'common': '\\u30aa\\u30fc\\u30e9\\u30f3\\u30c8\\u3099\\u8af8\\u5cf6'}, {'lang': 'kor', 'official': '\\u110b\\u1169\\u11af\\u1105\\u1161\\u11ab\\u1103\\u1173 \\u110c\\u1166\\u1103\\u1169', 'common': '\\u110b\\u1169\\u11af\\u1105\\u1161\\u11ab\\u1103\\u1173 \\u110c\\u1166\\u1103\\u1169'}, {'lang': 'nld', 'official': 'Aland eilanden', 'common': 'Alandeilanden'}, {'lang': 'per', 'official': '\\u062c\\u0632\\u0627\\u06cc\\u0631 \\u0627\\u0644\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0627\\u06cc\\u0631 \\u0627\\u0644\\u0646\\u062f'}, {'lang': 'pol', 'official': 'Wyspy Alandzkie', 'common': 'Wyspy Alandzkie'}, {'lang': 'por', 'official': 'Ilhas Aland', 'common': 'Alandia'}, {'lang': 'rus', 'official': '\\u0410\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0438\\u0435 \\u043e\\u0441\\u0442\\u0440\\u043e\\u0432\\u0430', 'common': '\\u0410\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0438\\u0435 \\u043e\\u0441\\u0442\\u0440\\u043e\\u0432\\u0430'}, {'lang': 'slk', 'official': 'Alandske ostrovy', 'common': 'Alandy'}, {'lang': 'spa', 'official': 'Islas Aland', 'common': 'Alandia'}, {'lang': 'srp', 'official': '\\u041e\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0430 \\u041e\\u0441\\u0442\\u0440\\u0432\\u0430', 'common': '\\u041e\\u043b\\u0430\\u043d\\u0434\\u0441\\u043a\\u0430 \\u041e\\u0441\\u0442\\u0440\\u0432\\u0430'}, {'lang': 'swe', 'official': 'Aland', 'common': 'Aland'}, {'lang': 'tur', 'official': 'Aland Adalar\\u0131', 'common': 'Aland'}, {'lang': 'urd', 'official': '\\u062c\\u0632\\u0627\\u064a\\u0654\\u0631 \\u0627\\u0648\\u0644\\u0646\\u062f', 'common': '\\u062c\\u0632\\u0627\\u064a\\u0654\\u0631 \\u0627\\u0648\\u0644\\u0646\\u062f'}, {'lang': 'zho', 'official': '\\u5965\\u5170\\u7fa4\\u5c9b', 'common': '\\u5965\\u5170\\u7fa4\\u5c9b'}]}, 'population': 29458}, {'href': '/apis/geography/v1/country/ALB', 'name': {'common': 'Albania', 'official\"}"
+      },
+      {
+        "task": "{'category': 'Finance', 'tool_name': 'Seeking Alpha', 'api_name': 'symbols/v2/get-momentum', 'tool_input': '{\"symbols\": \"aapl,tsla,msft\", \"fields\": \"movAvg50d,chgp1m,chgp3m,chgp1y,low52,high52\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "symbols/v2/get-momentum",
+          "api_description": "Get momentum of specific symbol",
+          "required_parameters": [
+            {
+              "name": "symbols",
+              "type": "STRING",
+              "description": "Symbol to query for data.  Separating  by comma to query multiple symbols at once, ex : aapl,tsla",
+              "default": "aapl,tsla"
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "fields",
+              "type": "STRING",
+              "description": "One of the following : movAvg10d|movAvg50d|movAvg100d|movAvg200d|pClose10d|pClose50d|pClose100d|pClose200d|pWeekVolShares|low52|high52|chgp5d|chgp1m|chgp3m|chgp6m|chgp9m|chgpYtd|chgp1y|chgp3y|chgt3y|chgp5y|chgt5y|chgp10y|chgt10y|chgt1m|chgtYtd|chgt1y\nSeparated by comma for multiple options. Ex : chgp3m,chgp6m,chgp9m,chgp1y,low52,high52,movAvg10d",
+              "default": "chgp3m,chgp6m,chgp9m,chgp1y,low52,high52"
+            }
+          ],
+          "tool_description": "Query for news, market moving, price quotes, chart, indices, analysis from investors and experts, etc...",
+          "tool_name": "Seeking Alpha",
+          "tool_category": "Finance"
+        },
+        "output": "{\"error\": \"\", \"response\": \"{'data': [{'id': 'AAPL', 'tickerId': 146, 'attributes': {'movAvg50d': 228.7152, 'chgp1m': 1.52110971868113, 'chgp3m': 3.02591764241547, 'chgp1y': 23.7841825175194, 'low52': None, 'high52': None}}, {'id': 'TSLA', 'tickerId': 16123, 'attributes': {'movAvg50d': 270.619, 'chgp1m': 23.6635833426204, 'chgp3m': 59.1176330003346, 'chgp1y': 41.007285665876, 'low52': None, 'high52': None}}, {'id': 'MSFT', 'tickerId': 575, 'attributes': {'movAvg50d': 421.3598, 'chgp1m': -1.20518509868037, 'chgp3m': 2.21099942006573, 'chgp1y': 11.7218245688175, 'low52': None, 'high52': None}}]}\"}"
+      },
+      {
+        "task": "{'category': 'Location', 'tool_name': 'World Time', 'api_name': 'Timezone for Location', 'tool_input': '{\"location\":\"New York\",\"area\":\"America\"}, {\"location\":\"Tokyo\",\"area\":\"Asia\"}, {\"location\":\"Berlin\",\"area\":\"Europe\"}, {\"location\":\"Sydney\",\"area\":\"Australia\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "Timezone for Location",
+          "api_description": "Request the current time for a timezone (in plain text or JSON)",
+          "required_parameters": [
+            {
+              "name": "location",
+              "type": "STRING",
+              "description": "Location, example:\"London\" or \"London.txt\"",
+              "default": "London"
+            },
+            {
+              "name": "area",
+              "type": "STRING",
+              "description": "Area, example:\"Europe\"",
+              "default": "Europe"
+            }
+          ],
+          "optional_parameters": [],
+          "tool_description": "WorldTimeAPI is a simple web service which returns the local-time for a given timezone as either JSON or plain-text. Some additional information is provided, such as whether that timezone is currently in Daylight Savings Time, when DST starts and ends, the UTC offset, etc.",
+          "tool_name": "World Time",
+          "tool_category": "Location"
+        },
+        "output": "{\"error\": \"Tool input parse error...\", \"response\": \"\"}"
+      },
+      {
+        "task": "{'category': 'Media', 'tool_name': 'Instagram Unofficial', 'api_name': 'User followers', 'tool_input': '{\"session_key\": \"your_session_key_here\", \"user_id\": \"influencer_user_id_here\", \"insta-proxy\": \"your_insta_proxy_here\"}', 'strip': 'filter'}",
+        "schema": {
+          "api_name": "User followers",
+          "api_description": "Get user followers.",
+          "required_parameters": [
+            {
+              "name": "session_key",
+              "type": "STRING",
+              "description": "Use our login api to get the session_key",
+              "default": ""
+            }
+          ],
+          "optional_parameters": [
+            {
+              "name": "insta-proxy",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "username",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "max_id",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            },
+            {
+              "name": "user_id",
+              "type": "STRING",
+              "description": "",
+              "default": ""
+            }
+          ],
+          "tool_description": "Instagram Unofficial API",
+          "tool_name": "Instagram Unofficial",
+          "tool_category": "Media"
+        },
+        "output": "{\"error\": \"Function executing from toolenv.tools.Media.instagram_unofficial.api import user_followers error...\\nexpression cannot contain assignment, perhaps you meant \\\"==\\\"? (<string>, line 1)\", \"response\": \"\"}"
+      }
+    ]
+  ]
+}

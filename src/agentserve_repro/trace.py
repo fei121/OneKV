@@ -197,16 +197,32 @@ def fit_append(tokenizer, output, target):
     return tokenizer.decode(ids[:target]), len(tokenizer.encode(tokenizer.decode(ids[:target])))
 
 
-def build_session(tokenizer, items, cfg, paradigm, model_name, idx, rng):
+def pick_unified_pool(items, size, seed):
+    """Pick `size` distinct real ToolBench items as the UNIFIED task set (shared by ReAct and P&E)."""
+    r = random.Random(seed)
+    return r.sample(items, min(size, len(items)))
+
+
+def assign_sessions(pool, n, rounds_choices, seed):
+    """Deterministic per-session item assignment (SAME for ReAct and P&E -> controlled comparison).
+
+    Returns a list of length `n`; element i is the list of items for session i.
+    """
+    r = random.Random(seed)
+    sched = []
+    for _ in range(n):
+        rounds = r.choice(rounds_choices)
+        sched.append(r.sample(pool, rounds))
+    return sched
+
+
+def build_session(tokenizer, session_items, cfg, paradigm, model_name, idx):
     p = cfg["trace"]["paradigms"][paradigm]
     cl, ch = cfg["trace"]["cold_prefill_tokens"]
-    rounds = rng.choice(cfg["trace"]["tool_rounds_per_session"])
-
-    # Pick `rounds` real ToolBench items (task + tool + output).
-    if len(items) < rounds:
-        picks = [rng.choice(items) for _ in range(rounds)]
-    else:
-        picks = rng.sample(items, rounds)
+    rounds = len(session_items)
+    picks = session_items
+    # Deterministic per-paradigm token sampling (same task, different length distribution).
+    rng = random.Random(f"{cfg['trace']['seed']}:{paradigm}:{idx}")
     unique_schemas = []
     seen = set()
     for it in picks:
@@ -248,6 +264,37 @@ def summarize(lines, cfg):
     return stats
 
 
+import base64 as _b64
+
+def save_unified_pool(path, pool, sched):
+    """Persist the unified task pool + per-session assignment so future runs reuse the SAME tasks."""
+    data = {"pool": pool, "sched": sched}
+    with open(path, "w") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2, default=str)
+
+
+def load_unified_pool(path):
+    """Load a previously saved unified task pool + schedule."""
+    with open(path) as f:
+        d = json.load(f)
+    return d.get("pool", []), d.get("sched", [])
+
+
+def flatten_sessions(rows, model):
+    """Flatten sessions to the engine's sessions.txt format:
+    sid|b64(cold)|d0|b64(app1)|d1|...  (app* = bare append; engine wraps with <tool_result>)."""
+    lines = []
+    for s in rows:
+        plan = s["plan"]; sid = s["session_id"]
+        parts = [sid, _b64.b64encode(plan[0]["prompt"].encode()).decode(), str(plan[0]["decode_tokens"])]
+        for r in range(1, len(plan)):
+            app = plan[r].get("append") or plan[r]["prompt"][len(plan[r-1]["prompt"]):]
+            parts.append(_b64.b64encode(app.encode()).decode())
+            parts.append(str(plan[r]["decode_tokens"]))
+        lines.append("|".join(parts))
+    return lines
+
+
 def main():
     ap = argparse.ArgumentParser(description="Generate AgentServe token traces from StableToolBench.")
     ap.add_argument("--config", default="/root/autodl-tmp/exp/configs/trace_gen.yaml")
@@ -256,6 +303,9 @@ def main():
     ap.add_argument("--out-dir", default=None)
     ap.add_argument("--sessions", type=int, default=None)
     ap.add_argument("--seed", type=int, default=None)
+    ap.add_argument("--unified-pool-size", type=int, default=12,
+                    help="extract N distinct real items as the UNIFIED task set (shared by ReAct=P&E)")
+    ap.add_argument("--pool-file", default=None, help="persist/reuse the unified task set (json)")
     args = ap.parse_args()
 
     cfg = yaml.safe_load(open(args.config))
@@ -268,6 +318,8 @@ def main():
     model_dir = cfg["model"]["dir"]
     tb_dir = cfg["toolbench"]["dir"]
     out_dir = Path(cfg["trace"]["out_dir"]); out_dir.mkdir(parents=True, exist_ok=True)
+    n_sessions = cfg["trace"]["sessions_per_paradigm"]
+    model_name = cfg["model"]["name"]
 
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=True, local_files_only=True)
@@ -277,25 +329,41 @@ def main():
         raise RuntimeError("no ToolBench items parsed (check toolbench dir / split)")
     print(f"[load] tool items={len(items)}", flush=True)
 
-    rng = random.Random(cfg["trace"]["seed"])
-    lines = []
+    # UNIFIED task set: one pool + one per-session schedule, shared by BOTH paradigms
+    # (so ReAct and P&E run the SAME real tasks; only prompt template + token counts differ).
+    pool_file = Path(args.pool_file) if args.pool_file else out_dir / "unified_tasks.json"
+    if pool_file.exists():
+        pool, sched = load_unified_pool(pool_file)
+        print(f"[pool] REUSED unified task set from {pool_file.name} ({len(pool)} items)", flush=True)
+    else:
+        pool = pick_unified_pool(items, args.unified_pool_size, cfg["trace"]["seed"])
+        sched = assign_sessions(pool, n_sessions, cfg["trace"]["tool_rounds_per_session"],
+                                cfg["trace"]["seed"] + 1000)
+        save_unified_pool(pool_file, pool, sched)
+        print(f"[pool] unified task set = {len(pool)} items -> saved {pool_file.name}",
+              flush=True)
+
+    all_lines = []
     for paradigm in cfg["trace"]["paradigms"]:
-        for i in range(cfg["trace"]["sessions_per_paradigm"]):
-            lines.append(build_session(tok, items, cfg, paradigm,
-                                       cfg["model"]["name"], i, rng))
-        print(f"[gen] {paradigm}: {cfg['trace']['sessions_per_paradigm']} sessions", flush=True)
+        rows = []
+        for i in range(n_sessions):
+            rows.append(build_session(tok, sched[i], cfg, paradigm, model_name, i))
+        out_path = out_dir / f"traces_{paradigm}_{model_name.replace('/','-')}.jsonl"
+        with open(out_path, "w") as f:
+            for l in rows:
+                f.write(json.dumps(l, ensure_ascii=False) + "\n")
+        # engine sessions.txt (flat) for this paradigm
+        sfile = out_dir / f"sessions_{paradigm}.txt"
+        with open(sfile, "w") as f:
+            f.write("\n".join(flatten_sessions(rows, model_name)) + "\n")
+        all_lines.extend(rows)
+        print(f"[gen] {paradigm}: {n_sessions} sessions -> {out_path.name}, {sfile.name}", flush=True)
 
-    out_path = out_dir / f"traces_{cfg['model']['name'].replace('/','-')}.jsonl"
-    with open(out_path, "w") as f:
-        for l in lines:
-            f.write(json.dumps(l, ensure_ascii=False) + "\n")
-
-    stats = summarize(lines, cfg)
+    stats = summarize(all_lines, cfg)
     stats_path = out_dir / "distribution_summary.json"
     json.dump({"table1_target": cfg["trace"]["paradigms"], "measured": stats},
               open(stats_path, "w"), indent=2)
-    print(f"[write] {out_path} ({len(lines)} sessions)")
-    print(f"[write] {stats_path}")
+    print(f"[write] summary -> {stats_path}")
     print("[summary]")
     print(json.dumps(stats, indent=2))
 

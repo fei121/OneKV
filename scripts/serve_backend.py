@@ -70,6 +70,8 @@ def main():
     ap.add_argument("--sessions", type=int, default=12)
     ap.add_argument("--tag", default="")
     ap.add_argument("--port", type=int, default=0)
+    ap.add_argument("--model-path", default="/root/models/Qwen2.5-3B",
+                    help="HF model dir for vLLM/SGLang (e.g. /root/models/Qwen2.5-7B)")
     args=ap.parse_args()
     cfg=yaml.safe_load(open(args.config))
     trc=cfg["trace"]; sessions=[json.loads(l) for l in open(trc["file"])][:args.sessions]
@@ -80,10 +82,10 @@ def main():
 
     server_proc=None; be=None
     if args.backend=="vllm":
-        be=VllmBackend(model_path="/root/models/Qwen2.5-3B", port=args.port or 8000)
+        be=VllmBackend(model_path=args.model_path, port=args.port or 8000)
         be.start()
     elif args.backend=="sglang":
-        be=SglangBackend(model_path="/root/models/Qwen2.5-3B", port=args.port or 30000)
+        be=SglangBackend(model_path=args.model_path, port=args.port or 30000)
         be.start()
     else:  # llama / agentserve: start llama-server, wrap with backend
         model_cfg=yaml.safe_load(open(cfg["model_config"]))

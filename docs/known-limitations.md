@@ -130,3 +130,38 @@ python scripts/serve_llama.py --config configs/serving_v2.yaml --agents N --sess
 # regenerate the real-task trace:
 python scripts/gen_traces.py --config configs/trace_gen.yaml --model-dir /root/models/Qwen2.5-3B
 ```
+
+---
+
+## Engine throughput variants: batched-prefill vs continuous batching
+
+Two engine scheduling variants are tracked as separate git branches. On the **3B** unified
+12-task trace (N=3…6, tool_wait=0, only the shared-KV engine) the tradeoff is:
+
+| variant | engine loop | 3B throughput | TPOT p95 | cold TTFT |
+|---|---|---|---|---|
+| **`main` (innovation-1)** | batched multi-sequence resume-prefill on A + **separate** batched decode on B | 152–179 (react) / 163–195 (P&E) | **stable 12–13.6 ms** | ~306–386 ms |
+| **`chunk_prefill`** | **one** `llama_decode` mixing resume-prefill + decode tokens (continuous batching) | 155–182 / 167–198 (**+1–4%**) | **degrades 13→20 ms (react), 13→41 ms (P&E)** | ~310–390 ms |
+
+### Why the tradeoff
+
+- **Continuous batching** keeps the GPU saturated by packing prefill and decode tokens into one
+  forward pass — the vLLM/SGLang approach. It buys only **+1–4%** throughput here, because the
+  workload's (resume) prefills are short and infrequent.
+- **But it perturbs the short decodes** that agent workloads rely on: a long/medium prefill sitting in
+  the same batch delays the tiny decode tokens, so **TPOT p95 jumps** (react N6 13.5→20.3 ms; P&E N6
+  13.6→41.2 ms). This is exactly the paper's warning about chunked prefill.
+- **Cold TTFT is unchanged**, because the cold path still prefills separately in `activate()`.
+
+### Implications
+
+- **`main` (innovation-1)** is the right default for the **latency-stability** story (the paper's
+  thesis): batched prefills + separate decode keep decode latency flat.
+- **`chunk_prefill`** is a **pure-throughput** variant that sacrifices decode stability; use it only if
+  throughput is the sole objective.
+- Neither removes the fundamental *decode-batch-size* limit (N tokens per decode); to raise throughput
+  further, **serve more concurrent sessions (higher N)** — the shared-KV pool is designed for that —
+  or explore **speculative/parallel decoding**.
+
+Raw numbers: `results/chunk-prefill-engine.md` and `metrics/chunk_prefill/{react,pe}.json` (on the
+`chunk_prefill` branch).

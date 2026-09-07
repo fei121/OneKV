@@ -176,8 +176,8 @@ a time, GPU freed between runs).
 | [`docs/architecture.md`](docs/architecture.md) | System + engine + patch design. |
 | [`docs/paper-alignment.md`](docs/paper-alignment.md) | What aligns with the paper, what we did differently, and why. |
 | [`docs/environment.md`](docs/environment.md) | Pinned environment for bit-for-bit reproduction. |
+| [`docs/llama-cpp-patch.md`](docs/llama-cpp-patch.md) | The four shared-KV llama.cpp patches + build/verify. |
 | [`docs/known-limitations.md`](docs/known-limitations.md) | Honest boundaries + methodology pitfalls. |
-| [`docs/experiments.md`](docs/experiments.md) | Workload, backends, metrics, experiment matrix. |
 | [`docs/pitfalls.md`](docs/pitfalls.md) | Service-startup / benchmark lessons learned. |
 | [`results/`](results/) | Clean per-paradigm 4-way tables + summaries. |
 | [`REPORT.md`](REPORT.md) | Full written report (design, engine, results). |

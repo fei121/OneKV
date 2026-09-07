@@ -1,0 +1,10 @@
+# Task 3 — model config (llama.cpp baseline)
+name: Qwen2.5-3B
+model_path: /root/autodl-tmp/models/Qwen2.5-3B-f16.gguf
+quantization: f16            # F16 GGUF
+context_length: 24576   # large enough that ctx/N >= max session prompt (cold 2.7k + resume ~3.5k)
+gpu_layers: 99               # -ngl (offload all to GPU)
+batch_size: 512
+ubatch_size: 512
+kv_cache_type: f16
+n_parallel: 4                # --parallel slots (>= benchmark concurrency)

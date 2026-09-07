@@ -1,0 +1,27 @@
+# AgentServe reproduction — 3-state token trace generation (Table I)
+model:
+  name: Qwen2.5-3B
+  dir: /root/autodl-tmp/models/Qwen2.5-3B
+toolbench:
+  dir: /root/autodl-tmp/agentserve-reproduction/workloads/toolbench/MirrorAPI-Bench
+  cot_split: test_cot          # use CoT-prompt test data (source of tool schemas + outputs)
+  sft_split: test_sft          # (optional) SFT-prompt data
+trace:
+  out_dir: /root/autodl-tmp/exp/traces
+  seed: 1234
+  sessions_per_paradigm: 60
+  tool_rounds_per_session: [2, 3, 4]   # number of (resume_prefill + decode) rounds per session
+  # Table I: Cold Prefill input tokens (system prompt + tool descriptions)
+  cold_prefill_tokens: [2500, 3500]
+  # Table I per-paradigm distributions
+  paradigms:
+    react:
+      resume_prefill: [30, 127]   # min,max of input tokens appended (avg ~56)
+      resume_avg: 56
+      decode: [27, 99]            # min,max of output tokens (avg ~38)
+      decode_avg: 38
+    plan_and_execute:
+      resume_prefill: [125, 421]  # avg ~251
+      resume_avg: 251
+      decode: [41, 125]           # avg ~58
+      decode_avg: 58

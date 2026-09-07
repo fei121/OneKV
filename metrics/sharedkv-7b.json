@@ -1,0 +1,24 @@
+{
+  "model": "Qwen2.5-7B-f16",
+  "engine": "shared-kv",
+  "n3": {
+    "throughput_tokens_per_s": 95.0,
+    "tpot_benchmark_ms": {
+      "p50": 18.57,
+      "p95": 20.55
+    },
+    "ttft_cold_ms": {
+      "p50": 563.7
+    }
+  },
+  "n6": {
+    "throughput_tokens_per_s": 160.6,
+    "tpot_benchmark_ms": {
+      "p50": 19.15,
+      "p95": 22.12
+    },
+    "ttft_cold_ms": {
+      "p50": 568.7
+    }
+  }
+}

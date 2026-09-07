@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.venv/
+
+# Build
+build/
+dist/
+
+# Runtime artifacts (regenerate via scripts)
+*.o
+agentserve_engine
+
+# OS
+.DS_Store

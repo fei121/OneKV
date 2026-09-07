@@ -1,0 +1,21 @@
+# Task 3/4 — serving harness config
+model_config: /root/autodl-tmp/exp/configs/models/qwen25_3b.yaml
+metrics_config: /root/autodl-tmp/exp/configs/metrics.yaml
+
+server:
+  host: 127.0.0.1
+  port: 8080
+  binary: /root/autodl-tmp/agentserve-reproduction/third_party/llama.cpp/build/bin/llama-server
+
+trace:
+  file: /root/autodl-tmp/exp/traces/traces_Qwen2.5-3B.jsonl
+  max_sessions: 12        # cap how many session rows we drive (per run)
+  paradigm: all           # all | react | plan_and_execute
+
+workload:
+  concurrent_agents: 4    # N = number of parallel agent sessions (3/4/5/6)
+  tool_wait_ms: 200       # simulated external tool-call latency between steps
+
+output:
+  event_log: /root/autodl-tmp/exp/raw_logs/llama_baseline_events.jsonl
+  results: /root/autodl-tmp/exp/results/llama_baseline_metrics.json

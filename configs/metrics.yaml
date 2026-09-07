@@ -1,0 +1,11 @@
+# Task 4 — metric/SLO config
+throughput_scope:
+  wall_clock_including_tool_wait: false   # exclude tool-wait when reporting throughput
+slo:
+  # tau derived by profiling isolated (N=1) performance, scaled by a constant factor.
+  # For the first baseline run we leave these null until a solo profile is taken;
+  # set them explicitly to enable session-level SLO reporting.
+  tau_ttft_ms: null
+  tau_tpot_ms: null
+  scale_ttft: 2.0      # candidate constant factor (paper: profile × constant)
+  scale_tpot: 2.0

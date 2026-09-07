@@ -1,0 +1,32 @@
+{
+  "n_sessions": 12,
+  "ttft_cold_ms": {
+    "p50": 103.187436,
+    "p95": 810.481067,
+    "mean": 266.116,
+    "n": 12
+  },
+  "ttft_resume_ms": {
+    "p50": 87.00023,
+    "p95": 172.271319,
+    "mean": 90.552,
+    "n": 32
+  },
+  "tpot_benchmark_ms": {
+    "p50": 10.913644,
+    "p95": 32.51867,
+    "mean": 14.565,
+    "n": 877
+  },
+  "tpot_step_ms": {
+    "p50": 11.492412666666667,
+    "p95": 20.80594875,
+    "mean": 11.565,
+    "n": 44
+  },
+  "throughput_tokens_per_s": 101.855,
+  "throughput_excl_tool_wait_tokens_per_s": 350.302,
+  "wall_clock_s": 9.042,
+  "tool_wait_s": 6.413,
+  "slo": null
+}

@@ -1,0 +1,2 @@
+# Task 7 — SM share profiling config
+saturation_knee_threshold: 0.90   # smallest SM share with throughput >= threshold * throughput(100%)

@@ -93,8 +93,11 @@ baseline:
 - **llama.cpp N=10 needs a larger context**: with the default `context_length=24576`, `--parallel 10`
   gives <2693 tokens/slot (smaller than the cold prompt) so it emitted 0 tokens. It was re-run with
   `context_length=49152` to get the real N=10 point (93.4 tok/s, TPOT p95 125.9 ms).
+- **Session-level SLO attainment** (paper's fourth metric): the shared-KV engine holds **100% at all
+  N**, while llama.cpp drops to ~0% from N=4 and vLLM/SGLang sit between 0.25–1.00. τ = isolated N=1
+  profile ×2.0 (744 ms TTFT, 20.3 ms TPOT). See [`4way-nscale-slo.md`](../../results/4way-nscale-slo.md).
 
 See [`4way-nscale-3b.md`](../../results/4way-nscale-3b.md), figure
-[`backend-4way-nscale-3b.png`](../../figures/backend-4way-nscale-3b.png), per-N metrics in
-[`metrics/nscale-4way/`](../../metrics/nscale-4way/), and the regenerating script
-[`plot_4way_nscale.py`](../../scripts/plot_4way_nscale.py).
+[`backend-4way-nscale-3b.png`](../../figures/backend-4way-nscale-3b.png), [`4way-nscale-slo.md`](../../results/4way-nscale-slo.md) / [`4way-nscale-slo.png`](../../figures/4way-nscale-slo.png),
+per-N metrics in [`metrics/nscale-4way/`](../../metrics/nscale-4way/), and the regenerating scripts
+[`plot_4way_nscale.py`](../../scripts/plot_4way_nscale.py), [`plot_4way_slo.py`](../../scripts/plot_4way_slo.py), [`compute_slo.py`](../../scripts/compute_slo.py).

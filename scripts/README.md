@@ -15,5 +15,7 @@
 | `gen_diverse.py` / `gen_diverse_full.py` | Generate a diverse-task trace (shared system + unique instruction). |
 | `plot_*.py` | Regenerate comparison figures. |
 | `plot_4way_nscale.py` | 4-way N-scale figure (engine vs llama.cpp / vLLM / SGLang, N=3…10). |
+| `plot_4way_slo.py` | 4-way session-level SLO-attainment figure. |
+| `compute_slo.py` | Recompute SLO attainment from per-N event logs (server-side). |
 | `run_llama_baseline.sh` | Thin wrapper for `serve_llama.py`. |
 | `run_hol_sweep.sh` / `run_sm_task.sh` | Head-of-line and SM-scaling sweeps. |

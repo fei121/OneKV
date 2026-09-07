@@ -93,3 +93,40 @@ This is the decisive finding from the deep-dive:
 /tmp/as_conc_batch <trace> <N> -1 1 <n_ctx> <model.gguf> 12 200
 # isolated llama-server phase-by-phase replay of a session (cache_prompt + slot_id)
 ```
+
+---
+
+## Clean verified result (real-task trace, fixed baseline)
+
+After (a) fixing the trace to use real ToolBench tasks, and (b) fixing the llama.cpp baseline to
+drive multi-phase agents via a **self-contained prompt** (full conversation + previous model output
++ `<tool_result>` block, sent to `cache_prompt`), the comparison becomes honest at **N=3** on the
+RTX 3090 with Qwen2.5-3B:
+
+| metric | shared-KV engine | llama.cpp (fixed) | ratio |
+|---|---|---|---|
+| throughput (tok/s) | 114.9 | 115.3 | ≈ 1.0× |
+| TPOT p50 (ms) | 9.65 | 10.77 | 0.90× |
+| **TPOT p95 (ms)** | **11.63** | 21.86 | **0.53× (engine ~1.9× better)** |
+| **TTFT_cold (ms)** | **258.9** | 505.2 | **0.51× (engine ~1.95× better)** |
+
+**This is the meaningful finding**: the engine is **not** "crushes baseline" on throughput — it is
+**comparable** (114.9 vs 115.3). Its genuine advantages are **latency stability**:
+- **TPOT p95 1.9× lower** (continuous-batching decode stays stable under concurrency), and
+- **TTFT_cold 1.95× lower** (shared-system-prefix caching cuts cold prefill).
+
+This matches the paper's thesis: *AgentServe improves TTFT/TPOT latency stability while sustaining
+competitive throughput.*
+
+## Repro
+
+```
+# engine (12 sessions, N concurrency, 200ms tool_wait, EOS respected, on the bench server):
+/tmp/as_conc_batch <sessions.txt> <N> -1 1 <n_ctx> <model.gguf> 12 200
+
+# llama.cpp baseline (self-contained multi-phase prompt):
+python scripts/serve_llama.py --config configs/serving_v2.yaml --agents N --sessions 12
+
+# regenerate the real-task trace:
+python scripts/gen_traces.py --config configs/trace_gen.yaml --model-dir /root/models/Qwen2.5-3B
+```

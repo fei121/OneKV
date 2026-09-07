@@ -31,16 +31,22 @@ continuous-batching + prefix-caching scheduler.
 
 ---
 
-## Highlights / Results (Qwen2.5-3B, RTX 3090, N=6 concurrent agents)
+## Results (honest, clean, per-paradigm)
 
-| Metric | llama.cpp baseline | **This repo (shared-KV engine)** |
-|---|---|---|
-| Throughput | 111.9 tok/s | **228.6 tok/s** |
-| TPOT p50 / p95 | 12.47 / 25.19 ms | **9.87 / 15.77 ms** |
-| Cold TTFT (system cached) | 536.9 ms | **~35.5 ms** |
+The **valid** comparisons use a real-task ToolBench trace, **fixed** baselines (self-contained
+multi-phase prompt), a **unified 12-task set** shared by ReAct and P&E, **N=3…6**, **tool_wait=0**,
+and **serial** measurement (one backend at a time, GPU freed between runs).
 
-See [`docs/results/`](docs/results/) and [`results/`](results/) for the full three-way analysis
-(baseline vs no-cache vs prefix-cached), and [`figures/`](figures/) for the plots.
+- [`results/perparadigm-4way.md`](results/perparadigm-4way.md) — Qwen2.5-3B, ReAct + P&E.
+- [`results/perparadigm-4way-7b.md`](results/perparadigm-4way-7b.md) — Qwen2.5-7B, ReAct + P&E.
+- [`results/v2-4way-nscale.md`](results/v2-4way-nscale.md) — combined 4-way N=3…10 (3B).
+
+**Conclusion (consistent across ReAct/P&E and 3B/7B):** the shared-KV engine is the **latency-stability
+leader** — TPOT p95 stays **flat** (~12–14 ms on 3B, ~20–22 ms on 7B) while llama.cpp explodes and
+vLLM/SGLang rise; cold TTFT is **lowest & flat** (prefix-cache amortization) while baselines degrade.
+**Throughput is not the engine's strength**: vLLM is highest, the engine is consistently 2nd.
+
+See [`docs/known-limitations.md`](docs/known-limitations.md) for methodology + honest boundaries.
 
 ---
 

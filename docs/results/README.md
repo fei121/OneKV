@@ -1,105 +1,55 @@
-> (**⚠️ RETRACTED** — The results/figures in this document were produced by an engine that ignored EOS, ran fewer sessions than the baselines, and skipped tool_wait; **and** the llama.cpp baseline harness uses `cache_prompt`, which cannot drive a multi-phase agent conversation (degenerates to a 1-token response after the first resume). These comparisons are **invalid** and are being re-worked. The engine itself is verified faithful on the phases the reference works (cold + first resume). See [[`known-limitations.md`](../../docs/known-limitations.md)](../docs/known-limitations.md).)
-
 # Results
 
-## Summary
+> **⚠️ RETRACTED (old data)** — earlier `results/*.md` and `figures/*.png` reported the engine
+> "crushing" llama.cpp/vLLM/SGLang. Those were produced by an engine that **ignored EOS**, ran fewer
+> sessions, skipped tool_wait, and by a llama.cpp baseline whose `cache_prompt` cannot drive a
+> multi-phase agent (it collapsed to 1-token replies after the first resume). **Those comparisons are
+> invalid** and have been removed. See [`known-limitations.md`](../known-limitations.md).
 
-**Qwen2.5-3B (F16) on RTX 3090**, real ToolBench-style ReAct trace, N=6 concurrent agents.
-The shared-KV engine (continuous batching + prefix caching) beats the llama.cpp baseline on all
-three headline metrics.
+## Current, valid findings
 
-| Metric | llama.cpp baseline | **shared-KV engine** |
-|---|---|---|
-| Throughput | 111.9 tok/s | **228.6 tok/s** |
-| TPOT p50 / p95 | 12.47 / 25.19 ms | **9.87 / 15.77 ms** |
-| Cold TTFT (system cached) | 536.9 ms | **~35.5 ms** |
+The clean, reproducible comparisons use the **real-task** ToolBench trace (model actually performs
+tasks), **fixed** baselines (self-contained multi-phase prompt), a **unified 12-task set** shared by
+ReAct and P&E, **N=3…6**, **tool_wait=0**, and a **serial** measurement (one backend at a time, GPU
+freed between runs).
 
-### Evolution across the run
+### Per-paradigm 4-way (unified 12 tasks, tool_wait=0)
 
-| Config | cold TTFT | TPOT p95 | throughput |
-|---|---|---|---|
-| llama.cpp baseline | 536.9 ms | 25.19 ms | 161.1 tok/s |
-| engine, no cache | 95.3 ms | 16.18 ms | 176.9 tok/s |
-| engine, prefix-cached | ~35.5 ms | 15.77 ms | **228.6 tok/s** |
+- [`perparadigm-4way.md`](../../results/perparadigm-4way.md) — Qwen2.5-**3B**, ReAct + P&E.
+- [`perparadigm-4way-7b.md`](../../results/perparadigm-4way-7b.md) — Qwen2.5-**7B**, ReAct + P&E.
+- [`v2-4way-nscale.md`](../../results/v2-4way-nscale.md) — combined 4-way N=3…10 (3B).
 
----
+**Bottom line (consistent across ReAct/P&E and 3B/7B):**
+- The **shared-KV engine is the latency-stability leader**: TPOT p95 stays **flat** (~12–14 ms on 3B,
+  ~20–22 ms on 7B) while llama.cpp explodes (60–126 ms) and vLLM/SGLang rise; cold TTFT is **lowest &
+  flat** (prefix-cache amortization) while baselines degrade with N (SGLang explodes to 1k–4k ms).
+- **Throughput is not the engine's strength**: vLLM is highest; the engine is consistently 2nd
+  (ahead of llama.cpp and well above SGLang).
 
-## Three-way analysis (diverse tasks)
+### Verdict
 
-Cold prompt = shared system prompt (~87%) + unique instruction (~13%) from ToolBench
-MirrorAPI-Bench, N=6.
+The engine delivers **decode stability + low cold latency via prefix caching** at **competitive (not
+maximal) throughput** — the paper's thesis. Numbers are on the **BASE** Qwen2.5-3B/7B (no native
+tool-calling, plan-style output), so they measure **serving performance**, not agent quality.
 
-| Metric | llama-server baseline | engine (no-cache) | engine (prefix-cached) |
-|---|---|---|---|
-| Cold TTFT (system cached) | 536.9 ms | 95.3 ms | **~35.5 ms** |
-| TPOT p50 / p95 | 12.47 / 25.19 ms | 10.35 / 16.18 ms | **9.87 / 15.77 ms** |
-| Throughput | 161.1 tok/s | 176.9 tok/s | **228.6 tok/s** |
+## Docs
 
-**Takeaways:**
-- Prefix caching cuts cold TTFT by ~2.4× (95 → 35.5 ms) and **boosts** throughput (176.9 →
-  228.6) because the batch prefill becomes cheaper.
-- Even **no-cache** already beats baseline on all three metrics.
-- The deeper the system prompt is shared, the larger the prefix-cache benefit (with fully identical
-  cold prompts, cold TTFT → 374 ms; see `sharedkv-three-way-comparison.md`).
+- [`known-limitations.md`](../known-limitations.md) — methodology pitfalls + the honest status.
+- [`pitfalls.md`](../pitfalls.md) — lessons learned (model paths, service startup, engine bugs,
+  baseline harness, benchmark methodology, shell gotchas).
+- [`figures/`](../../figures/) — final per-paradigm + combined 4-way figures.
 
----
+## Repro
 
-## Per-task write-ups
-
-- [`3b-backend-comparison.md`](../../results/3b-backend-comparison.md) — llama.cpp / vLLM / SGLang
-  baseline sweep on 3B.
-- [`sharedkv-three-way-comparison.md`](../../results/sharedkv-three-way-comparison.md) — full
-  three-way (baseline / no-cache / prefix-cached) including diverse-task numbers.
-- [`conc-pd-final-3b.md`](../../results/conc-pd-final-3b.md) — concurrent P/D pipeline final run.
-- [`final-report.md`](final-report.md) — end-of-experiment report.
-
-## Figures
-
-See [`figures/`](../../figures/):
-- `backend-compare-sharedkv-3b.png` — the headline three-way comparison.
-- `backend-compare-3b.png` / `backend-compare.png` — baseline backend sweep.
-- `sm-share-profile.png` — SM-scaling profile (green context width).
-- `tpot-controller.png` — TPOT-driven allocation convergence.
-- `token-distribution.png` — 3-state token distribution (cold/resume/decode).
-- `hol-sweep.png` — head-of-line sweep (N=1/3/6).
-
-## Raw metrics
-
-Parsed JSON results live in [`metrics/`](../../metrics/):
-- `llama-baseline.json`, `vllm-n3.json`, `sglang-n3.json`
-- `agentserve-n3.json`, `agentserve-single-green-n3.json`, `dualgreen-n3.json`
-- `sm-profile.json`
-
-## 7B (Qwen2.5-7B)
-
-The same shared-KV engine beats the llama.cpp 7B baseline on throughput (+25% / +102%) and TPOT
-stability (p95 22.12 vs 109.62 ms). See [`7b-sharedkv-comparison.md`](../../results/7b-sharedkv-comparison.md).
-
-## 4-way backend comparison (3B, N=3)
-
-llama.cpp / vLLM / SGLang / shared-KV engine on the same trace with **per-token streaming TPOT**:
-throughput shared-KV 166.1 > vLLM 138.0 > SGLang 133.2 > llama 77.9; TPOT p95 shared-KV 12.09 (best);
-cold TTFT vLLM/SGLang 68–69 (chunked prefill) < shared-KV 378 < llama 431.
-See [`4way-backend-comparison-3b.md`](../../results/4way-backend-comparison-3b.md).
-
-## 4-way N-scale comparison (3B, N=3…10)
-
-Run the full four-way comparison (llama.cpp / vLLM / SGLang / shared-KV engine) across
-**N = 3…10** concurrent agents. The shared-KV engine scales linearly with N and dominates every
-baseline:
-
-- **Throughput** (tok/s): engine 165.3 → **351.6** (N=3→10), far above vLLM (138→245), SGLang
-  (133→254), and llama.cpp (which plateaus ~93–114 and never approaches the engine).
-- **TPOT p95** (ms): engine is **flat (12.5–15.4 ms)** across all N, while llama.cpp degrades
-  33.8 → **125.9 ms** under concurrency. vLLM/SGLang are mild (12–28 ms) but cap throughput.
-- **llama.cpp N=10 needs a larger context**: with the default `context_length=24576`, `--parallel 10`
-  gives <2693 tokens/slot (smaller than the cold prompt) so it emitted 0 tokens. It was re-run with
-  `context_length=49152` to get the real N=10 point (93.4 tok/s, TPOT p95 125.9 ms).
-- **Session-level SLO attainment** (paper's fourth metric): the shared-KV engine holds **100% at all
-  N**, while llama.cpp drops to ~0% from N=4 and vLLM/SGLang sit between 0.25–1.00. τ = isolated N=1
-  profile ×2.0 (744 ms TTFT, 20.3 ms TPOT). See [`4way-nscale-slo.md`](../../results/4way-nscale-slo.md).
-
-See [`4way-nscale-3b.md`](../../results/4way-nscale-3b.md), figure
-[`backend-4way-nscale-3b.png`](../../figures/backend-4way-nscale-3b.png), [`4way-nscale-slo.md`](../../results/4way-nscale-slo.md) / [`4way-nscale-slo.png`](../../figures/4way-nscale-slo.png),
-per-N metrics in [`metrics/nscale-4way/`](../../metrics/nscale-4way/), and the regenerating scripts
-[`plot_4way_nscale.py`](../../scripts/plot_4way_nscale.py), [`plot_4way_slo.py`](../../scripts/plot_4way_slo.py), [`compute_slo.py`](../../scripts/compute_slo.py).
+```
+# unified task set (shared by ReAct & P&E):
+data/unified_tasks.json
+# engine (12 sessions, N concurrency, tool_wait=0):
+/tmp/as_conc_batch <sessions_{react|plan_and_execute}.txt> <N> -1 1 <n_ctx> <model.gguf> 12 0
+# llama / vLLM / SGLang:
+python scripts/serve_llama.py --config configs/serving_{react|pe}_{u|7b}.yaml --agents N --sessions 12
+python scripts/serve_backend.py --backend {vllm,sglang} --model-path /root/models/Qwen2.5-{3B|7B} --config configs/serving_{react|pe}_{u|7b}.yaml --agents N --sessions 12
+# figures:
+python scripts/plot_perparadigm.py   # per-paradigm (3B + 7B)
+python scripts/plot_4way_v2.py      # combined
+```

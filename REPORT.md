@@ -8,11 +8,13 @@
 
 ---
 
-## 0. 一句话结论
+## 0. 一句话结论（已修正，诚实版）
 
-我做到了**单引擎内跨 context 共享 KV（无需跨进程拷贝）**，并让这套系统在 **Qwen2.5-3B 和 7B**
-上，于**吞吐 / TPOT / 冷TTFT 三项全部反超 llama.cpp 基线**。7B 上吞吐 +102%，TPOT p95 从
-基线的 109.62ms 降到 22.12ms。
+我做到了**单引擎内跨 context 共享 KV（无需跨进程拷贝）**。**当前有效结论**是：engine 在
+**延迟稳定性**（TPOT p95 恒定、冷 TTFT 因前缀缓存最低）上优于所有基线，但**吞吐并非最高**
+（vLLM 更高）。之前的"三项全反超"结论因测量伪影（无视 EOS、基线 cache_prompt 退化、
+任务占位符）已撤回，见 [`docs/known-limitations.md`](docs/known-limitations.md) 与
+[`results/perparadigm-4way.md`](results/perparadigm-4way.md)。
 
 ---
 

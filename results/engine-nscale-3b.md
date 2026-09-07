@@ -1,5 +1,9 @@
 # Qwen2.5-3B — Concurrency Scaling (Engine vs llama.cpp)
 
+> **Note:** this is the earlier 2-backend (engine vs llama.cpp) snapshot for N=3/4/5/6.
+> The full **4-way** N-scale (N=3…10, engine vs llama.cpp / vLLM / SGLang) supersedes it;
+> see [`4way-nscale-3b.md`](4way-nscale-3b.md).
+
 Same trace, N=3/4/5/6 concurrent agents, RTX 3090.
 
 | N | **shared-KV engine** throughput | **llama.cpp** throughput | **engine** TPOT p95 | **llama** TPOT p95 |

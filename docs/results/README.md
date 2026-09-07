@@ -79,3 +79,21 @@ llama.cpp / vLLM / SGLang / shared-KV engine on the same trace with **per-token 
 throughput shared-KV 166.1 > vLLM 138.0 > SGLang 133.2 > llama 77.9; TPOT p95 shared-KV 12.09 (best);
 cold TTFT vLLM/SGLang 68–69 (chunked prefill) < shared-KV 378 < llama 431.
 See [`4way-backend-comparison-3b.md`](../../results/4way-backend-comparison-3b.md).
+
+## 4-way N-scale comparison (3B, N=3…10)
+
+Run the full four-way comparison (llama.cpp / vLLM / SGLang / shared-KV engine) across
+**N = 3…10** concurrent agents. The shared-KV engine scales linearly with N and dominates every
+baseline:
+
+- **Throughput** (tok/s): engine 165.3 → **351.6** (N=3→10), far above vLLM (138→245), SGLang
+  (133→254), and llama.cpp (which peaks at 113.7 and collapses at N=10).
+- **TPOT p95** (ms): engine is **flat (12.5–15.4 ms)** across all N, while llama.cpp explodes
+  33.8 → 104.4 ms under concurrency. vLLM/SGLang are mild (12–28 ms) but cap throughput.
+- llama.cpp fails at N=10 (0 tokens / empty metrics) — a slot/concurrency limit; the N=3–9 trend
+  is sufficient to establish the ordering.
+
+See [`4way-nscale-3b.md`](../../results/4way-nscale-3b.md), figure
+[`backend-4way-nscale-3b.png`](../../figures/backend-4way-nscale-3b.png), per-N metrics in
+[`metrics/nscale-4way/`](../../metrics/nscale-4way/), and the regenerating script
+[`plot_4way_nscale.py`](../../scripts/plot_4way_nscale.py).

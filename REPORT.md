@@ -1,3 +1,5 @@
+> **⚠️ RETRACTED / WORK IN PROGRESS** — Headline results (throughput, per-token TPOT, cold TTFT, SLO) in this repo were measured with an engine that **ignored EOS**, **ran fewer sessions than the baselines**, and **skipped tool_wait**; its **resume path also has a dual-context shared-KV logits-drift fidelity issue**. Those comparisons are **invalid and are being re-worked**. Only the **cold prefix-caching** mechanism is verified faithful. See [`docs/known-limitations.md`](docs/known-limitations.md).
+
 # 单引擎共享 KV Serving 引擎：设计、实现与实验
 
 > 我设计并实现了一个**面向多智能体（agentic）负载的单 GPU 推理 serving 系统**。核心是

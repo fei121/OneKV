@@ -1,3 +1,5 @@
+> **⚠️ RETRACTED** — The conclusions in this document are **invalid**. The engine ignored EOS, ran fewer sessions than the baselines, and skipped tool_wait; and its resume path has a dual-context logits-drift fidelity issue. See [`docs/known-limitations.md`](../docs/known-limitations.md).
+
 # 单引擎共享 KV 并发 P/D 管道 — 最终结果（Qwen2.5-3B）
 
 ## 机制（已实现，对应论文 Execution Layer）

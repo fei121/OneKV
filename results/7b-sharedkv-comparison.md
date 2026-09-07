@@ -1,3 +1,5 @@
+> **⚠️ RETRACTED** — The conclusions in this document are **invalid**. The engine ignored EOS, ran fewer sessions than the baselines, and skipped tool_wait; and its resume path has a dual-context logits-drift fidelity issue. See [`docs/known-limitations.md`](../docs/known-limitations.md).
+
 # Qwen2.5-7B — Shared-KV Engine vs llama.cpp Baseline
 
 Same single-engine shared-KV engine, on **Qwen2.5-7B (F16, 15.2 GB)**, RTX 3090, ToolBench-style

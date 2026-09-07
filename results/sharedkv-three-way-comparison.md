@@ -1,3 +1,5 @@
+> **⚠️ RETRACTED** — The conclusions in this document are **invalid**. The engine ignored EOS, ran fewer sessions than the baselines, and skipped tool_wait; and its resume path has a dual-context logits-drift fidelity issue. See [`docs/known-limitations.md`](../docs/known-limitations.md).
+
 # Qwen2.5-3B：单引擎共享 KV + 前缀缓存 vs 三基线（最终，同口径）
 
 ## 被测系统

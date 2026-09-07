@@ -1,3 +1,5 @@
+> **⚠️ RETRACTED** — The conclusions in this document are **invalid**. The engine ignored EOS, ran fewer sessions than the baselines, and skipped tool_wait; and its resume path has a dual-context logits-drift fidelity issue. See [`docs/known-limitations.md`](../docs/known-limitations.md).
+
 # Qwen2.5-3B — 4-Way Session-Level SLO Attainment (N=3…10)
 
 Follows the paper's metric definition: a session **passes** iff

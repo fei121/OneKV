@@ -1,3 +1,5 @@
+> **⚠️ RETRACTED / WORK IN PROGRESS** — Headline results (throughput, per-token TPOT, cold TTFT, SLO) in this repo were measured with an engine that **ignored EOS**, **ran fewer sessions than the baselines**, and **skipped tool_wait**; its **resume path also has a dual-context shared-KV logits-drift fidelity issue**. Those comparisons are **invalid and are being re-worked**. Only the **cold prefix-caching** mechanism is verified faithful. See [`docs/known-limitations.md`](docs/known-limitations.md).
+
 # AgentServe Reproduction
 
 **Single-Engine Shared-KV Serving for Agentic AI on a Consumer GPU.**

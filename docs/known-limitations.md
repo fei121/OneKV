@@ -65,7 +65,7 @@ so per-token decode latency stays near a single batched forward pass. In the (no
 correct) runs the per-round decode latency is ~9–14 ms and **does not blow up with concurrency** —
 the mechanism underlying "decode protection".
 
-## Known limitation: resume cross-context logits drift
+## Known limitation: resume-phase generation drift (root cause still open)
 
 Even after the fixes, the engine's **resume** phases are not byte-faithful:
 
@@ -74,13 +74,18 @@ Even after the fixes, the engine's **resume** phases are not byte-faithful:
   verified equal to `phase[i].prompt − phase[i-1].prompt`).
 - **Yet** the engine generates to the **full token cap** in every resume phase
   (e.g. s000 phases 1/2/3 = **41/44/36** tokens), while the baseline stops at EOG after ~14 each.
-  N=3 totals: engine **1617 vs llama 964** output tokens (+68%).
+  N=3 totals: engine **~1617 vs llama 964** output tokens (+68%).
 
-Because the cold phase is faithful and positions/format are correct, the remaining cause is
-**dual-context (A=prefill, B=decode, `ctx_other=A`) shared-KV producing different logits from a
-single-context decode** once new tokens are appended to an already-decoded sequence. This is a
-deep llama.cpp shared-KV behavior (the paper's exact mechanism), and it is **not** a trace or
-positioning bug.
+**What we have ruled out (deep-dive progress):**
+- NOT a trace/positioning bug (positions consistent; no "inconsistent sequence positions").
+- NOT the A→B cross-context handoff: decoding on a **single** context (A for both prefill and
+  decode) still generates to the cap, so the `ctx_other` mirror is **not** the cause.
+- The cold phase is faithful, so the batch-decode path itself is sound for a fresh sequence.
+
+**Remaining hypothesis:** the drift is in how the engine **appends resume tokens to an already
+decoded sequence** (the KQ/attention state after a long decoded prefix), or in how it feeds the
+wrapped resume prompt. This needs deeper llama.cpp attention/KQ-cache inspection. It is **not**
+resolved; a strict same-output-length comparison is therefore still not achievable.
 
 ### Consequence
 

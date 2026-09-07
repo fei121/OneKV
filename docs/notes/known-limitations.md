@@ -122,10 +122,10 @@ competitive throughput.*
 
 ```
 # engine (12 sessions, N concurrency, 200ms tool_wait, EOS respected, on the bench server):
-/tmp/as_conc_batch <sessions.txt> <N> -1 1 <n_ctx> <model.gguf> 12 200
+/tmp/as_conc_batch <sessions_{react|plan_and_execute}.txt> <N> -1 1 <n_ctx> <model.gguf> 12 0
 
 # llama.cpp baseline (self-contained multi-phase prompt):
-python scripts/serve_llama.py --config configs/serving_v2.yaml --agents N --sessions 12
+python scripts/serve_llama.py --config configs/serving_react_u.yaml --agents N --sessions 12
 
 # regenerate the real-task trace:
 python scripts/gen_traces.py --config configs/trace_gen.yaml --model-dir /root/models/Qwen2.5-3B

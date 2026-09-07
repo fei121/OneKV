@@ -18,7 +18,7 @@ GPU freed between runs). See [`methodology.md`](methodology.md).
 - [`../../results/perparadigm-4way.md`](../../results/perparadigm-4way.md) — Qwen2.5-**3B**, ReAct + P&E.
 - [`../../results/perparadigm-4way-7b.md`](../../results/perparadigm-4way-7b.md) — Qwen2.5-**7B**, ReAct + P&E.
 
-**Bottom line (consistent across ReAct/P&E for 3B; 7B noted separately):**
+**Bottom line (consistent across ReAct/P&E for both 3B and 7B):**
 - The **shared-KV engine is the latency-stability leader**: TPOT p95 stays **flat** (~12–14 ms on 3B)
   while llama.cpp explodes (50–73 ms) and vLLM/SGLang rise (20–39 ms); cold TTFT is **lowest & flat**
   (prefix-cache amortization) while baselines degrade with N.
@@ -28,8 +28,8 @@ GPU freed between runs). See [`methodology.md`](methodology.md).
 > **Context fix note.** vLLM/SGLang were re-measured with correct context (vLLM `--max-model-len
 > 32768`, SGLang `--max-total-tokens 49152`). The old `--max-total-tokens 8192` starved SGLang's KV
 > pool and made it look worst — a harness bug, not an SGLang limitation. See
-> [`../notes/pitfalls.md`](../notes/pitfalls.md). The **7B** vLLM/SGLang columns were measured before
-> that fix and are **for reference only** (see [`../../results/perparadigm-4way-7b.md`](../../results/perparadigm-4way-7b.md)).
+> [`../notes/pitfalls.md`](../notes/pitfalls.md). vLLM/SGLang were re-measured with the correct context on
+> **both 3B and 7B** (see [`../../results/perparadigm-4way-7b.md`](../../results/perparadigm-4way-7b.md)).
 
 ### Verdict
 

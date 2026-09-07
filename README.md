@@ -197,8 +197,8 @@ a time, GPU freed between runs).
 2. **The 10-slot Green Context pool + TPOT-driven `Rmin` controller are not reproduced.** We replaced
    the decode-protection benefit with *continuous batching*, which we measured to be cheaper (SM
    reservation actually *hurt* on the 3090). See [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md).
-3. **7B vLLM/SGLang** were measured before the context fix — **for reference only** (see
-   [`results/perparadigm-4way-7b.md`](results/perparadigm-4way-7b.md)).
+3. **The 7B vLLM/SGLang were re-measured** with the corrected context too, so the **3B/7B** comparisons
+   are both aligned (see [`results/perparadigm-4way-7b.md`](results/perparadigm-4way-7b.md)).
 4. **BASE model, no native tool-calling** → this measures serving performance, not agent quality.
 
 ---

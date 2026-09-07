@@ -1,0 +1,70 @@
+{
+  "table1_target": {
+    "react": {
+      "resume_prefill": [
+        30,
+        127
+      ],
+      "resume_avg": 56,
+      "decode": [
+        27,
+        99
+      ],
+      "decode_avg": 38
+    },
+    "plan_and_execute": {
+      "resume_prefill": [
+        125,
+        421
+      ],
+      "resume_avg": 251,
+      "decode": [
+        41,
+        125
+      ],
+      "decode_avg": 58
+    }
+  },
+  "measured": {
+    "react": {
+      "cold_prefill": {
+        "min": 1456,
+        "max": 3488,
+        "avg": 2626.7,
+        "n": 12
+      },
+      "resume_prefill": {
+        "min": 41,
+        "max": 67,
+        "avg": 53.9,
+        "n": 40
+      },
+      "decode": {
+        "min": 27,
+        "max": 45,
+        "avg": 37.8,
+        "n": 52
+      }
+    },
+    "plan_and_execute": {
+      "cold_prefill": {
+        "min": 1458,
+        "max": 3490,
+        "avg": 2628.7,
+        "n": 12
+      },
+      "resume_prefill": {
+        "min": 201,
+        "max": 274,
+        "avg": 235.7,
+        "n": 40
+      },
+      "decode": {
+        "min": 49,
+        "max": 67,
+        "avg": 58.3,
+        "n": 52
+      }
+    }
+  }
+}

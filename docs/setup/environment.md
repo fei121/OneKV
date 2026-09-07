@@ -146,7 +146,7 @@ the server is `/tmp/as_conc_batch` (innovation-1).
 - Trace files: `sessions_react.txt`, `sessions_plan_and_execute.txt` (+ `traces_7b/` for 7B).
 - Table-I token distribution (per paradigm) in `distribution_summary.json`.
 - Generation: `python scripts/gen_traces.py --config configs/trace-gen.yaml`
-  (model dir `/root/autodl-tmp/models/Qwen2.5-3B`).
+  (model dir `/root/models/Qwen2.5-3B`).
 
 ## 9. Reproduce the headline comparison
 

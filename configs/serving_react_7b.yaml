@@ -1,0 +1,17 @@
+# Serving harness config — Qwen2.5-7B, ReAct (unified 12-task set)
+model_config: configs/models/qwen25_7b_gguf.yaml
+metrics_config: configs/metrics.yaml
+server:
+  host: 127.0.0.1
+  port: 8080
+  binary: /root/autodl-tmp/agentserve-reproduction/third_party/llama.cpp/build/bin/llama-server
+trace:
+  file: /root/autodl-tmp/exp/traces_7b/traces_react_Qwen2.5-7B.jsonl
+  max_sessions: 12
+  paradigm: all
+workload:
+  concurrent_agents: 4
+  tool_wait_ms: 0
+output:
+  event_log: /root/autodl-tmp/exp/raw_logs/llama7b_react_events.jsonl
+  results: /root/autodl-tmp/exp/results/llama7b_react_metrics.json

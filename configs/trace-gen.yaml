@@ -1,13 +1,13 @@
 # AgentServe reproduction — 3-state token trace generation (Table I)
 model:
   name: Qwen2.5-3B
-  dir: /root/autodl-tmp/models/Qwen2.5-3B
+  dir: /root/models/Qwen2.5-3B
 toolbench:
   dir: /root/autodl-tmp/agentserve-reproduction/workloads/toolbench/MirrorAPI-Bench
   cot_split: test_cot          # use CoT-prompt test data (source of tool schemas + outputs)
   sft_split: test_sft          # (optional) SFT-prompt data
 trace:
-  out_dir: /root/autodl-tmp/exp/traces
+  out_dir: /root/autodl-tmp/exp/traces_unified
   seed: 1234
   sessions_per_paradigm: 60
   tool_rounds_per_session: [2, 3, 4]   # number of (resume_prefill + decode) rounds per session

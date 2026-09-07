@@ -1,0 +1,19 @@
+# Model registry — every model artifact used in the benchmark.
+#
+#   GGUF -> single-engine shared-KV runtime (agentserve_engine) + llama.cpp baseline
+#   HF   -> vLLM / SGLang backends + trace generation
+#
+# These are the RTX 3090 server paths (see ../../docs/setup/environment.md for the full pinned env).
+qwen2.5-3b:
+  name: Qwen2.5-3B
+  gguf: /root/autodl-tmp/models/Qwen2.5-3B-f16.gguf
+  hf:   /root/models/Qwen2.5-3B
+  gguf_sha256: 5bfca925442fbd1bc936801c10284f72a768d11dd4515bdbcd6055ac4c734054
+  context_length: 32768   # native max_position_embeddings (vLLM --max-model-len cap)
+
+qwen2.5-7b:
+  name: Qwen2.5-7B
+  gguf: /root/autodl-tmp/models/Qwen2.5-7B-f16.gguf
+  hf:   /root/models/Qwen2.5-7B
+  gguf_sha256: 97ab3b8550c5123cbc328e197b00268360d7c7fd6fcc0294078768d41fda68b6
+  context_length: 32768

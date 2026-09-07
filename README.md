@@ -107,6 +107,7 @@ The llama.cpp patches in [`patches/`](patches/) are what make the shared KV poss
 ### Prerequisites
 - NVIDIA GPU (tested: RTX 3090, 24 GB), CUDA 12.x, Ubuntu 22.04
 - `llama.cpp` (built with CUDA; see [`docs/llama-cpp-patch.md`](docs/llama-cpp-patch.md))
+- **Exact server environment (hardware / CUDA / llama.cpp build flags / model SHA / conda versions):** [`docs/environment.md`](docs/environment.md)
 - Python 3.10+ (`pip install -e .`), `aria2c` for model download via `hfd`
 
 ### 1. Install

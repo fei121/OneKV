@@ -1,4 +1,4 @@
-> **⚠️ RETRACTED** — The results/figures in this directory were produced by an engine that ignored EOS, ran fewer sessions than the baselines, and skipped tool_wait, and whose resume path has a dual-context shared-KV logits-drift fidelity issue. **These comparisons are invalid** and are being re-worked. Only the cold prefix-caching mechanism is verified faithful. See [`known-limitations.md`](../../docs/known-limitations.md).
+> (**⚠️ RETRACTED** — The results/figures in this document were produced by an engine that ignored EOS, ran fewer sessions than the baselines, and skipped tool_wait; **and** the llama.cpp baseline harness uses `cache_prompt`, which cannot drive a multi-phase agent conversation (degenerates to a 1-token response after the first resume). These comparisons are **invalid** and are being re-worked. The engine itself is verified faithful on the phases the reference works (cold + first resume). See [[`known-limitations.md`](../../docs/known-limitations.md)](../docs/known-limitations.md).)
 
 # Results
 

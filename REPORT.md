@@ -1,4 +1,4 @@
-> **⚠️ RETRACTED / WORK IN PROGRESS** — Headline results (throughput, per-token TPOT, cold TTFT, SLO) in this repo were measured with an engine that **ignored EOS**, **ran fewer sessions than the baselines**, and **skipped tool_wait**; its **resume path also has a dual-context shared-KV logits-drift fidelity issue**. Those comparisons are **invalid and are being re-worked**. Only the **cold prefix-caching** mechanism is verified faithful. See [`docs/known-limitations.md`](docs/known-limitations.md).
+> **⚠️ RETRACTED / WORK IN PROGRESS** — Headline results (throughput, per-token TPOT, cold TTFT, SLO) in this repo were measured with an engine that **ignored EOS**, **ran fewer sessions than the baselines**, and **skipped tool_wait**; **and** the llama.cpp baseline harness uses `cache_prompt`, which **cannot drive a multi-phase agent conversation** (it degenerates to a 1-token response after the first resume). Those comparisons are **invalid** and are being re-worked. The engine itself is verified **faithful** on the phases the reference works (cold + first resume). See [`docs/known-limitations.md`](docs/known-limitations.md).
 
 # 单引擎共享 KV Serving 引擎：设计、实现与实验
 

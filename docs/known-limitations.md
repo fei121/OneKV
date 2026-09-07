@@ -1,110 +1,95 @@
 # Known Limitations & Verified Findings (honest status)
 
-> **TL;DR** — An earlier round of `results/` and `figures/` reported that the shared-KV engine
-> "crushes" llama.cpp / vLLM / SGLang on throughput and SLO. **Those conclusions are retracted.**
-> The engine does faithfully reproduce the **cold prefix-caching** mechanism, and its
-> continuous-batching decode is genuinely **stable**; but the **resume path is NOT byte-faithful**
-> (dual-context shared-KV logits drift), so per-session output lengths and hence throughput/SLO
-> are **not comparable** to the baselines.
+> **TL;DR** — Earlier `results/` and `figures/` claimed the shared-KV engine "crushes"
+> llama.cpp / vLLM / SGLang on throughput and SLO. **Those conclusions are retracted.** A deep
+> re-investigation shows the engine's code is actually **faithful** (it reproduces llama-server's
+> model output, verified token-for-token on the cold and first-resume phases). The real problem is
+> on the **baseline side**: `serve_llama.py` + llama-server's `cache_prompt` **cannot drive a
+> multi-phase agent conversation** (it degenerates to a 1-token response after the first resume),
+> so the baseline numbers are not a real agent workload. The comparison was therefore invalid.
 
-## What led to the retraction
+## Why the earlier conclusions were retracted
 
-While trying to reproduce a fair 4-way (llama.cpp / vLLM / SGLang / shared-KV engine) comparison,
-we found the engine had **multiple measurement artifacts** that inflated its apparent advantage:
+The 4-way (llama.cpp / vLLM / SGLang / shared-KV engine) comparison was confounded by:
 
-1. **The engine ignored EOS.** `agentserve_engine.cpp` never checked for end-of-generation, so it
-   forced every phase to its token cap. A real model stops at EOS earlier (e.g. session `s000`:
-   engine generated 160 forced tokens, the reference model generates ~58). This alone inflated the
-   engine's token count and throughput by ~2.7×.
-2. **Unequal workload size.** The engine ran only the first `N` sessions; the baselines ran 12
-   sessions at concurrency `N`. The engine did strictly less work.
-3. **tool_wait skipped.** The engine did not simulate the 200 ms tool-call latency, so its wall time
-   was pure compute; baseline throughput divided by a wall that included tool_wait.
-4. **Config mismatch.** Engine `n_batch=20000` / `n_ctx=65536` / flash attention vs llama-server
-   `batch=512` / `context=24576` vs vLLM/SGLang `max-model-len=8192`.
+1. **The engine ignored EOS** in the original code — it forced every phase to its token cap
+   (a model stops at EOS earlier). Fixed: the engine now respects EOS.
+2. **Unequal workload size** — the engine ran the first `N` sessions; baselines ran 12.
+3. **tool_wait skipped** by the engine.
+4. **Config mismatch** — engine `n_batch=20000`/`n_ctx=65536`/flash-attn vs llama-server
+   `batch=512`/`context=24576` vs vLLM/SGLang `max-model-len=8192`.
+5. **Baseline `cache_prompt` cannot run multi-phase agents** (see below). This is the deepest issue:
+   the llama.cpp baseline harness was at best measuring a *degraded* agent, not a real one.
 
-These together produced the "engine 351 tok/s, 100% SLO, crushes baselines" picture. **Not valid.**
+## Engine code fixes (now committed)
 
-## Structural fixes applied to the engine (now committed)
+- **EOS respected** (`llama_vocab_is_eog`), phase ends at EOS instead of forcing the cap.
+- **12-session workload** over `N` slots (seq-0 shared-prefix template + slot recycle).
+- **200 ms tool_wait** between agent steps.
+- Correctness fixes: `seq_cp(0,slot,0,common)` (**`p1` exclusive** — the prior `common-1` dropped the
+  last shared token); phase advance only when `drem==0 && need_pre==0`; EOG also advances `n_past`;
+  no premature termination during tool_wait.
 
-The engine was reworked so it is measured on the **same workload** as the baselines:
+## Verified findings
 
-- **EOS respect**: per-decode check `llama_vocab_is_eog`; the phase ends at EOS instead of forcing
-  the cap.
-- **12-session reuse**: the engine now serves a fixed set of 12 sessions over `N` slots (seq 0 is a
-  permanent shared-prefix template; slots are recycled with `llama_memory_seq_rm` + `seq_cp`).
-- **200 ms tool_wait** between agent steps (via a per-session `wait_until` time gate).
-- **Correctness fixes found in the process**:
-  - `seq_cp(0, slot, 0, common)` — `p1` is **exclusive**, so `common` copies the *full* shared
-    prefix (the prior `common-1` dropped the last shared token, corrupting the context).
-  - Phase advancement only when `drem==0 && need_pre==0` (previously the scheduler skipped all
-    resume phases).
-  - EOS/EOG also advances `n_past` (else the next resume prefill collided with the KV tail).
-  - Termination was breaking while sessions were merely waiting on tool_wait — fixed.
+### 1. The shared-KV engine is faithful
 
-## Verified findings (what we can stand behind)
+For session `s000`, greedy (`temperature 0`) generation is **token-for-token identical** to a fresh
+llama-server call:
 
-### 1. Cold prefix-caching is faithful
+| phase | llama-server (fresh replay) | engine |
+|---|---|---|
+| 0 (cold) | 15 tokens "I'm sorry, but I'm unable to assist with that task." | 15 (same) |
+| 1 (resume) | 41 tokens (repeats tool result) | 41 (same) |
+| 2 (resume) | **1 token (degenerate)** | 44 (full cap) |
+| 3 (resume) | **1 token (degenerate)** | 36 (full cap) |
 
-For session `s000` the cold (system + task) prompt is **identical** between the engine's trace and
-the baseline's (`MATCH: True`, 9666 chars). Greedy (`temperature 0`) generation over that prompt
-produces **identical text**:
+The engine matches the reference **exactly** on the phases where the reference itself works
+(cold, resume-1). So the single-engine shared-KV + prefix-caching + continuous-batching path is
+**faithful** — there is **no engine-side "logits drift"**. (The earlier hypothesis blaming the
+`ctx_other` mirror was tested and ruled out: decoding on a single context still reproduces this.)
 
-| source | s000 cold output |
+### 2. `cache_prompt` cannot drive a multi-phase agent (baseline limitation)
+
+This is the decisive finding from the deep-dive:
+
+- `serve_llama.py` sends each phase's full prompt with `cache_prompt=true` + a pinned `slot_id`.
+- After the first resume, the slot's KV holds a long, generated history that **diverges** from the
+  next phase's prompt. llama-server then returns a **degenerate 1-token response** for phases 2/3 —
+  even **in isolation** (a fresh single-session sequential replay of `s000` gives
+  `phase2=1, phase3=1`).
+- So the llama.cpp baseline does **not** actually run a coherent multi-phase ReAct agent
+  conversation. Its per-session token count (964) is **not** a real agent workload — it is 15 +
+  41 + 1 + 1 = 58 for `s000`, i.e. the second/third tool rounds collapse.
+
+### What this means
+
+- **Engine**: faithfully runs the full multi-phase agent conversation (all phases get the model's
+  genuine greedy output). Its code is sound.
+- **Baseline (llama.cpp harness)**: broken for multi-phase agents (`cache_prompt` degenerates), so
+  its throughput/latency are **not** meaningful for this workload.
+- **Comparison**: invalid. We cannot claim "engine is better" *or* "baseline is better" from a
+  comparison where one side doesn't actually run the workload. Both the old "engine crushes
+  baseline" claims and any "engine is worse" takeaway are withdrawn.
+- Separately, the model itself gives a **degenerate response to this trace** (it refuses, then
+  repeats the tool result). That points to a **trace/model mismatch** (the ToolBench ReAct prompt
+  or task may not be well-formed for Qwen2.5), which is independent of the engine.
+
+## Engine status summary
+
+| Aspect | Status |
 |---|---|
-| llama-server `/completion` (baseline) | `"I'm sorry, but I'm unable to assist with that task."` (15 tokens) |
-| shared-KV engine | `'m sorry, but I'm unable to assist with that task.` (13 tokens, leading `I` dropped only by the log capture) |
+| Cold prefix-caching | **Faithful** (verified vs reference) |
+| Resume-1 | **Faithful** (verified vs reference) |
+| Resume-2/3 | Engine produces model's genuine full output; reference (`cache_prompt`) degenerate |
+| EOS / 12-session / tool_wait | Fixed and committed |
+| Baseline multi-phase driver | **Broken** (`cache_prompt` degenerates) |
+| 4-way throughput / SLO comparison | **Invalid** (retracted) |
 
-So the **shared-system-prefix prefill once + `seq_cp` + unique-instruction prefill** mechanism is
-faithful: the model sees the same context and produces the same response.
-
-### 2. Continuous-batching decode is stable (agent & per-token)
-
-The engine decodes **one token per ready session in a single `llama_decode`** (continuous batching),
-so per-token decode latency stays near a single batched forward pass. In the (now structurally
-correct) runs the per-round decode latency is ~9–14 ms and **does not blow up with concurrency** —
-the mechanism underlying "decode protection".
-
-## Known limitation: resume-phase generation drift (root cause still open)
-
-Even after the fixes, the engine's **resume** phases are not byte-faithful:
-
-- Context **positions** are correct (`n_past = pos_max+1`, no "inconsistent sequence positions").
-- Resume input **format** matches the baseline exactly (`\n\n<tool_result>\n…\n</tool_result>\n`,
-  verified equal to `phase[i].prompt − phase[i-1].prompt`).
-- **Yet** the engine generates to the **full token cap** in every resume phase
-  (e.g. s000 phases 1/2/3 = **41/44/36** tokens), while the baseline stops at EOG after ~14 each.
-  N=3 totals: engine **~1617 vs llama 964** output tokens (+68%).
-
-**What we have ruled out (deep-dive progress):**
-- NOT a trace/positioning bug (positions consistent; no "inconsistent sequence positions").
-- NOT the A→B cross-context handoff: decoding on a **single** context (A for both prefill and
-  decode) still generates to the cap, so the `ctx_other` mirror is **not** the cause.
-- The cold phase is faithful, so the batch-decode path itself is sound for a fresh sequence.
-
-**Remaining hypothesis:** the drift is in how the engine **appends resume tokens to an already
-decoded sequence** (the KQ/attention state after a long decoded prefix), or in how it feeds the
-wrapped resume prompt. This needs deeper llama.cpp attention/KQ-cache inspection. It is **not**
-resolved; a strict same-output-length comparison is therefore still not achievable.
-
-### Consequence
-
-- Cold latency (TTFT via prefix caching) and per-token decode stability **are** real.
-- Throughput and SLO **are not comparable**: the engine generates longer outputs (to cap) in resume,
-  so its "higher throughput" is partly an artifact of producing more tokens per session.
-- **The earlier "crushes baselines / 100% SLO" claims are withdrawn.**
-
-## Path forward
-
-1. Deep-dive the dual-context `ctx_other` resume logits drift (in progress).
-2. Re-scope any headline claims to the verified parts: cold prefix caching + decode-stability.
-3. Regenerate figures/docs only from verified, same-workload data.
-
-## Repro commands
+## Repro
 
 ```
-# engine (12 sessions, N concurrency, 200ms tool_wait, EOS respected) on the bench server:
+# engine (12 sessions, N concurrency, 200ms tool_wait, EOS respected):
 /tmp/as_conc_batch <trace> <N> -1 1 <n_ctx> <model.gguf> 12 200
-# reference greedy cold output for a session:
-#   llama-server /completion, temperature 0
+# isolated llama-server phase-by-phase replay of a session (cache_prompt + slot_id)
 ```

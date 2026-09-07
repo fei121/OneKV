@@ -50,16 +50,16 @@ class VllmBackend(StreamMixin, ServingBackend):
         import subprocess
         cmd=[self.python,"-m","vllm.entrypoints.openai.api_server","--model",self.model_path,
              "--host",self.host,"--port",str(self.port),"--gpu-memory-utilization","0.9","--max-model-len","8192"]
-        self.proc=subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.proc=subprocess.Popen(cmd, stdout=open("/tmp/vllm_backend.log","w"), stderr=subprocess.STDOUT)
         import urllib.request,time
-        for _ in range(120):
+        for _ in range(200):
             try:
                 if urllib.request.urlopen(f"{self.base_url}/health",timeout=2).status==200: return self
             except Exception: time.sleep(1)
         raise RuntimeError("vllm server not ready")
     def stop(self):
         if self.proc: self.proc.terminate()
-    def submit(self, request): return list(self.stream_completion(self.base_url, request["prompt"], request["n_predict"]))
+    def submit(self, request): yield from self.stream_completion(self.base_url, request["prompt"], request["n_predict"])
     def collect_metrics(self): return {}   # filled after run via events/metrics
 
 class SglangBackend(StreamMixin, ServingBackend):
@@ -71,16 +71,16 @@ class SglangBackend(StreamMixin, ServingBackend):
         import subprocess
         cmd=[self.python,"-m","sglang.launch_server","--model-path",self.model_path,
              "--host",self.host,"--port",str(self.port),"--max-total-tokens","8192"]
-        self.proc=subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.proc=subprocess.Popen(cmd, stdout=open("/tmp/sglang_backend.log","w"), stderr=subprocess.STDOUT)
         import urllib.request,time
-        for _ in range(180):
+        for _ in range(300):
             try:
                 if urllib.request.urlopen(f"{self.base_url}/health",timeout=2).status==200: return self
             except Exception: time.sleep(1)
         raise RuntimeError("sglang server not ready")
     def stop(self):
         if self.proc: self.proc.terminate()
-    def submit(self, request): return list(self.stream_completion(self.base_url, request["prompt"], request["n_predict"]))
+    def submit(self, request): yield from self.stream_completion(self.base_url, request["prompt"], request["n_predict"])
     def collect_metrics(self): return {}
 
 class LlamaCppBackend(ServingBackend):

@@ -1,4 +1,6 @@
-> **⚠️ RETRACTED / WORK IN PROGRESS** — Headline results (throughput, per-token TPOT, cold TTFT, SLO) in this repo were measured with an engine that **ignored EOS**, **ran fewer sessions than the baselines**, and **skipped tool_wait**; **and** the llama.cpp baseline harness uses `cache_prompt`, which **cannot drive a multi-phase agent conversation** (it degenerates to a 1-token response after the first resume). Those comparisons are **invalid** and are being re-worked. The engine itself is verified **faithful** on the phases the reference works (cold + first resume). See [`docs/known-limitations.md`](docs/known-limitations.md).
+> **⚠️ RETRACTED (old data) / see the clean verified result** — The headline numbers in `results/` and `figures/` were produced by an engine that **ignored EOS**, **ran fewer sessions**, and **skipped tool_wait**; **and** the llama.cpp baseline used `cache_prompt`, which cannot drive multi-phase agents (it collapsed to 1-token replies after the first resume). Those comparisons are **invalid** and are being re-worked.
+>
+> **The clean, verified 4-way comparison** (real-task trace + fixed baselines, N=3…10) is in [`results/v2-4way-nscale.md`](results/v2-4way-nscale.md) / [`figures/v2-4way-nscale.png`](figures/v2-4way-nscale.png). It shows the engine is **comparable on throughput**, and **best on latency stability** (flat TPOT p95 ~12–16 ms and flat cold TTFT ~300 ms), matching the paper's thesis. See [`docs/known-limitations.md`](docs/known-limitations.md).
 
 # AgentServe Reproduction
 

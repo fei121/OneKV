@@ -33,13 +33,18 @@ def run_session(logger, backend, session, tool_wait_s):
     sid=session["session_id"]; plan=session["plan"]
     log=lambda **k: logger.log(k.pop("event"), **k)
     log(event="SESSION_START", session_id=sid)
+    # Self-contained multi-phase prompt (includes the model's own previous output) so prefix caching
+    # (vLLM paged prefix / SGLang RadixAttention) reuses a coherent prefix rather than a slot-KV
+    # history that diverges.  Mirrors the serve_llama.py fix for the same multi-phase bug.
+    full_prompt=None; prev_output=""
     for i, ph in enumerate(plan):
-        p=ph["phase"]; prompt=ph["prompt"]; n_pred=ph["decode_tokens"]
+        p=ph["phase"]; n_pred=ph["decode_tokens"]
+        prompt = ph["prompt"] if i==0 else (full_prompt + prev_output + ph["prompt"][len(plan[i-1]["prompt"]):])
         rid=f"{sid}:p{i}"
         log(event="REQUEST_ARRIVE", session_id=sid, request_id=rid, phase=p)
         log(event=("COLD_PREFILL_START" if p=="cold_prefill" else "RESUME_PREFILL_START"),
             session_id=sid, request_id=rid, phase=p, input_tokens=ph["input_tokens"])
-        first=True; idx=0
+        first=True; idx=0; out_parts=[]
         for _tok in backend.submit({"prompt":prompt,"n_predict":n_pred,"slot_id":i,
                                     "phase":p,"input_tokens":ph["input_tokens"]}):
             if first:
@@ -47,9 +52,10 @@ def run_session(logger, backend, session, tool_wait_s):
                     session_id=sid, request_id=rid, phase=p, input_tokens=ph["input_tokens"])
                 log(event="DECODE_STEP_START", session_id=sid, request_id=rid, phase=p)
                 first=False
-            idx+=1
+            idx+=1; out_parts.append(_tok)
             log(event="TOKEN_EMIT", session_id=sid, request_id=rid, phase=p, output_tokens=idx)
         log(event="DECODE_STEP_END", session_id=sid, request_id=rid, phase=p, output_tokens=idx)
+        prev_output="".join(out_parts); full_prompt=prompt
         if i < len(plan)-1 and tool_wait_s>0:
             log(event="TOOL_WAIT_START", session_id=sid, phase="tool_wait")
             time.sleep(tool_wait_s)
@@ -74,10 +80,10 @@ def main():
 
     server_proc=None; be=None
     if args.backend=="vllm":
-        be=VllmBackend(model_path="/root/autodl-tmp/models/Qwen2.5-3B", port=args.port or 8000)
+        be=VllmBackend(model_path="/root/models/Qwen2.5-3B", port=args.port or 8000)
         be.start()
     elif args.backend=="sglang":
-        be=SglangBackend(model_path="/root/autodl-tmp/models/Qwen2.5-3B", port=args.port or 30000)
+        be=SglangBackend(model_path="/root/models/Qwen2.5-3B", port=args.port or 30000)
         be.start()
     else:  # llama / agentserve: start llama-server, wrap with backend
         model_cfg=yaml.safe_load(open(cfg["model_config"]))

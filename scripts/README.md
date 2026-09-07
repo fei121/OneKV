@@ -17,5 +17,6 @@
 | `plot_4way_nscale.py` | 4-way N-scale figure (engine vs llama.cpp / vLLM / SGLang, N=3…10). |
 | `plot_4way_slo.py` | 4-way session-level SLO-attainment figure. |
 | `compute_slo.py` | Recompute SLO attainment from per-N event logs (server-side). |
+| `plot_4way_v2.py` | Clean 4-way N-scale figure (real-task trace + fixed baselines). |
 | `run_llama_baseline.sh` | Thin wrapper for `serve_llama.py`. |
 | `run_hol_sweep.sh` / `run_sm_task.sh` | Head-of-line and SM-scaling sweeps. |

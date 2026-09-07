@@ -87,10 +87,18 @@ def run_session(logger, sess_http, host, port, session, slot_id, tool_wait_s,
     plan = session["plan"]
     clock = SessionClock(logger, sid)
     log("SESSION_START", session_id=sid)
-    n_tokens_total = 0
+    # Build a SELF-CONTAINED multi-phase prompt that includes the model's own previous output,
+    # so cache_prompt reuses a coherent prefix (the slot-KV-only approach degenerates because the
+    # generated history diverges from the next prompt).  (Fixes the cache_prompt multi-phase bug.)
+    full_prompt = None
+    prev_output = ""
     for i, phase in enumerate(plan):
         p = phase["phase"]
-        prompt = phase["prompt"]
+        if i == 0:
+            prompt = phase["prompt"]                      # cold prompt
+        else:
+            delta = phase["prompt"][len(plan[i-1]["prompt"]):]   # this round's <tool_result> block
+            prompt = full_prompt + prev_output + delta          # full conversation + prev model output
         n_pred = phase["decode_tokens"]
         rid = clock.next_request_id(p)
         log("REQUEST_ARRIVE", session_id=sid, request_id=rid, phase=p)
@@ -100,6 +108,7 @@ def run_session(logger, sess_http, host, port, session, slot_id, tool_wait_s,
         end_label = "COLD_PREFILL_END" if p == "cold_prefill" else "RESUME_PREFILL_END"
         first = True
         idx = 0
+        out_parts = []
         for _tok in stream_completion(sess_http, host, port, prompt, n_pred, slot_id):
             if first:
                 log(end_label, session_id=sid, request_id=rid, phase=p,
@@ -107,11 +116,11 @@ def run_session(logger, sess_http, host, port, session, slot_id, tool_wait_s,
                 log("DECODE_STEP_START", session_id=sid, request_id=rid, phase=p)
                 first = False
             idx += 1
+            out_parts.append(_tok)
             log("TOKEN_EMIT", session_id=sid, request_id=rid, phase=p, output_tokens=idx)
         log("DECODE_STEP_END", session_id=sid, request_id=rid, phase=p, output_tokens=idx)
-        if p == "cold_prefill":
-            n_tokens_total += idx
-        # tool wait before next resume (external tool latency)
+        prev_output = "".join(out_parts)
+        full_prompt = prompt
         if i < len(plan) - 1 and tool_wait_s > 0:
             log("TOOL_WAIT_START", session_id=sid, phase="tool_wait")
             time.sleep(tool_wait_s)

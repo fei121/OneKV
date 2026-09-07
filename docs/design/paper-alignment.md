@@ -19,7 +19,7 @@ mechanism-by-mechanism account of what aligns, what we did *differently*, and wh
 
 1. **Single-engine P/D disaggregation with a shared KV cache** — the paper's central contribution
    and the genuinely hard part. We show how to make llama.cpp share KV between a prefill and a
-   decode context (see [`architecture.md`](architecture.md) and [`patches/`](../patches/)).
+   decode context (see [`architecture.md`](architecture.md) and [`patches/`](../../patches/)).
 2. **Two-stream concurrent P/D** with `cudaEvent` + mutex synchronization.
 3. **Continuous batching** and **batched cold prefill** — the serving-side scheduling that the
    paper also exercises.

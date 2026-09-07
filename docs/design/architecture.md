@@ -43,7 +43,7 @@ a **decode context `B` shares the KV pool of a prefill context `A`**:
 With these, `B` reads and appends to `A`'s KV **without copying**, which is the paper's "avoiding
 inter-engine KV transfers" goal.
 
-See [`patches/`](../patches/) for the full diffs.
+See [`patches/`](../../patches/) for the full diffs.
 
 ## 2. P/D concurrency
 
@@ -68,7 +68,7 @@ cold TTFT to roughly the instruction-prefill time.
 
 ## Engine entry point
 
-[`src/runtime/agentserve_engine.cpp`](../src/runtime/agentserve_engine.cpp) drives the full flow:
+[`src/runtime/agentserve_engine.cpp`](../../src/runtime/agentserve_engine.cpp) drives the full flow:
 
 1. Load model; create `A` (prefill) and `B` (decode, `ctx_other=A`).
 2. Batch cold prefill (with optional prefix cache) on `A`.

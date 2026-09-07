@@ -47,4 +47,4 @@ The engine has two knobs relevant to reproduction:
   `AGENTSERVE_PREFILL_PCT` env to route streams onto green contexts. (Measured: this *degrades*
   throughput here, so the default uses default streams.)
 
-See [`../docs/architecture.md`](../docs/architecture.md) for details.
+See [`../../docs/design/architecture.md`](../../docs/design/architecture.md) for details.

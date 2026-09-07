@@ -61,7 +61,7 @@
 
 ## 4. AgentServe patches (shared-KV enabler)
 
-The four modified llama.cpp source files are committed in [`patches/`](../patches/). They are
+The four modified llama.cpp source files are committed in [`patches/`](../../patches/). They are
 **full patched copies**, not unified diffs — to reproduce, start from a **llama.cpp 0.4.0-dev**
 checkout and copy each file over (or `diff -u upstream patched` per file).
 
@@ -92,6 +92,9 @@ checkout and copy each file over (or `diff -u upstream patched` per file).
 | Qwen2.5-3B (BASE) | `/root/models/Qwen2.5-3B` | `model-00001-of-00002.safetensors`, `model-00002-of-00002.safetensors` |
 | Qwen2.5-7B (BASE) | `/root/models/Qwen2.5-7B` | `model-00001..00004-of-00004.safetensors` |
 
+> **Model paths are also recorded in [`configs/models/models.yaml`](../../configs/models/models.yaml)** (the
+> single source of truth for all four artifacts: Qwen2.5-3B/7B × GGUF/HF, with SHA-256).
+
 ### Download tooling
 
 ```bash
@@ -115,7 +118,7 @@ conda envs live under `/root/autodl-tmp/conda_envs/`.
 | `sglang` | 3.12.14 | sglang **0.5.19**, torch **2.13.0+cu130** |
 
 Project Python package (`pip install -e .`): `requests`, `pyyaml`, `matplotlib`, `numpy`, `pytest`
-(see [`requirements.txt`](../requirements.txt) / [`pyproject.toml`](../pyproject.toml)).
+(see [`requirements.txt`](../../requirements.txt) / [`pyproject.toml`](../../pyproject.toml)).
 
 ## 7. Engine build (C++)
 
@@ -168,4 +171,4 @@ python scripts/serve_backend.py --backend {vllm,sglang} --model-path /root/model
 
 *Recorded 2026-09-07 from the RTX 3090 AutoDL box. llama.cpp has no git history on the box, so its
 exact commit is unavailable; the version is pinned by `CMakeLists.txt` (0.4.0-dev) + the four
-patches in [`patches/`](../patches/).*
+patches in [`patches/`](../../patches/).*

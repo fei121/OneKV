@@ -52,9 +52,9 @@ thesis: *improve TTFT/TPOT stability while sustaining competitive (not maximal) 
 > **About the baselines.** vLLM and SGLang were re-measured with **adequate context** (vLLM
 > `--max-model-len 32768`, SGLang `--max-total-tokens 49152`). The earlier `--max-total-tokens 8192`
 > starved SGLang's KV pool and made it look like the worst backend — that was a **harness bug, not an
-> SGLang limitation**. See [`docs/pitfalls.md`](docs/pitfalls.md).
+> SGLang limitation**. See [`docs/notes/pitfalls.md`](docs/notes/pitfalls.md).
 
-See [`results/`](results/) for the full tables and [`docs/results/README.md`](docs/results/README.md).
+See [`results/`](results/) for the full tables and [`docs/benchmark/results.md`](docs/benchmark/results.md).
 
 ---
 
@@ -109,6 +109,10 @@ The engine: [`src/runtime/agentserve_engine.cpp`](src/runtime/agentserve_engine.
 - NVIDIA GPU (tested **RTX 3090**, 24 GB), **CUDA 12.8**, Ubuntu 22.04.
 
 ### 2. Get the models
+
+All four model artifacts (Qwen2.5-3B/7B × GGUF/HF) and their server paths + SHA-256 are listed
+in [`configs/models/models.yaml`](configs/models/models.yaml).
+
 ```bash
 wget https://hf-mirror.com/hfd/hfd.sh && chmod a+x hfd.sh
 apt update && apt install -y aria2
@@ -121,7 +125,7 @@ hfd Qwen/Qwen2.5-3B
 ```
 
 ### 3. Build llama.cpp with the patches
-See [`docs/llama-cpp-patch.md`](docs/llama-cpp-patch.md) and [`docs/environment.md`](docs/environment.md)
+See [`docs/setup/llama-cpp-patch.md`](docs/setup/llama-cpp-patch.md) and [`docs/setup/environment.md`](docs/setup/environment.md)
 for the exact source, build flags, and pinned environment.
 
 ```bash
@@ -163,7 +167,7 @@ python scripts/plot_perparadigm.py
 ## Reproducibility
 
 The exact server environment (hardware, CUDA, llama.cpp version + build flags, model SHA-256, conda
-versions) is pinned in [`docs/environment.md`](docs/environment.md). Every backend is driven by the
+versions) is pinned in [`docs/setup/environment.md`](docs/setup/environment.md). Every backend is driven by the
 same harness, same unified 12-task set, same `N`, same `tool_wait`, serial measurement (one backend at
 a time, GPU freed between runs).
 
@@ -173,12 +177,14 @@ a time, GPU freed between runs).
 
 | Doc | Content |
 |---|---|
-| [`docs/architecture.md`](docs/architecture.md) | System + engine + patch design. |
-| [`docs/paper-alignment.md`](docs/paper-alignment.md) | What aligns with the paper, what we did differently, and why. |
-| [`docs/environment.md`](docs/environment.md) | Pinned environment for bit-for-bit reproduction. |
-| [`docs/llama-cpp-patch.md`](docs/llama-cpp-patch.md) | The four shared-KV llama.cpp patches + build/verify. |
-| [`docs/known-limitations.md`](docs/known-limitations.md) | Honest boundaries + methodology pitfalls. |
-| [`docs/pitfalls.md`](docs/pitfalls.md) | Service-startup / benchmark lessons learned. |
+| [`docs/design/architecture.md`](docs/design/architecture.md) | System + engine + patch design. |
+| [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md) | What aligns with the paper, what we did differently, and why. |
+| [`docs/setup/environment.md`](docs/setup/environment.md) | Pinned environment for bit-for-bit reproduction. |
+| [`docs/setup/llama-cpp-patch.md`](docs/setup/llama-cpp-patch.md) | The four shared-KV llama.cpp patches + build/verify. |
+| [`docs/benchmark/methodology.md`](docs/benchmark/methodology.md) | Workload, backends, metrics + "context" fairness rules. |
+| [`docs/benchmark/results.md`](docs/benchmark/results.md) | Current results, figures, and how to reproduce. |
+| [`docs/notes/known-limitations.md`](docs/notes/known-limitations.md) | Honest boundaries + methodology pitfalls. |
+| [`docs/notes/pitfalls.md`](docs/notes/pitfalls.md) | Service-startup / benchmark lessons learned. |
 | [`results/`](results/) | Clean per-paradigm 4-way tables + summaries. |
 | [`REPORT.md`](REPORT.md) | Full written report (design, engine, results). |
 
@@ -190,7 +196,7 @@ a time, GPU freed between runs).
    We always compare to *our own* baselines on the same GPU/trace.
 2. **The 10-slot Green Context pool + TPOT-driven `Rmin` controller are not reproduced.** We replaced
    the decode-protection benefit with *continuous batching*, which we measured to be cheaper (SM
-   reservation actually *hurt* on the 3090). See [`docs/paper-alignment.md`](docs/paper-alignment.md).
+   reservation actually *hurt* on the 3090). See [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md).
 3. **7B vLLM/SGLang** were measured before the context fix — **for reference only** (see
    [`results/perparadigm-4way-7b.md`](results/perparadigm-4way-7b.md)).
 4. **BASE model, no native tool-calling** → this measures serving performance, not agent quality.

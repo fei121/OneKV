@@ -13,7 +13,7 @@ tool_wait=0, RTX 3090, Qwen2.5-3B (BASE).
 | TPOT p95 3→6 (ms) | **11.9→13.5** | 60.0→72.7 | 19.5→24.0 | 24.0→27.9 |
 | cold TTFT 3→6 (ms) | **308.6→367.6** | 439.5→737.8 | 302.7→621.4 | 302.2→454.8 |
 
-![ReAct 4-way](figures/react-4way-nscale.png)
+![ReAct 4-way](../figures/react-4way-nscale.png)
 
 ## Plan-and-Execute
 
@@ -23,7 +23,7 @@ tool_wait=0, RTX 3090, Qwen2.5-3B (BASE).
 | TPOT p95 3→6 (ms) | **11.8→13.5** | 50.2→70.7 | 22.0→38.7 | 24.8→31.4 |
 | cold TTFT 3→6 (ms) | **316.5→383.8** | 412.3→773.2 | 343.0→603.4 | 335.0→478.2 |
 
-![P&E 4-way](figures/pe-4way-nscale.png)
+![P&E 4-way](../figures/pe-4way-nscale.png)
 
 ## Findings (consistent across paradigms)
 
@@ -42,7 +42,7 @@ tool_wait=0, RTX 3090, Qwen2.5-3B (BASE).
 > made it look like the worst backend (throughput dropped with N, cold TTFT exploded to 1–2 s). That
 > was a **harness bug, not an SGLang limitation**. Now SGLang uses `--max-total-tokens 49152`
 > (KV pool) and vLLM uses `--max-model-len 32768` (must not exceed the model's native
-> `max_position_embeddings` = 32768). See [`docs/pitfalls.md`](docs/pitfalls.md).
+> `max_position_embeddings` = 32768). See [`../docs/notes/pitfalls.md`](../docs/notes/pitfalls.md).
 
 **Conclusion**: the engine delivers **decode stability + low cold latency via prefix caching** at
 **competitive (not maximal) throughput** — i.e. it trades some throughput for TTFT/TPOT stability

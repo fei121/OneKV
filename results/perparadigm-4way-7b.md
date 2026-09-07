@@ -1,6 +1,6 @@
 # Per-Paradigm 4-Way N-Scale — Qwen2.5-7B
 
-> **⚠️ Context caveat (7B vLLM/SGLang):** the vLLM/SGLang columns in this file were measured with the **old under-sized context** (`--max-model-len 8192` / `--max-total-tokens 8192`), which starved SGLang's KV pool. Those numbers are **for reference only** and should be **re-measured** with `--max-model-len 32768` (vLLM) / `--max-total-tokens 49152` (SGLang) before being quoted. The engine and llama.cpp columns are valid. See [`docs/pitfalls.md`](docs/pitfalls.md).
+> **⚠️ Context caveat (7B vLLM/SGLang):** the vLLM/SGLang columns in this file were measured with the **old under-sized context** (`--max-model-len 8192` / `--max-total-tokens 8192`), which starved SGLang's KV pool. Those numbers are **for reference only** and should be **re-measured** with `--max-model-len 32768` (vLLM) / `--max-total-tokens 49152` (SGLang) before being quoted. The engine and llama.cpp columns are valid. See [`../docs/notes/pitfalls.md`](../docs/notes/pitfalls.md).
 
  (real tasks, fixed baselines, tool_wait=0)
 
@@ -16,7 +16,7 @@ identical). N=3…6, 12 sessions, tool_wait=0, RTX 3090, **Qwen2.5-7B (BASE)**.
 | TPOT p95 3→6 (ms) | **20.8→22.3** | 65.0→125.8 | 27.9→45.0 | 30.2→24.8 |
 | cold TTFT 3→6 (ms) | **524.2→625.0** | 800.6→1179.0 | 617.6→1055.2 | 960.2→3331.0 |
 
-![ReAct 7B](figures/react7-4way-nscale.png)
+![ReAct 7B](../figures/react7-4way-nscale.png)
 
 ## P&E (7B)
 
@@ -26,7 +26,7 @@ identical). N=3…6, 12 sessions, tool_wait=0, RTX 3090, **Qwen2.5-7B (BASE)**.
 | TPOT p95 3→6 (ms) | **20.4→22.1** | 71.5→111.1 | 21.9→83.1 | 21.0→21.1 |
 | cold TTFT 3→6 (ms) | **540.9→646.0** | 803.2→1252.2 | 756.9→1041.9 | 1079.5→4250.8 |
 
-![P&E 7B](figures/pe7-4way-nscale.png)
+![P&E 7B](../figures/pe7-4way-nscale.png)
 
 ## Findings (7B, consistent with 3B)
 

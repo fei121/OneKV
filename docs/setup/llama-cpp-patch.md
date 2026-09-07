@@ -2,9 +2,9 @@
 
 These four patches make a single llama.cpp `llama_context` share its KV cache with a second context,
 which is the enabler for **single-engine prefill/decode disaggregation** in
-[`src/runtime/agentserve_engine.cpp`](../src/runtime/agentserve_engine.cpp).
+[`src/runtime/agentserve_engine.cpp`](../../src/runtime/agentserve_engine.cpp).
 
-The patched files are committed as **full patched copies** in [`../patches/`](../patches/).
+The patched files are committed as **full patched copies** in [`../../patches/`](../../patches/).
 
 | Patch file | Overwrites | Purpose |
 |---|---|---|
@@ -42,4 +42,4 @@ decoding on `A` alone (`iso8b`-style check).
 The paper's Green Context (reserving a subset of SMs for decode) was **tried** via an
 `AGENTSERVE_GREEN_PCT` stream (in `ggml_backend_cuda_context::stream`). On the RTX 3090 it **degraded**
 throughput (127.6 → 82.6 tok/s; TTFT 983 → 2197 ms), so it is **not enabled** in the shipped engine.
-See [`paper-alignment.md`](paper-alignment.md).
+See [`paper-alignment.md`](../design/paper-alignment.md).

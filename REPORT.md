@@ -19,7 +19,7 @@
 
 > 早前"三项全反超（吞吐/TPOT/TTFT 都碾压）"的结论因测量伪影（engine 无视 EOS、基线
 > `cache_prompt` 无法驱动多阶段 agent、任务占位符）已被撤回。见
-> [`docs/known-limitations.md`](docs/known-limitations.md) 与干净结果
+> [`docs/notes/known-limitations.md`](docs/notes/known-limitations.md) 与干净结果
 > [`results/perparadigm-4way.md`](results/perparadigm-4way.md)。
 
 ---
@@ -150,7 +150,7 @@ Agent（ReAct / Plan-and-Execute）负载 = 长冷预填 + 短 resume 预填（�
 `main`（innovation-1）= batched 多序列 resume-prefill + **独立** batched decode，TPOT p95 稳定
 12–13.6ms；`chunk_prefill` 分支 = **一次** `llama_decode` 混合 resume-prefill + decode（连续批处理），
 吞吐 +1–4% 但 **TPOT p95 恶化**（react N6 13.5→20.3ms，P&E N6 13.6→41.2ms）——这正是论文警告的
-chunked prefill 扰动短 decode 现象。详见 [`docs/known-limitations.md`](docs/known-limitations.md)。
+chunked prefill 扰动短 decode 现象。详见 [`docs/notes/known-limitations.md`](docs/notes/known-limitations.md)。
 
 ## 7. 与论文的差异（诚实边界）
 
@@ -173,7 +173,7 @@ chunked prefill 扰动短 decode 现象。详见 [`docs/known-limitations.md`](d
 - **Python 包**：`src/agentserve_repro/`（backends/scheduler/phase/metrics/events/trace）。
 - **结果**：`results/`、`metrics/`（JSON）。
 - **图**：`figures/`（3B/7B/per-paradigm/跨模型总览）。
-- **文档**：`docs/`（architecture / paper-alignment / experiments / known-limitations / pitfalls / results）。
+- **文档**：`docs/`（design / build / benchmark / notes 四类）。
 - 项目已 `git init`，含 LICENSE、Makefile、pyproject.toml、tests。
 
 ## 9. 边界与后续

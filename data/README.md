@@ -41,6 +41,6 @@ python scripts/gen_traces.py --config configs/trace-gen.yaml
 
 - Traces generated with `seed = 1234`, `sessions_per_paradigm = 60`, `tool_rounds_per_session = [2,3,4]`,
   matching Table-I (see [`configs/trace-gen.yaml`](../configs/trace-gen.yaml) +
-  [`../docs/environment.md`](../docs/environment.md)).
+  [`../docs/setup/environment.md`](../docs/setup/environment.md)).
 - The **unified 12-task set** used for the reported per-paradigm comparison is
   [`perparadigm`](../metrics/perparadigm/) (the first 12 items of each paradigm trace).

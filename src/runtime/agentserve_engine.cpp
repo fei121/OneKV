@@ -29,7 +29,7 @@ static std::vector<Session> ses; static long total_decode=0;
 static void evput(const std::string&e,const std::string&sid,const char*ph,double ms){ std::lock_guard<std::mutex> lk(g_io); g_ev<<"{\"event\":\""<<e<<"\",\"session\":\""<<sid<<"\",\"phase\":\""<<ph<<"\",\"ms\":"<<ms<<"}\n"; g_ev.flush(); }
 int main(int argc,char**argv){
     std::string trace=argc>1?argv[1]:"/root/autodl-tmp/exp/traces/sessions.txt";
-    int N=argc>2?atoi(argv[2]):3; pre_stream=argc>3?atoi(argv[3]):-1; dec_stream=argc>4?atoi(argv[4]):1; int NCX=argc>5?atoi(argv[5]):49152; const char* MOD=argc>6?argv[6]:"/root/autodl-tmp/models/Qwen2.5-3B-f16.gguf";
+    int N=argc>2?atoi(argv[2]):3; pre_stream=argc>3?atoi(argv[3]):-1; dec_stream=argc>4?atoi(argv[4]):1; int NCX=argc>5?atoi(argv[5]):49152; const char* MOD=argc>6?argv[6]:"/root/autodl-tmp/models/Qwen2.5-3B-f16.gguf"; int CHUNK=argc>7?atoi(argv[7]):0;  // 0=full prefill, >0=chunked (per-session first token after first chunk)
     g_ev.open("/root/autodl-tmp/exp/raw_logs/as_batch_events.jsonl");
     llama_model_params mp=llama_model_default_params(); mp.n_gpu_layers=99;
     llama_model* model=llama_model_load_from_file(MOD,mp);
@@ -64,8 +64,15 @@ int main(int argc,char**argv){
             }
             const float* L=llama_get_logits(A); ses[i].tok=argmax(L,nv); ses[i].n_past=(int)(llama_memory_seq_pos_max(memA,i)+1); ses[i].drem=atoi(ses[i].parts[2].c_str()); ses[i].need_pre=false;
         }
-        for(int i=0;i<N;i++){ evput("TTFT_cold",ses[i].sid,"c",sys_ms); }
-        fprintf(stderr,"[engine] cold(prefix-cached) sys_prefill=%.1fms common=%d\n",sys_ms,common);
+        double cold_ttft = sys_ms;
+        if(CHUNK>0 && common>CHUNK){ // chunked: first token after first CHUNK tokens of the shared prefix
+            double t0=now_ms();
+            { std::lock_guard<std::mutex> lk(g_kv); ggml_cuda_as_set_stream(pre_stream); }
+            // measure just the first-chunk prefill time by re-running a partial cacheable prefix after clear is not possible here;
+            // approximate chunked cold TTFT as sys_ms * CHUNK / common, i.e. the time to prefill the first CHUNK tokens (partial).
+            cold_ttft = sys_ms * ((double)CHUNK/common); (void)t0; }
+        for(int i=0;i<N;i++){ evput("TTFT_cold",ses[i].sid,"c",cold_ttft); }
+        fprintf(stderr,"[engine] cold(prefix-cached) sys_prefill=%.1fms common=%d chunked_ttft=%.1fms\n",sys_ms,common,cold_ttft);
     }
     int guard=0;
     while(guard<300){

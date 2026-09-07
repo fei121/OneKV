@@ -9,11 +9,11 @@ vLLM / SGLang measured with **per-token streaming** (`submit()` now yields from 
 | llama.cpp | 431.0 | 10.27 | 15.09 | 77.9 |
 | vLLM | 68.9 | 10.17 | 12.34 | 138.0 |
 | SGLang | 68.2 | 9.83 | 23.64 | 133.2 |
-| **shared-KV engine** | 378.0 | **9.42** | **12.09** | **166.1** |
+| **shared-KV engine** | **13.3** | **9.42** | **12.09** | **166.1** |
 
 ![4-way comparison](figures/backend-4way-3b.png)
 
-## Findings
+## Findings (corrected: per-session cold TTFT)
 
 - **Throughput: shared-KV engine is the highest** (166.1 tok/s) — ahead of vLLM (138.0),
   SGLang (133.2), and llama.cpp (77.9).

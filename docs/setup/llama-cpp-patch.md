@@ -2,7 +2,7 @@
 
 These four patches make a single llama.cpp `llama_context` share its KV cache with a second context,
 which is the enabler for **single-engine prefill/decode disaggregation** in
-[`src/runtime/agentserve_engine.cpp`](../../src/runtime/agentserve_engine.cpp).
+[`src/runtime/onekv_engine.cpp`](../../src/runtime/onekv_engine.cpp).
 
 The patched files are committed as **full patched copies** in [`../../patches/`](../../patches/).
 
@@ -21,9 +21,9 @@ patched file over the upstream one (or `diff -u upstream patched` to review):
 ```bash
 cd /path/to/llama.cpp
 for f in llama-model llama-context llama-kv-cache; do
-  cp /path/to/agentserve-repro/patches/$f.cpp.patch          src/$f.cpp
+  cp /path/to/onekv/patches/$f.cpp.patch          src/$f.cpp
 done
-cp /path/to/agentserve-repro/patches/ggml-cuda-common.cuh.patch  ggml/src/ggml-cuda/common.cuh
+cp /path/to/onekv/patches/ggml-cuda-common.cuh.patch  ggml/src/ggml-cuda/common.cuh
 
 # rebuild
 cmake -DHF_ENABLED=OFF -DBUILD_UI=OFF -B build .

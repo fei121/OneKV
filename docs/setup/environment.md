@@ -59,7 +59,7 @@
 > Configure with `cmake -DHF_ENABLED=OFF -DBUILD_UI=OFF .` to skip the WebUI download, then
 > `cmake --build build --target llama-cli llama-server` (see [`llama-cpp-patch.md`](llama-cpp-patch.md)).
 
-## 4. AgentServe patches (shared-KV enabler)
+## 4. OneKV patches (shared-KV enabler)
 
 The four modified llama.cpp source files are committed in [`patches/`](../../patches/). They are
 **full patched copies**, not unified diffs — to reproduce, start from a **llama.cpp 0.4.0-dev**
@@ -126,7 +126,7 @@ Project Python package (`pip install -e .`): `requests`, `pyyaml`, `matplotlib`,
 LLAMA_BUILD=/root/autodl-tmp/agentserve-reproduction/third_party/llama.cpp/build
 g++ -std=c++17 -O2 \
   -I"$LLAMA_BUILD/../include" -I"$LLAMA_BUILD/../ggml/include" -I/usr/local/cuda/include \
-  -o build/agentserve_engine src/runtime/agentserve_engine.cpp \
+  -o build/onekv_engine src/runtime/onekv_engine.cpp \
   -L"$LLAMA_BUILD/bin" -L/usr/local/cuda/lib64 \
   -lllama -lggml -lggml-cuda -lggml-cpu -lggml-base -lcuda -lcudart \
   -Wl,-rpath,"$LLAMA_BUILD/bin"

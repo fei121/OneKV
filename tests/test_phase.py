@@ -1,6 +1,6 @@
 import sys; from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-from agentserve_repro.phase import RequestPhase, AgentRequestMeta, RequestClassifier, self_test
+from onekv.phase import RequestPhase, AgentRequestMeta, RequestClassifier, self_test
 
 def test_classify():
     assert RequestClassifier.classify(AgentRequestMeta(1,1,None,3000,0,3000,0,False,0))==RequestPhase.COLD_PREFILL

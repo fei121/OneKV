@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Unified backend benchmark driver — same event-log/metrics for llama.cpp / AgentServe / vLLM / SGLang.
+"""Unified backend benchmark driver — same event-log/metrics for llama.cpp / OneKV / vLLM / SGLang.
 
 Usage:
-  python serve_backend.py --backend vllm|sglang|llama|agentserve --agents 3 --sessions 12 --tag run
-Note: llama.cpp and agentserve backends start their own llama-server subprocess (generation backend).
+  python serve_backend.py --backend vllm|sglang|llama|onekv --agents 3 --sessions 12 --tag run
+Note: llama.cpp and onekv backends start their own llama-server subprocess (generation backend).
 """
 import sys, json, time, yaml, argparse, subprocess
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-from agentserve_repro.events import EventLogger
-from agentserve_repro.backends import VllmBackend, SglangBackend, LlamaCppBackend, AgentServeBackend
+from onekv.events import EventLogger
+from onekv.backends import VllmBackend, SglangBackend, LlamaCppBackend, OneKVBackend
 
 def start_llama_server(model_cfg, server_cfg, n_parallel):
     cmd=[server_cfg["binary"],"-m",model_cfg["model_path"],"-c",str(model_cfg["context_length"]),
@@ -64,7 +64,7 @@ def run_session(logger, backend, session, tool_wait_s):
 
 def main():
     ap=argparse.ArgumentParser()
-    ap.add_argument("--backend", required=True, choices=["vllm","sglang","llama","agentserve"])
+    ap.add_argument("--backend", required=True, choices=["vllm","sglang","llama","onekv"])
     ap.add_argument("--config", default="configs/serving_react_u.yaml")
     ap.add_argument("--agents", type=int, default=3)
     ap.add_argument("--sessions", type=int, default=12)
@@ -87,12 +87,12 @@ def main():
     elif args.backend=="sglang":
         be=SglangBackend(model_path=args.model_path, port=args.port or 30000)
         be.start()
-    else:  # llama / agentserve: start llama-server, wrap with backend
+    else:  # llama / onekv: start llama-server, wrap with backend
         model_cfg=yaml.safe_load(open(cfg["model_config"]))
         server_proc=start_llama_server(model_cfg, cfg["server"], N)
         if not wait_ready(cfg["server"]["host"], cfg["server"]["port"]):
             print("[error] llama-server not ready; abort"); sys.exit(2)
-        be = AgentServeBackend(cfg) if args.backend=="agentserve" else LlamaCppBackend(cfg)
+        be = OneKVBackend(cfg) if args.backend=="onekv" else LlamaCppBackend(cfg)
         be.start()
 
     logger=EventLogger(ev_path)
@@ -108,13 +108,13 @@ def main():
         try: server_proc.wait(timeout=10)
         except Exception: server_proc.kill()
     print(f"[{args.backend}] event log -> {ev_path}", flush=True)
-    import agentserve_repro.metrics as M
+    import onekv.metrics as M
     res=M.compute(M.load_events(ev_path), None)
     res_path.parent.mkdir(parents=True,exist_ok=True)
     json.dump(res, open(res_path,"w"), indent=2)
     print(json.dumps(res, indent=2))
     print(f"[{args.backend}] metrics -> {res_path}", flush=True)
-    if args.backend=="agentserve":
-        print(f"[agentserve] green context SM partitions:\n" + "\n".join(be.green_sms or ["(none)"]), flush=True)
+    if args.backend=="onekv":
+        print(f"[onekv] green context SM partitions:\n" + "\n".join(be.green_sms or ["(none)"]), flush=True)
 
 if __name__=="__main__": main()

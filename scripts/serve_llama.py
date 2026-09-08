@@ -19,7 +19,7 @@ from pathlib import Path
 import requests
 
 sys.path.insert(0, str(Path(__file__).parent))
-from agentserve_repro.events import EventLogger, SessionClock
+from onekv.events import EventLogger, SessionClock
 
 
 def wait_server_ready(host, port, timeout=120):
@@ -202,7 +202,7 @@ def main():
     # run metrics
     met = cfg["output"]["results"]
     print(f"[metrics] computing from {ev_path}", flush=True)
-    import agentserve_repro.metrics as M
+    import onekv.metrics as M
     mcfg = yaml.safe_load(open(cfg["metrics_config"]))
     slo_cfg = None
     if mcfg["slo"]["tau_ttft_ms"] is not None and mcfg["slo"]["tau_tpot_ms"] is not None:

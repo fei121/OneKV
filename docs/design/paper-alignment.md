@@ -1,7 +1,7 @@
-# Paper Alignment
+# Design alignment (vs. the reference serving design)
 
-How closely does this reproduce the AgentServe paper (arXiv 2603.10342)? This is an honest,
-mechanism-by-mechanism account of what aligns, what we did *differently*, and why.
+This is an honest, mechanism-by-mechanism comparison of OneKV against the reference
+P/D-disaggregation serving design (arXiv 2603.10342): what aligns, what we did *differently*, and why.
 
 ## Paper mechanism (from §III)
 

@@ -1,4 +1,4 @@
-# AgentServe reproduction — common commands.
+# OneKV — common commands.
 # The Python used for trace generation / baselines lives in the vllm conda env.
 PY=$(shell echo /root/autodl-tmp/conda_envs/vllm/bin/python)
 CUDA=/usr/local/cuda-12.8/bin/nvcc

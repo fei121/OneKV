@@ -104,7 +104,7 @@ class LlamaCppBackend(ServingBackend):
                 if tok is not None: yield tok
     def collect_metrics(self): return {}
 
-class AgentServeBackend(ServingBackend):
+class OneKVBackend(ServingBackend):
     """AgentServe orchestration serving backend (QD/QP + dual worker + TPOT controller + green context).
 
     Implemented layer (honest scope):
@@ -119,7 +119,7 @@ class AgentServeBackend(ServingBackend):
     """
     def __init__(self, config, b_prefill=64, green_helper=None):
         self.config=config; self.b_prefill=b_prefill
-        from agentserve_repro.scheduler import PhaseRouter
+        from onekv.scheduler import PhaseRouter
         self.router=PhaseRouter(b_prefill)
         self.green_helper=green_helper or "/root/autodl-tmp/exp/cuda/agentserve_runtime"
         self.green_sms=[]
@@ -133,7 +133,7 @@ class AgentServeBackend(ServingBackend):
         return self
     def stop(self): pass
     def route_phase(self, phase, new_input_tokens):
-        from agentserve_repro.phase import RequestPhase, AgentRequestMeta
+        from onekv.phase import RequestPhase, AgentRequestMeta
         ph = (RequestPhase.COLD_PREFILL if phase=="cold_prefill" else
               RequestPhase.RESUME_PREFILL if phase=="resume_prefill" else RequestPhase.DECODE)
         meta=AgentRequestMeta(1,1,None,0,0,new_input_tokens,0,

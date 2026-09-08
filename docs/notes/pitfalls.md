@@ -1,6 +1,6 @@
 # Pitfalls & Service-Startup Notes (lessons learned)
 
-A running log of issues hit while building/benchmarking the AgentServe shared-KV reproduction on the
+A running log of issues hit while building/benchmarking the OneKV shared-KV engine on the
 RTX 3090 bench server. Each entry: **symptom → root cause → fix**. Add to this as you hit new ones.
 
 > Server: `sshpass -p '<pass>' ssh -p 22482 root@connect.nmb2.seetacloud.com`.
@@ -58,7 +58,7 @@ RTX 3090 bench server. Each entry: **symptom → root cause → fix**. Add to th
 
 ---
 
-## 3. Engine (`agentserve_engine.cpp`) bugs
+## 3. Engine (`onekv_engine.cpp`) bugs
 
 - **Symptom:** engine throughput absurdly high (e.g. 351 tok/s).
   - **Root cause:** the engine **ignored EOS** and forced every phase to the token cap (a term ends at
@@ -117,7 +117,7 @@ RTX 3090 bench server. Each entry: **symptom → root cause → fix**. Add to th
 - **Context must be adequate & semantically matched across backends**: engine `n_ctx` and SGLang
   `--max-total-tokens` are **pool** budgets (use 49152 for 3B); vLLM `--max-model-len` and llama
   `context_length` are **per-sequence/per-context** (use 32768 / 65536). Under-sized pools (SGLang
-  8192) starve concurrency and wreck the comparison. See `src/agentserve_repro/backends.py`.
+  8192) starve concurrency and wreck the comparison. See `src/onekv/backends.py`.
 - `metrics.py`: `throughput_excl_tool_wait_tokens_per_s` is **broken for concurrent** workloads — it
   *sums* per-session tool_wait (which, under concurrency, exceeds wall → denominator ~0 → huge/999…).
   Use the union-of-idle-intervals approach, or report `throughput_tokens_per_s` with the caveat.

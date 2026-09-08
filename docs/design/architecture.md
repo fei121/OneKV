@@ -1,13 +1,13 @@
 # Architecture
 
-The system reproduces the *single-engine* part of AgentServe: prefill/decode disaggregation
+The system implements single-engine prefill/decode disaggregation with a shared KV cache:
 inside one engine, with a shared KV cache, driven by continuous batching and prefix caching.
 
 ## Components
 
 ```
                      ┌──────────────────────────────────────────────┐
-                     │               AgentServe engine               │
+                     │                  OneKV engine                  │
                      │                                              │
    agent requests ──▶│  Scheduler (phase.classify -> QD/QP queues)    │
                      │     cold_prefill / resume_prefill / decode    │
@@ -68,7 +68,7 @@ cold TTFT to roughly the instruction-prefill time.
 
 ## Engine entry point
 
-[`src/runtime/agentserve_engine.cpp`](../../src/runtime/agentserve_engine.cpp) drives the full flow:
+[`src/runtime/onekv_engine.cpp`](../../src/runtime/onekv_engine.cpp) drives the full flow:
 
 1. Load model; create `A` (prefill) and `B` (decode, `ctx_other=A`).
 2. Batch cold prefill (with optional prefix cache) on `A`.

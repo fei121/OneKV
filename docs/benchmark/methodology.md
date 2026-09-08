@@ -24,7 +24,7 @@ prompt template and the token-count distribution differ. Generate with
 | llama.cpp (baseline) | `scripts/serve_llama.py` | llama-server, self-contained multi-phase prompt |
 | vLLM | `scripts/serve_backend.py --backend vllm` | `--max-model-len 32768` |
 | SGLang | `scripts/serve_backend.py --backend sglang` | `--max-total-tokens 49152` |
-| **AgentServe (this repo)** | `scripts/run_engine.sh` | single-engine shared-KV runtime |
+| **OneKV (this repo)** | `scripts/run_engine.sh` | single-engine shared-KV runtime |
 
 Every backend is driven by the **same** harness: the same 12 sessions, same `N`, same `tool_wait`, same
 EOS behaviour, and a **self-contained multi-phase prompt** (full conversation + previous model output
@@ -38,7 +38,7 @@ EOS behaviour, and a **self-contained multi-phase prompt** (full conversation + 
   `cudaDeviceSynchronize` / per-stream sync so wall-clock is meaningful).
 - Throughput — decoded tokens / wall-clock.
 
-Defined in `src/agentserve_repro/metrics.py` and `configs/metrics.yaml`.
+Defined in `src/onekv/metrics.py` and `configs/metrics.yaml`.
 
 ## Context: the two different meanings of "context"
 

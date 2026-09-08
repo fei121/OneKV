@@ -1,4 +1,4 @@
-# 单引擎共享 KV Serving 引擎：设计、实现与实验
+# OneKV：单引擎共享 KV Serving 引擎——设计、实现与实验
 
 > **范围说明**：本报告只评估 **serving 性能**（吞吐、TPOT、冷 TTFT）。所有指标均在同一
 > RTX 3090、同一真实任务 trace、同一统一 12-task 集、固定基线、串行测量下测得，因此各后端
@@ -15,7 +15,7 @@
 我做到了**单引擎内跨 context 共享 KV（无需跨进程拷贝）**。**有效结论**是：engine 是**延迟稳定性
 领先者**——TPOT p95 全程平稳（3B ~12–14ms、7B ~20–22ms），冷 TTFT 因前缀缓存最低且几乎不随
 并发 N 增长；**但吞吐并非最高**（**vLLM ≈ SGLang > engine > llama.cpp**，SGLang 在修正上下文后与 vLLM 相当）。
-这一结论**复现了论文论点**：*在不牺牲吞吐的前提下提升 TTFT/TPOT 稳定性*。
+这一结论**印证了设计目标**：*在不牺牲吞吐的前提下提升 TTFT/TPOT 稳定性*。
 
 > 早前"三项全反超（吞吐/TPOT/TTFT 都碾压）"的结论因测量伪影（engine 无视 EOS、基线
 > `cache_prompt` 无法驱动多阶段 agent、任务占位符）已被撤回。见
@@ -79,7 +79,7 @@ Agent（ReAct / Plan-and-Execute）负载 = 长冷预填 + 短 resume 预填（�
 
 ## 4. 系统实现
 
-`src/runtime/agentserve_engine.cpp`：
+`src/runtime/onekv_engine.cpp`：
 
 1. 一个模型 + 两个 `llama_context`（A=预填、B=解码），B `ctx_other=A` **共享同一份 KV**。
 2. **双流并发 P/D**：prefill/decode 各走一个 CUDA 流，`cudaEvent` 保证 decode 读到预填完成的 KV，mutex 保护共享 cell bookkeeping。
@@ -156,7 +156,7 @@ chunked prefill 扰动短 decode 现象。详见 [`docs/notes/known-limitations.
 
 | 论文机制 | 本文 |
 |---|---|
-| 单引擎、共享 KV、无跨进程拷贝 | ✅ **复现**（两个 `llama_context` 经 `ctx_other` 共享一份 KV 池） |
+| 单引擎、共享 KV、无跨进程拷贝 | ✅ **实现**（两个 `llama_context` 经 `ctx_other` 共享一份 KV 池） |
 | 双线程 P/D 分离 | ✅（双流 + `cudaEvent`/mutex） |
 | Prefill/decode 分离 | ✅ |
 | CUDA Green Context SM 分区 | ⚠️ 用**连续批处理**替代（实测 SM 分区在 3090 上反而降性能：吞吐 127.6→82.6、TTFT 983→2197ms） |
@@ -168,9 +168,9 @@ chunked prefill 扰动短 decode 现象。详见 [`docs/notes/known-limitations.
 
 ## 8. 交付物
 
-- **引擎**：`src/runtime/agentserve_engine.cpp`（3B/7B 通用，model 路径 CLI 参数）；`legacy/` 存早期变体。
+- **引擎**：`src/runtime/onekv_engine.cpp`（3B/7B 通用，model 路径 CLI 参数）；`legacy/` 存早期变体。
 - **llama.cpp 改动**：`patches/`（4 处）。
-- **Python 包**：`src/agentserve_repro/`（backends/scheduler/phase/metrics/events/trace）。
+- **Python 包**：`src/onekv/`（backends/scheduler/phase/metrics/events/trace）。
 - **结果**：`results/`、`metrics/`（JSON）。
 - **图**：`figures/`（3B/7B/per-paradigm/跨模型总览）。
 - **文档**：`docs/`（design / build / benchmark / notes 四类）。
@@ -183,7 +183,7 @@ chunked prefill 扰动短 decode 现象。详见 [`docs/notes/known-limitations.
 3. `chunk_prefill`（连续批处理）是纯吞吐变体，会牺牲 decode 稳定性；默认用 `main`（innovation-1）讲稳定性故事。
 4. 想进一步提升吞吐：**提高并发 N**（共享 KV 池为此设计，吞吐近线性增长且稳定性保持），或探索**投机/并行解码**。
 
-## 10. 复现
+## 10. 实验复现
 
 ```bash
 # unified task set（ReAct / P&E 共用，已持久化）：

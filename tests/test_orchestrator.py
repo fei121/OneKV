@@ -1,6 +1,6 @@
 import sys; from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-from agentserve_repro.scheduler import PhaseRouter, AgentRequestMeta, RequestPhase
+from onekv.scheduler import PhaseRouter, AgentRequestMeta, RequestPhase
 
 def test_route():
     r=PhaseRouter(64)

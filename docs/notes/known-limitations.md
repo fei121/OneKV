@@ -115,7 +115,7 @@ RTX 3090 with Qwen2.5-3B:
 - **TPOT p95 1.9× lower** (continuous-batching decode stays stable under concurrency), and
 - **TTFT_cold 1.95× lower** (shared-system-prefix caching cuts cold prefill).
 
-This matches the paper's thesis: *AgentServe improves TTFT/TPOT latency stability while sustaining
+This matches the intended design goal: *improve TTFT/TPOT latency stability while sustaining
 competitive throughput.*
 
 ## Repro

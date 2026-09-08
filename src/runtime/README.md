@@ -1,4 +1,4 @@
-# Runtime engine (`agentserve_engine.cpp`)
+# Runtime engine (`onekv_engine.cpp`)
 
 A single-engine, shared-KV serving engine for Qwen-style models, built on a patched llama.cpp.
 
@@ -8,7 +8,7 @@ A single-engine, shared-KV serving engine for Qwen-style models, built on a patc
 B=/path/to/llama.cpp/build
 g++ -std=c++17 -O2 \
   -I$B/../include -I$B/../ggml/include -I/usr/local/cuda/include \
-  -o agentserve_engine agentserve_engine.cpp \
+  -o onekv_engine onekv_engine.cpp \
   -L$B/bin -L/usr/local/cuda/lib64 -lllama -lggml -lggml-cuda -lggml-cpu -lggml-base \
   -lcuda -lcudart -Wl,-rpath,$B/bin
 ```
@@ -16,9 +16,9 @@ g++ -std=c++17 -O2 \
 ## Run
 
 ```bash
-agentserve_engine <sessions.txt> <N> [pre_stream] [dec_stream] [n_ctx]
+onekv_engine <sessions.txt> <N> [pre_stream] [dec_stream] [n_ctx]
 # e.g.
-agentserve_engine sessions.txt 6 -1 1 49152
+onekv_engine sessions.txt 6 -1 1 49152
 ```
 
 - `N` — number of concurrent agent sessions.

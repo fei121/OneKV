@@ -3,15 +3,15 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "agentserve-repro"
+name = "onekv"
 version = "0.1.0"
-description = "Reproduction of AgentServe: efficient agentic AI serving on a consumer-grade GPU"
+description = "OneKV: single-engine shared-KV serving for agentic AI on a consumer GPU"
 requires-python = ">=3.10"
 dependencies = ["requests", "pyyaml"]
 [project.optional-dependencies]
 [project.scripts]
-agentserve-trace = "agentserve_repro.trace:main"
-agentserve-phase = "agentserve_repro.phase:self_test"
-agentserve-orchestrate = "agentserve_repro.scheduler:self_test"
+onekv-trace = "onekv.trace:main"
+onekv-phase = "onekv.phase:self_test"
+onekv-orchestrate = "onekv.scheduler:self_test"
 [tool.setuptools.packages.find]
 where = ["src"]

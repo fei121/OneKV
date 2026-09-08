@@ -206,8 +206,12 @@ python scripts/plot_context_windows.py  # context-window 敏感度
 
 1. **绝对数值不可跨硬件比较** —— RTX 3090（82 SM）。我们始终与*自己的*、同 GPU、同 trace 的基线比较。
 2. **未实现论文的 10 槽 green-context pool + TPOT 驱动的重绑定**。我们用**连续批处理**来达到
-   "decode 保护"这一收益，实测在 3090 上做 SM 预留反而更差（见
-   [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md)）。
+   "decode 保护"这一收益，实测在 3090 上做 SM 预留反而更差：
+
+   ![green-context vs OneKV](figures/green-context-vs-onekv.png)
+
+   （green-context 的 SM 分区是净负：吞吐约 −40%，TPOT p95 约 3×、冷 TTFT p95 约 4× 恶化。详见
+   [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md)。）
 3. **BASE 模型，无原生 tool-calling** → 衡量的是 serving 性能，不是智能体质量。
 4. **跨模型**：3B 和 7B 都用同一套方法学做基准；见上表。
 

@@ -81,22 +81,18 @@ OneKV engine 是**延迟稳定性领先者**：
 
 ## 架构
 
-```
-             ┌──────────────────────────────────────────────┐
-             │           一个模型 · 一份 KV cache           │
-             │        (llama_kv_cache, ctx_other = A)       │
-             │                                              │
-             │   seq 0 = 模板                                │
-             │        └─ 共享 system 前缀 (seq_cp)          │
-             │   seq 1..N = 在跑的会话                       │
-             └──────────────────────────────────────────────┘
-                   ▲                    ▲
-        写 K/V │           读 K/V │ + 追加新 token
-       ┌──────────┴─────────┐  ┌────────┴─────────┐
-       │ context A (prefill) │  │ context B (decode) │
-       │ llama_decode(A, ...) │  │ llama_decode(B, ...) │
-       │ CUDA stream: pre     │  │ CUDA stream: dec     │
-       └──────────────────────┘  └──────────────────────┘
+```mermaid
+flowchart TD
+    Ph["Agent 会话阶段<br/>冷预填 cold / 恢复预填 resume / 解码 decode"] --> Sch["调度器 scheduler<br/>N 槽 · seq0 模板 template"]
+    Sch -->|"冷 / 恢复预填 prefill<br/>(在 A 上批量 batched)"| A["上下文 A = 预填 prefill<br/>llama_decode(A, batch)"]
+    Sch -->|"解码 decode<br/>每就绪会话 1 token<br/>(连续批处理 continuous batching)"| B["上下文 B = 解码 decode<br/>llama_decode(B, batch)"]
+    A <-->|"写 K/V<br/>(seq_cp + 独有预填 unique)"| KV["共享 KV 池 shared KV pool<br/>ctx_other = A<br/>seq0 前缀 + seq1..N 会话"]
+    B <-->|"读 K/V + 追加新 token"| KV
+
+    linkStyle default stroke:#666,stroke-width:1.5px,fill:none
+    linkStyle 3,4 stroke:#00a86b,stroke-width:2px
+    classDef box fill:#eef3fb,stroke:#5b7db1,color:#1a1a1a,stroke-width:1.5px
+    class Ph,Sch,A,B,KV box
 ```
 
 - **A（prefill）**：把每个会话的*冷* prompt（共享 system 前缀只预填一次，再用 `llama_memory_seq_cp`

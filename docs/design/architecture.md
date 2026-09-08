@@ -64,7 +64,7 @@ flowchart TD
 
 ## 引擎入口与主循环（serving loop）
 
-[`../../src/runtime/agentserve_engine.cpp`](../../src/runtime/agentserve_engine.cpp) 驱动完整流程：
+[`../../src/runtime/onekv_engine.cpp`](../../src/runtime/onekv_engine.cpp) 驱动完整流程：
 
 1. 加载模型；创建 `A`（prefill）和 `B`（decode，`ctx_other=A`）。
 2. 在 `A` 上批量冷预填（可选前缀缓存）。

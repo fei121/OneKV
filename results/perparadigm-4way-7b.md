@@ -13,7 +13,7 @@ with adequate context (vLLM `--max-model-len 32768`, SGLang `--max-total-tokens 
 | TPOT p95 3→6 (ms) | **20.8→22.3** | 65.0→125.8 | 37.9→46.0 | 31.3→44.6 |
 | cold TTFT 3→6 (ms) | **524.2→625.0** | 800.6→1179.0 | 591.1→1214.5 | 590.5→958.6 |
 
-![ReAct 7B](figures/react7-4way-nscale.png)
+![ReAct 7B](../figures/react7-4way-nscale.png)
 
 ## P&E (7B)
 
@@ -23,7 +23,7 @@ with adequate context (vLLM `--max-model-len 32768`, SGLang `--max-total-tokens 
 | TPOT p95 3→6 (ms) | **20.4→22.1** | 71.5→111.1 | 21.6→110.0 | 25.6→48.5 |
 | cold TTFT 3→6 (ms) | **540.9→646.0** | 803.2→1252.2 | 648.5→1036.0 | 782.8→945.2 |
 
-![P&E 7B](figures/pe7-4way-nscale.png)
+![P&E 7B](../figures/pe7-4way-nscale.png)
 
 ## Findings (7B, consistent with 3B)
 

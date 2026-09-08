@@ -27,12 +27,22 @@ P/D-disaggregation serving design (arXiv 2603.10342): what aligns, what we did *
 ## Where we deviate, and why
 
 ### CUDA Green Context SM partitioning
-The paper splits SMs so decode gets a reserved subset. We **measured** enabling Green Contexts in
-our engine (split 24/24 SMs): throughput dropped 127.6 → 82.6 tok/s and TTFT rose 983 → 2197 ms,
-because reserving SMs constrains compute. Our **continuous batching already protects decode**
-(TPOT stays flat ~10 ms as N grows 3→6) without paying that cost. So we use the shared-KV +
-continuous-batching path, which in this setting **is a better alignment with the paper's goal**
-(stable decode, high throughput) than the literal Green-Context mechanism.
+The paper splits SMs so decode gets a reserved subset. We **measured** enabling Green Contexts in our
+engine: because reserving SMs **constrains compute**, it is a **net negative** on this RTX 3090.
+Compared to the shipped OneKV engine (no green), the green-context runs are worse on every axis:
+
+![green-context vs OneKV](../../figures/green-context-vs-onekv.png)
+
+| Metric (3B, N=3) | OneKV shipped (no green) | Green (single) | Green (dual) | Δ |
+|---|---|---|---|---|
+| throughput (tok/s) | **149.8** | 89.7 | 74.4 | ≈ −40% |
+| TPOT p95 (ms) | **11.9** | 39.1 | 34.4 | ≈ **3× worse** |
+| cold TTFT p95 (ms) | **354** | 1416 | 1303 | ≈ **4× worse** |
+
+Our **continuous batching already protects decode** (TPOT p95 stays flat ~12–14 ms as N grows 3→6)
+without paying the SM-reservation cost. So the shared-KV + continuous-batching path is **a better
+alignment with the paper's goal** (stable decode, high throughput) than the literal Green-Context
+mechanism on this hardware.
 
 > The paper's Green-Context benefit is specifically about preventing a long prefill from starving
 > decode. Continuous batching removes that starvation by separating the phases, so the SM

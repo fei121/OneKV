@@ -69,8 +69,10 @@ class SglangBackend(StreamMixin, ServingBackend):
         self.base_url=f"http://{host}:{port}"; self.model=model_path; self.proc=None
     def start(self):
         import subprocess
+        import os
+        _mt=os.environ.get("SGLANG_MAX_TOTAL_TOKENS","49152")
         cmd=[self.python,"-m","sglang.launch_server","--model-path",self.model_path,
-             "--host",self.host,"--port",str(self.port),"--max-total-tokens","49152"]
+             "--host",self.host,"--port",str(self.port),"--max-total-tokens",_mt]
         self.proc=subprocess.Popen(cmd, stdout=open("/tmp/sglang_backend.log","w"), stderr=subprocess.STDOUT)
         import urllib.request,time
         for _ in range(300):

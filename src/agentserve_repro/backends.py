@@ -47,9 +47,10 @@ class VllmBackend(StreamMixin, ServingBackend):
         self.python=python or "/root/autodl-tmp/conda_envs/vllm/bin/python"
         self.base_url=f"http://{host}:{port}"; self.model=model_path; self.proc=None
     def start(self):
-        import subprocess
+        import subprocess, os
+        _ml=os.environ.get("VLLM_MAX_MODEL_LEN","32768")
         cmd=[self.python,"-m","vllm.entrypoints.openai.api_server","--model",self.model_path,
-             "--host",self.host,"--port",str(self.port),"--gpu-memory-utilization","0.9","--max-model-len","32768"]
+             "--host",self.host,"--port",str(self.port),"--gpu-memory-utilization","0.9","--max-model-len",_ml]
         self.proc=subprocess.Popen(cmd, stdout=open("/tmp/vllm_backend.log","w"), stderr=subprocess.STDOUT)
         import urllib.request,time
         for _ in range(200):

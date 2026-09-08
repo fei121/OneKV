@@ -1,1 +1,1 @@
-"""AgentServe reproduction toolkit."""
+"""OneKV toolkit."""

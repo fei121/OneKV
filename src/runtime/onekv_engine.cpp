@@ -1,4 +1,4 @@
-// Single-engine shared-KV serving engine (AgentServe reproduction).
+// Single-engine shared-KV serving engine (OneKV).
 //
 // Two llama_contexts share one KV pool (ctx_other=A): A=prefill, B=decode. P/D on separate CUDA
 // streams synchronized by cudaEvent; a mutex protects the shared cell bookkeeping.

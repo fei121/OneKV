@@ -60,6 +60,17 @@ It runs on a consumer GPU (RTX 3090) with Qwen2.5-3B / 7B, and is benchmarked si
 ![ReAct 7B](figures/react7-4way-nscale.png)
 ![P&E 7B](figures/pe7-4way-nscale.png)
 
+### Cross-model overview (3B vs 7B)
+
+Overlay both models — **solid = Qwen2.5-3B, dashed = Qwen2.5-7B** — so you can read directly how the
+model size shifts each backend (N=3…6, tool_wait=0):
+
+![Cross-model overview](figures/crossmodel-overview.png)
+
+> Points: going 3B → 7B lowers every backend's throughput, but **the ranking is unchanged**
+> (vLLM ≈ SGLang > OneKV engine > llama.cpp). The engine's TPOT p95 stays **flat (~13 ms 3B / ~22 ms
+> 7B)** and its cold TTFT is the lowest — the latency-stability advantage widens on 7B.
+
 ### Bottom line
 
 The OneKV engine is the **latency-stability leader**:
@@ -179,6 +190,7 @@ make sweep
 # plots
 python scripts/plot_perparadigm.py      # per-paradigm 4-way (3B + 7B)
 python scripts/plot_context_windows.py  # context-window sensitivity
+python scripts/plot_crossmodel.py        # cross-model overview (3B vs 7B)
 ```
 
 ---

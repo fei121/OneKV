@@ -105,7 +105,7 @@ class LlamaCppBackend(ServingBackend):
     def collect_metrics(self): return {}
 
 class OneKVBackend(ServingBackend):
-    """AgentServe orchestration serving backend (QD/QP + dual worker + TPOT controller + green context).
+    """OneKV orchestration serving backend (QD/QP + dual worker + TPOT controller + green context).
 
     Implemented layer (honest scope):
       - request phase classification + QD/QP routing (scheduler.PhaseRouter)

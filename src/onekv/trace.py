@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AgentServe reproduction - synthesize 3-state token traces from StableToolBench (MirrorAPI-Bench).
+OneKV - synthesize 3-state token traces from StableToolBench (MirrorAPI-Bench).
 
 Each agent session = 1 cold prefill + R rounds of (resume_prefill + short decode).
 
@@ -296,7 +296,7 @@ def flatten_sessions(rows, model):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Generate AgentServe token traces from StableToolBench.")
+    ap = argparse.ArgumentParser(description="Generate OneKV token traces from StableToolBench.")
     ap.add_argument("--config", default="/root/autodl-tmp/exp/configs/trace_gen.yaml")
     ap.add_argument("--model-dir", default=None)
     ap.add_argument("--toolbench-dir", default=None)

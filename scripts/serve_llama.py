@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-import json, sys, time, yaml, argparse, threading, subprocess, urllib.request
+import json, sys, time, yaml, argparse, threading, subprocess, urllib.request, os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import requests
@@ -166,6 +166,8 @@ def main():
     ev_path.parent.mkdir(parents=True, exist_ok=True)
     logger = EventLogger(ev_path)
 
+    if os.environ.get("LLAMA_CTX"):
+        model_cfg["context_length"] = int(os.environ["LLAMA_CTX"])
     proc = None
     if not args.skip_serve:
         proc = start_server(model_cfg, server_cfg, N, server_cfg["port"])

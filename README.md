@@ -60,17 +60,6 @@ OneKV 是面向 agentic 负载（ReAct / Plan-and-Execute）的**单 GPU 推理 
 ![ReAct 7B](figures/react7-4way-nscale.png)
 ![P&E 7B](figures/pe7-4way-nscale.png)
 
-### 跨模型总览（3B vs 7B）
-
-把两个模型叠加在一起——**实线 = Qwen2.5-3B，虚线 = Qwen2.5-7B**——可以直接看出模型规模对每个
-后端的影响（N=3…6，tool_wait=0）：
-
-![Cross-model overview](figures/crossmodel-overview.png)
-
-> 要点：3B → 7B 会让每个后端的 throughput 整体下降，但**排序不变**
-> （vLLM ≈ SGLang > OneKV engine > llama.cpp）。engine 的 TPOT p95 依旧**平稳（~13 ms 3B / ~22 ms
-> 7B）**，cold TTFT 最低——延迟稳定性的优势在 7B 上更明显。
-
 ### 结论
 
 OneKV engine 是**延迟稳定性领先者**：
@@ -188,7 +177,6 @@ make sweep
 # 画图
 python scripts/plot_perparadigm.py      # per-paradigm 4-way（3B + 7B）
 python scripts/plot_context_windows.py  # context-window 敏感度
-python scripts/plot_crossmodel.py        # 跨模型总览（3B vs 7B）
 ```
 
 ---

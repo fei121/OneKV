@@ -172,7 +172,7 @@ chunked prefill 扰动短 decode 现象。详见 [`docs/notes/known-limitations.
 - **llama.cpp 改动**：`patches/`（4 处）。
 - **Python 包**：`src/onekv/`（backends/scheduler/phase/metrics/events/trace）。
 - **结果**：`results/`、`metrics/`（JSON）。
-- **图**：`figures/`（3B/7B/per-paradigm/跨模型总览）。
+- **图**：`figures/`（3B / 7B / per-paradigm）。
 - **文档**：`docs/`（design / build / benchmark / notes 四类）。
 - 项目已 `git init`，含 LICENSE、Makefile、pyproject.toml、tests。
 

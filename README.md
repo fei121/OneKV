@@ -1,76 +1,94 @@
-# AgentServe Reproduction
+# AgentServe 复现：单引擎共享 KV 的 Agentic Serving
 
-**Single-engine shared-KV serving for agentic AI on a consumer GPU.**
+**在消费级 GPU 上，用单引擎共享 KV 缓存为多智能体负载做高效 Serving。**
 
-This repository reproduces the *serving system* of
-**[AgentServe](https://arxiv.org/abs/2603.10342)** — *Algorithm-System Co-Design for Efficient
-Agentic AI Serving on a Consumer-Grade GPU* — and evaluates it against the state of the art
-(llama.cpp / vLLM / SGLang) on a single **RTX 3090**.
+本仓库复现了 **[AgentServe](https://arxiv.org/abs/2603.10342)**（*Algorithm-System Co-Design for
+Efficient Agentic AI Serving on a Consumer-Grade GPU*）中的 **serving 系统**，并在单张 **RTX 3090**
+上把它与业界主流后端（llama.cpp / vLLM / SGLang）做了四方对比。
 
-The central contribution is a **prefill/decode (P/D) disaggregation inside *one* engine with a
-shared KV cache** — no cross-process KV transfer. We implement it by patching llama.cpp so two
-`llama_context`s (A = prefill, B = decode) share one KV pool (`ctx_other = A`), and drive them with
-**continuous batching + prefix caching** to keep decode latency stable while a long prefill runs.
+核心贡献是：**在*一个*引擎内部做 prefill/decode（P/D）分离 + 跨上下文共享 KV**——不做跨进程 KV
+拷贝。我们用补丁让 llama.cpp 的两个 `llama_context`（A=prefill，B=decode）共享同一份 KV 池
+（`ctx_other = A`），再用**连续批处理 + 前缀缓存**驱动，让长 prefill 运行时 decode 延迟仍然稳定。
 
-> **This project measures *serving performance*, not agent quality.** The model is Qwen2.5-**BASE**
-> (no native tool-calling), so outputs are plan-style text.
+> **本项目衡量的是 serving 性能，不是智能体质量。** 模型是 Qwen2.5-**BASE**（无原生 tool-calling），
+> 输出是计划式文本。
 
 ---
 
-## Why it matters
+## 为什么重要
 
-Agent workloads (ReAct / Plan-and-Execute) alternate between **long cold prefills**, **short resume
-prefills** (tool outputs), and **very short decodes**. On a single GPU this causes **head-of-line
-blocking** — a long prefill starves the tiny decodes of every other session.
+智能体负载（ReAct / Plan-and-Execute）在 **长冷预填**、**短 resume 预填**（工具输出）与 **极短
+decode** 之间交替。在单 GPU 上这会造成 **head-of-line blocking**——一个长 prefill 会饿死所有其它
+会话的微小 decode。
 
-The paper's idea is *not* to shard across engines (which pays KV transfer cost), but to disaggregate
-**within one engine**: let one context write the long K/V (prefill) while another context reads it to
-decode (decode), sharing a single KV pool so nothing is copied.
+论文的思路*不是*把负载拆分到多个引擎（那要付 KV 拷贝成本），而是**在单引擎内拆分离**：让一个
+context 去写长的 K/V（prefill），另一个 context 读它来做 decode（decode），共享一份 KV 池，这样
+什么都不用拷贝。
 
 ---
 
-## Key result (Qwen2.5-3B, 4-way, N=3→6, tool_wait=0)
+## 关键结果
 
-| Paradigm | Metric | engine | llama.cpp | vLLM | SGLang |
+### Qwen2.5-3B（4-way，N=3→6，tool_wait=0）
+
+| 范式 | 指标 | engine | llama.cpp | vLLM | SGLang |
 |---|---|---|---|---|---|
-| **ReAct** | throughput (tok/s) | 149.8→175.2 | 131.1→145.0 | **167.7→222.8** | **164.2→226.3** |
+| **ReAct** | 吞吐 (tok/s) | 149.8→175.2 | 131.1→145.0 | **167.7→222.8** | **164.2→226.3** |
 | | TPOT p95 (ms) | **11.9→13.5** | 60.0→72.7 | 19.5→24.0 | 24.0→27.9 |
-| | cold TTFT p50 (ms) | **308.6→367.6** | 439.5→737.8 | 302.7→621.4 | 302.2→454.8 |
-| **P&E** | throughput (tok/s) | 162.5→192.2 | 145.1→147.7 | **170.4→259.1** | **179.5→243.1** |
+| | 冷 TTFT p50 (ms) | **308.6→367.6** | 439.5→737.8 | 302.7→621.4 | 302.2→454.8 |
+| **P&E** | 吞吐 (tok/s) | 162.5→192.2 | 145.1→147.7 | **170.4→259.1** | **179.5→243.1** |
 | | TPOT p95 (ms) | **11.8→13.5** | 50.2→70.7 | 22.0→38.7 | 24.8→31.4 |
-| | cold TTFT p50 (ms) | **316.5→383.8** | 412.3→773.2 | 343.0→603.4 | 335.0→478.2 |
-
-**Conclusion:** the shared-KV engine is the **latency-stability leader** — its TPOT p95 stays **flat
-at ~12–14 ms** (llama.cpp explodes to 50–73 ms; vLLM/SGLang rise to 20–39 ms) and its **cold TTFT is
-lowest & roughly flat** (~310–385 ms, prefix-cache amortization) while every baseline degrades with N.
-**Throughput is not its strength**: **vLLM ≈ SGLang > engine > llama.cpp.** This is exactly the paper's
-thesis: *improve TTFT/TPOT stability while sustaining competitive (not maximal) throughput.*
+| | 冷 TTFT p50 (ms) | **316.5→383.8** | 412.3→773.2 | 343.0→603.4 | 335.0→478.2 |
 
 ![ReAct 4-way](figures/react-4way-nscale.png)
 ![P&E 4-way](figures/pe-4way-nscale.png)
 
-> **About the baselines.** vLLM and SGLang were re-measured with **adequate context** (vLLM
-> `--max-model-len 32768`, SGLang `--max-total-tokens 49152`). The earlier `--max-total-tokens 8192`
-> starved SGLang's KV pool and made it look like the worst backend — that was a **harness bug, not an
-> SGLang limitation**. See [`docs/notes/pitfalls.md`](docs/notes/pitfalls.md).
+### Qwen2.5-7B（4-way，N=3→6，tool_wait=0）
 
-See [`results/`](results/) for the full tables and [`docs/benchmark/results.md`](docs/benchmark/results.md).
+| 范式 | 指标 | engine | llama.cpp | vLLM | SGLang |
+|---|---|---|---|---|---|
+| **ReAct** | 吞吐 (tok/s) | 84.6→103.3 | 81.9→92.4 | 88.8→123.6 | 90.3→125.2 |
+| | TPOT p95 (ms) | **20.8→22.3** | 65.0→125.8 | 37.9→46.0 | 31.3→44.6 |
+| | 冷 TTFT p50 (ms) | **524.2→625.0** | 800.6→1179.0 | 591.1→1214.5 | 590.5→958.6 |
+| **P&E** | 吞吐 (tok/s) | 93.2→115.8 | 92.1→108.1 | 94.8→131.3 | 97.2→134.5 |
+| | TPOT p95 (ms) | **20.4→22.1** | 71.5→111.1 | 21.6→110.0 | 25.6→48.5 |
+| | 冷 TTFT p50 (ms) | **540.9→646.0** | 803.2→1252.2 | 648.5→1036.0 | 782.8→945.2 |
+
+![ReAct 7B](figures/react7-4way-nscale.png)
+![P&E 7B](figures/pe7-4way-nscale.png)
+
+### 结论（3B 与 7B 一致）
+
+共享 KV 引擎是**延迟稳定性领先者**：
+- **TPOT p95 平**（3B ~12–14ms，7B ~20–22ms）；llama.cpp 爆到 50–126ms，vLLM/SGLang 升到 20–110ms。
+- **冷 TTFT 最低且基本不随 N 涨**（前缀缓存摊销；3B ~310–385ms，7B ~520–650ms），而所有基线都随 N 恶化。
+- **吞吐不是它的强项**：**vLLM ≈ SGLang > engine > llama.cpp**。
+
+这正是论文论点：*在不牺牲吞吐的前提下，提升 TTFT/TPOT 稳定性（即用一部分吞吐换延迟稳定）。*
+
+> **关于基线。** vLLM/SGLang 用**足够的上下文**重测（vLLM `--max-model-len 32768`，SGLang
+> `--max-total-tokens 49152`）。之前 `--max-total-tokens 8192` 把 SGLang 的 KV 池饿死，让它看起来
+> 最差——那是 **harness bug，不是 SGLang 的限制**。另有一份「上下文窗口敏感度」实验（见
+> [`docs/benchmark/methodology.md`](docs/benchmark/methodology.md) + [`figures/context-windows-n6.png`](figures/context-windows-n6.png)）
+> 证明四个后端在窗口达到阈值后都在平台期，故**差距是真实架构差异，不是上下文配置造假**。
+
+完整表格见 [`results/`](results/)，汇总见 [`docs/benchmark/results.md`](docs/benchmark/results.md)。
 
 ---
 
-## Architecture
+## 架构
 
 ```
              ┌──────────────────────────────────────────────┐
-             │            one model · one KV cache          │
+             │           一个模型 · 一份 KV 缓存            │
              │        (llama_kv_cache, ctx_other = A)       │
              │                                              │
-             │   seq 0 = template                            │
-             │        └─ shared system prefix (seq_cp)      │
-             │   seq 1..N = live sessions                   │
+             │   seq 0 = 模板                                │
+             │        └─ 共享 system 前缀 (seq_cp)          │
+             │   seq 1..N = 在跑的会话                       │
              └──────────────────────────────────────────────┘
                    ▲                    ▲
-        write K/V │            read K/V │ + append new token
+        写 K/V │           读 K/V │ + 追加新 token
        ┌──────────┴─────────┐  ┌────────┴─────────┐
        │ context A (prefill) │  │ context B (decode) │
        │ llama_decode(A, ...) │  │ llama_decode(B, ...) │
@@ -78,131 +96,129 @@ See [`results/`](results/) for the full tables and [`docs/benchmark/results.md`]
        └──────────────────────┘  └──────────────────────┘
 ```
 
-- **A (prefill)** batches each session's *cold* prompt (with the shared system prefix cached once and
-  `llama_memory_seq_cp`'d to each session) and its *resume* prompts (tool results) into
-  multi-sequence `llama_decode(A)` calls.
-- **B (decode)** does continuous batching — one token per ready session per `llama_decode(B)` — reading
-  the KV that A wrote and appending each generated token.
-- `g_kv` mutex only serializes host-side cell bookkeeping; the two kernels run on separate CUDA streams.
-- **Prefix caching**: the shared system prompt is prefilled once on `seq 0` and copied to every session,
-  so cold TTFT is amortized.
+- **A（prefill）**：把每个会话的*冷* prompt（共享 system 前缀只预填一次，再 `llama_memory_seq_cp`
+  到各会话）与 *resume* prompt（工具输出）打包成多序列 `llama_decode(A)`。
+- **B（decode）**：连续批处理——每个 `llama_decode(B)` 每个就绪会话只解码 1 个 token，读 A 写入的
+  KV 并追加新 token。
+- `g_kv` 互斥锁只串行化主机侧 cell 记账；两个内核跑在不同 CUDA stream 上。
+- **前缀缓存**：共享 system prompt 在 `seq 0` 上预填一次并复制给每个会话，从而摊销冷 TTFT。
 
-### How the shared KV is enabled (the hard part)
+### 怎么让共享 KV 生效（难点）
 
-A single `llama_context` in llama.cpp is not re-entrant and its KV cache is bound to it. To make two
-contexts share one pool, this repo patches llama.cpp (see [`patches/`](patches/)):
+llama.cpp 的单个 `llama_context` 不可重入，其 KV 缓存也与它绑定。要让两个 context 共享一份池，
+本仓库给 llama.cpp 打了补丁（见 [`patches/`](patches/)）：
 
-| File | Change |
+| 文件 | 改动 |
 |---|---|
-| `llama-model.cpp` | Qwen branch passes `mem_other` + a share callback → decode K/V points at prefill K/V. |
-| `llama-context.cpp` | Propagate `params.ctx_other` → `cparams.ctx_other`. |
-| `llama-kv-cache.cpp` | `apply_ubatch` allows the mirror to write the shared cells; `seq_pos_min/max` read shared cells. |
-| `ggml-cuda-common.cuh` | `as_sidx()` keys cuBLAS handles/workspaces/pools by the active stream index. |
+| `llama-model.cpp` | Qwen 分支传 `mem_other` + share 回调，让 decode 的 K/V 指向 prefill 的 K/V。 |
+| `llama-context.cpp` | 把 `params.ctx_other` 传到 `cparams.ctx_other`。 |
+| `llama-kv-cache.cpp` | `apply_ubatch` 允许镜像 context 写共享 cell；`seq_pos_min/max` 读共享 cell。 |
+| `ggml-cuda-common.cuh` | `as_sidx()` 按当前流索引绑定 cuBLAS handle/workspace/pool。 |
 
-The engine: [`src/runtime/agentserve_engine.cpp`](src/runtime/agentserve_engine.cpp).
+引擎源码：[`src/runtime/agentserve_engine.cpp`](src/runtime/agentserve_engine.cpp)。
 
 ---
 
-## Install
+## 安装
 
-### 1. Hardware / OS
-- NVIDIA GPU (tested **RTX 3090**, 24 GB), **CUDA 12.8**, Ubuntu 22.04.
+### 1. 硬件 / 系统
+- NVIDIA GPU（实测 **RTX 3090**，24GB）、**CUDA 12.8**、Ubuntu 22.04。
 
-### 2. Get the models
+### 2. 下载模型
 
-All four model artifacts (Qwen2.5-3B/7B × GGUF/HF) and their server paths + SHA-256 are listed
-in [`configs/models/models.yaml`](configs/models/models.yaml).
+四个模型产物（Qwen2.5-3B/7B × GGUF/HF）及其服务器路径 + SHA-256 见
+[`configs/models/models.yaml`](configs/models/models.yaml)。
 
 ```bash
 wget https://hf-mirror.com/hfd/hfd.sh && chmod a+x hfd.sh
 apt update && apt install -y aria2
 export HF_ENDPOINT=https://hf-mirror.com
 export HFD_DOWNLOADER="aria2c -x 16 -s 16 -k 1M"
-# GGUF (engine + llama.cpp baseline)
+# GGUF（engine + llama.cpp 基线）
 hfd Qwen/Qwen2.5-3B-GGUF --include "*qwen2.5-3b-f16*.gguf"
-# HF safetensors (vLLM / SGLang + trace generation)
+# HF safetensors（vLLM / SGLang + trace 生成）
 hfd Qwen/Qwen2.5-3B
 ```
 
-### 3. Build llama.cpp with the patches
-See [`docs/setup/llama-cpp-patch.md`](docs/setup/llama-cpp-patch.md) and [`docs/setup/environment.md`](docs/setup/environment.md)
-for the exact source, build flags, and pinned environment.
+### 3. 打补丁并编译 llama.cpp
+见 [`docs/setup/llama-cpp-patch.md`](docs/setup/llama-cpp-patch.md) 与
+[`docs/setup/environment.md`](docs/setup/environment.md)（精确源码、编译选项、环境）。
 
 ```bash
 cmake -DHF_ENABLED=OFF -DBUILD_UI=OFF -B build .
 cmake --build build --target llama-cli llama-server
-# copy the 4 patched files from patches/ over the corresponding source, then rebuild
+# 把 patches/ 里 4 个文件覆盖到对应源码，然后重编译
 ```
 
-### 4. Python package
+### 4. Python 包
 ```bash
 pip install -e .   # requests, pyyaml, matplotlib, numpy, pytest
 ```
 
 ---
 
-## Usage
+## 使用
 
 ```bash
-# generate the unified 12-task trace (shared by ReAct & P&E)
+# 生成统一的 12 任务 trace（ReAct / P&E 共用）
 make trace
 
-# run the single-engine shared-KV runtime (A = # concurrent agents)
+# 运行单引擎共享 KV 运行时（A = 并发智能体数）
 make engine A=3
 
-# baselines (self-contained multi-phase prompt)
+# 基线（自包含多阶段 prompt）
 make serve-llama A=3 S=12
 make serve-vllm  A=3 S=12
 make serve-sglang A=3 S=12
 
-# serial benchmark sweep (ReAct + P&E, N=3…6, one backend at a time)
+# 串行基准扫描（ReAct + P&E，N=3…6，一次只跑一个后端）
 make sweep
 
-# plots
-python scripts/plot_perparadigm.py
+# 画图
+python scripts/plot_perparadigm.py      # per-paradigm 4-way（3B + 7B）
+python scripts/plot_context_windows.py  # 上下文窗口敏感度
 ```
 
 ---
 
-## Reproducibility
+## 可复现性
 
-The exact server environment (hardware, CUDA, llama.cpp version + build flags, model SHA-256, conda
-versions) is pinned in [`docs/setup/environment.md`](docs/setup/environment.md). Every backend is driven by the
-same harness, same unified 12-task set, same `N`, same `tool_wait`, serial measurement (one backend at
-a time, GPU freed between runs).
+服务器精确环境（硬件、CUDA、llama.cpp 版本 + 编译选项、模型 SHA-256、conda 版本）已固定在
+[`docs/setup/environment.md`](docs/setup/environment.md)。每个后端都由同一套 harness、同一
+12 任务集、同一 `N`、同一 `tool_wait` 驱动，且**串行测量**（一次一个后端，run 之间释放 GPU）。
 
 ---
 
-## Docs
+## 文档
 
-| Doc | Content |
+| 文档 | 内容 |
 |---|---|
-| [`docs/design/architecture.md`](docs/design/architecture.md) | System + engine + patch design. |
-| [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md) | What aligns with the paper, what we did differently, and why. |
-| [`docs/setup/environment.md`](docs/setup/environment.md) | Pinned environment for bit-for-bit reproduction. |
-| [`docs/setup/llama-cpp-patch.md`](docs/setup/llama-cpp-patch.md) | The four shared-KV llama.cpp patches + build/verify. |
-| [`docs/benchmark/methodology.md`](docs/benchmark/methodology.md) | Workload, backends, metrics + "context" fairness rules. |
-| [`docs/benchmark/results.md`](docs/benchmark/results.md) | Current results, figures, and how to reproduce. |
-| [`docs/notes/known-limitations.md`](docs/notes/known-limitations.md) | Honest boundaries + methodology pitfalls. |
-| [`docs/notes/pitfalls.md`](docs/notes/pitfalls.md) | Service-startup / benchmark lessons learned. |
-| [`results/`](results/) | Clean per-paradigm 4-way tables + summaries. |
-| [`REPORT.md`](REPORT.md) | Full written report (design, engine, results). |
+| [`docs/design/architecture.md`](docs/design/architecture.md) | 系统 + 引擎 + 补丁设计。 |
+| [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md) | 与论文的对齐情况、差异与原因。 |
+| [`docs/setup/environment.md`](docs/setup/environment.md) | 固定到字节级的环境（可复现）。 |
+| [`docs/setup/llama-cpp-patch.md`](docs/setup/llama-cpp-patch.md) | 4 个共享 KV 补丁 + 编译/验证。 |
+| [`docs/benchmark/methodology.md`](docs/benchmark/methodology.md) | workload、后端、指标 + "上下文"公平性规则。 |
+| [`docs/benchmark/results.md`](docs/benchmark/results.md) | 当前结果、图表、复现方法。 |
+| [`docs/notes/known-limitations.md`](docs/notes/known-limitations.md) | 诚实边界 + 方法学坑。 |
+| [`docs/notes/pitfalls.md`](docs/notes/pitfalls.md) | 服务启动 / 基准测试经验教训。 |
+| [`results/`](results/) | 干净的 per-paradigm 四方表 + 摘要。 |
+| [`REPORT.md`](REPORT.md) | 完整报告（设计、引擎、结果）。 |
 
 ---
 
-## Honest boundaries / limitations
+## 诚实边界 / 局限
 
-1. **Absolute numbers are not cross-hardware comparable** — RTX 3090 (82 SM) vs the paper's A5000/5090.
-   We always compare to *our own* baselines on the same GPU/trace.
-2. **The 10-slot Green Context pool + TPOT-driven `Rmin` controller are not reproduced.** We replaced
-   the decode-protection benefit with *continuous batching*, which we measured to be cheaper (SM
-   reservation actually *hurt* on the 3090). See [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md).
-3. **The 7B vLLM/SGLang were re-measured** with the corrected context too, so the **3B/7B** comparisons
-   are both aligned (see [`results/perparadigm-4way-7b.md`](results/perparadigm-4way-7b.md)).
-4. **BASE model, no native tool-calling** → this measures serving performance, not agent quality.
+1. **绝对数值不可跨硬件比较** —— RTX 3090（82 SM）vs 论文的 A5000/5090。我们始终与*自己的*、
+   同 GPU、同 trace 的基线比较。
+2. **未复现论文的 10 槽 Green Context 池 + TPOT 驱动的 `Rmin` 重绑定**。我们改用*连续批处理*来达到
+   "decode 保护"这一收益，实测在 3090 上做 SM 预留反而更差（见
+   [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md)）。
+3. **7B 的 vLLM/SGLang 也已用修正后的上下文重测**，因此 **3B/7B** 两套对比都已对齐（见
+   [`results/perparadigm-4way-7b.md`](results/perparadigm-4way-7b.md)）。
+4. **BASE 模型，无原生 tool-calling** → 衡量的是 serving 性能，不是智能体质量。
 
 ---
 
-## License
+## 许可证
 
-MIT — see [`LICENSE`](LICENSE).
+MIT —— 见 [`LICENSE`](LICENSE)。

@@ -18,7 +18,7 @@ COLOR = {"engine": "#00a86b", "vllm": "#8e44ad", "sglang": "#2980b9", "llama": "
 PANELS = [("throughput", "throughput (tok/s)"), ("tpot_p95", "TPOT p95 (ms)"),
           ("ttft_cold", "cold TTFT p50 (ms)")]
 
-fig, axes = plt.subplots(2, 3, figsize=(17, 8), sharex=True)
+fig, axes = plt.subplots(2, 3, figsize=(16, 6.2), sharex=True)
 for r, para in enumerate(["react", "pe"]):
     for c, (key, ylab) in enumerate(PANELS):
         ax = axes[r][c]

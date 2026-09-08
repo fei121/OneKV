@@ -56,6 +56,47 @@ Defined in `src/agentserve_repro/metrics.py` and `configs/metrics.yaml`.
 satisfy both with the parameters above. See [`../notes/pitfalls.md`](../notes/pitfalls.md) for the
 SGLang `--max-total-tokens 8192` bug that starved its pool.
 
+### Context-window sensitivity (empirical)
+
+To confirm the comparison is fair, we swept the context window for **every** backend on the **same**
+workload (N=6, Qwen2.5-3B, ReAct & P&E) and measured throughput, TPOT p95 and cold TTFT. The context
+values are the backend's own parameter (vLLM `--max-model-len`, SGLang `--max-total-tokens`, engine
+`n_ctx`, llama `context_length`); for the pool-based backends we also tested below the model's native
+32768 to find the knee.
+
+**ReAct (N=6)**
+
+| backend | `32768` | `49152` | `65536` |
+|---|---|---|---|
+| engine thr/tpot/cold | 181 / 13.5 / 362 | 181 / 13.4 / 361 | 181 / 13.6 / 363 |
+| sglang thr/tpot/cold | 227 / 28.0 / 538 | 226 / 27.9 / 455 | 225 / 26.3 / 526 |
+| vllm thr/tpot/cold | 223 / 24.0 / 621 | 229 / 26.6 / 519 | 221 / 48.2 / 605 |
+| llama thr/tpot/cold | 148 / 71.2 / 953 | 137 / 73.4 / 972 | 138 / 72.7 / 724 |
+
+**P&E (N=6)**
+
+| backend | `32768` | `49152` | `65536` |
+|---|---|---|---|
+| engine thr/tpot/cold | 200 / 13.2 / 371 | 200 / 13.4 / 373 | 199 / 13.4 / 372 |
+| sglang thr/tpot/cold | 252 / 30.6 / 790 | 243 / 31.4 / 478 | 251 / 30.9 / 797 |
+| vllm thr/tpot/cold | 259 / 38.6 / 603 | 254 / 33.8 / 669 | 256 / 35.0 / 738 |
+| llama thr/tpot/cold | 170 / 62.8 / 884 | 165 / 65.2 / 900 | 171 / 69.3 / 580 |
+
+(*thr* = throughput tok/s, *tpot* = TPOT p95 ms, *cold* = cold TTFT p50 ms.)
+
+![Context-window sensitivity (N=6)](../../figures/context-windows-n6.png)
+
+**Result — every backend is on a plateau once the context is adequate** (≥ ~27 k for N=6):
+- **Throughput is flat** across `32768/49152/65536` for all four (engine ~181/199, SGLang ~225-251,
+  vLLM ~221-259, llama ~137-172).
+- So the cross-backend gaps are **real architectural differences**, not a context artifact:
+  **throughput vLLM ≈ SGLang > engine > llama.cpp**; **TPOT p95 engine ~13 ms < SGLang ~26-31 <
+  vLLM ~24-48 < llama ~63-73**; **cold TTFT engine ~360-373 ms (lowest) < vLLM/SGLang ~450-800 <
+  llama ~580-970**.
+
+Data: [`metrics/context_windows/n6_ctx_windows.json`](../../metrics/context_windows/n6_ctx_windows.json);
+figure: [`scripts/plot_context_windows.py`](../../scripts/plot_context_windows.py).
+
 ## Measurement hygiene
 
 - **Serial measurement:** one backend at a time; GPU freed between runs (`scripts/kill_gpu.py`).

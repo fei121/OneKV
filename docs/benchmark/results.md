@@ -37,6 +37,10 @@ The engine delivers **decode stability + low cold latency via prefix caching** a
 maximal) throughput** — the paper's thesis. Numbers are on the **BASE** Qwen2.5-3B/7B (no native
 tool-calling, plan-style output), so they measure **serving performance**, not agent quality.
 
+> **Fairness:** a context-window sweep shows every backend is on a plateau once context is adequate
+> (see [`methodology.md`](methodology.md) + [`../../figures/context-windows-n6.png`](../../figures/context-windows-n6.png)),
+> so the cross-backend gaps are real architectural differences, not a context artifact.
+
 ## Figures
 
 Per-paradigm 4-way figures live in [`../../figures/`](../../figures/) (`react-4way-nscale.png`,

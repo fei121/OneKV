@@ -1,0 +1,166 @@
+{
+  "react": {
+    "engine": {
+      "32768": {
+        "throughput": 181.3,
+        "tpot_p50": 11.002,
+        "tpot_p95": 13.52,
+        "ttft_cold": 362.3
+      },
+      "49152": {
+        "throughput": 181.1,
+        "tpot_p50": 10.979,
+        "tpot_p95": 13.384,
+        "ttft_cold": 361.0
+      },
+      "65536": {
+        "throughput": 181.1,
+        "tpot_p50": 10.973,
+        "tpot_p95": 13.563,
+        "ttft_cold": 363.4
+      }
+    },
+    "sglang": {
+      "32768": {
+        "throughput": 226.73,
+        "tpot_p50": 10.903,
+        "tpot_p95": 28.025,
+        "ttft_cold": 538.0
+      },
+      "49152": {
+        "throughput": 226.32,
+        "tpot_p50": 10.871,
+        "tpot_p95": 27.871,
+        "ttft_cold": 454.8
+      },
+      "65536": {
+        "throughput": 224.61,
+        "tpot_p50": 10.764,
+        "tpot_p95": 26.306,
+        "ttft_cold": 526.4
+      }
+    },
+    "vllm": {
+      "32768": {
+        "throughput": 222.83,
+        "tpot_p50": 11.266,
+        "tpot_p95": 23.955,
+        "ttft_cold": 621.4
+      },
+      "49152": {
+        "throughput": 229.05,
+        "tpot_p50": 11.279,
+        "tpot_p95": 26.573,
+        "ttft_cold": 518.6
+      },
+      "65536": {
+        "throughput": 221.04,
+        "tpot_p50": 11.329,
+        "tpot_p95": 48.214,
+        "ttft_cold": 604.7
+      }
+    },
+    "llama": {
+      "32768": {
+        "throughput": 148.24,
+        "tpot_p50": 14.993,
+        "tpot_p95": 71.158,
+        "ttft_cold": 952.7
+      },
+      "49152": {
+        "throughput": 136.63,
+        "tpot_p50": 19.053,
+        "tpot_p95": 73.364,
+        "ttft_cold": 971.9
+      },
+      "65536": {
+        "throughput": 138.0,
+        "tpot_p50": 19.693,
+        "tpot_p95": 72.688,
+        "ttft_cold": 724.2
+      }
+    }
+  },
+  "pe": {
+    "engine": {
+      "32768": {
+        "throughput": 199.7,
+        "tpot_p50": 11.165,
+        "tpot_p95": 13.231,
+        "ttft_cold": 371.3
+      },
+      "49152": {
+        "throughput": 199.6,
+        "tpot_p50": 11.175,
+        "tpot_p95": 13.433,
+        "ttft_cold": 372.9
+      },
+      "65536": {
+        "throughput": 198.9,
+        "tpot_p50": 11.175,
+        "tpot_p95": 13.389,
+        "ttft_cold": 371.6
+      }
+    },
+    "sglang": {
+      "32768": {
+        "throughput": 251.53,
+        "tpot_p50": 10.818,
+        "tpot_p95": 30.647,
+        "ttft_cold": 789.7
+      },
+      "49152": {
+        "throughput": 243.12,
+        "tpot_p50": 10.789,
+        "tpot_p95": 31.424,
+        "ttft_cold": 478.2
+      },
+      "65536": {
+        "throughput": 251.23,
+        "tpot_p50": 10.808,
+        "tpot_p95": 30.867,
+        "ttft_cold": 796.7
+      }
+    },
+    "vllm": {
+      "32768": {
+        "throughput": 259.11,
+        "tpot_p50": 11.289,
+        "tpot_p95": 38.65,
+        "ttft_cold": 603.4
+      },
+      "49152": {
+        "throughput": 253.69,
+        "tpot_p50": 11.367,
+        "tpot_p95": 33.782,
+        "ttft_cold": 669.4
+      },
+      "65536": {
+        "throughput": 256.03,
+        "tpot_p50": 11.364,
+        "tpot_p95": 34.959,
+        "ttft_cold": 738.2
+      }
+    },
+    "llama": {
+      "32768": {
+        "throughput": 170.19,
+        "tpot_p50": 13.734,
+        "tpot_p95": 62.849,
+        "ttft_cold": 884.2
+      },
+      "49152": {
+        "throughput": 165.27,
+        "tpot_p50": 15.327,
+        "tpot_p95": 65.244,
+        "ttft_cold": 899.7
+      },
+      "65536": {
+        "throughput": 171.49,
+        "tpot_p50": 15.149,
+        "tpot_p95": 69.27,
+        "ttft_cold": 580.0
+      }
+    }
+  }
+}

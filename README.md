@@ -1,38 +1,38 @@
 # OneKV
 
-**Single-engine shared-KV serving for agentic AI on a consumer GPU.**
+**在消费级 GPU 上为 agentic AI 做单引擎共享 KV 的 serving。**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![GPU](https://img.shields.io/badge/Hardware-RTX%203090-9cf)
 ![Lang](https://img.shields.io/badge/Language-C%2B%2B%20%7C%20Python-informational)
 
-OneKV is a **single-GPU inference serving engine** for agentic workloads (ReAct / Plan-and-Execute).
-Its core idea is to **disaggregate prefill and decode *inside one engine* while sharing a single KV
-cache** — no cross-process KV transfer — so decode latency stays flat even while a long prefill runs.
+OneKV 是面向 agentic 负载（ReAct / Plan-and-Execute）的**单 GPU 推理 serving 引擎**。核心思想是
+**在*一个引擎内部*做 prefill / decode 分离，同时共享一份 KV cache**——不做跨进程 KV 拷贝——这样
+即使长 prefill 在跑，decode 延迟也能保持平稳。
 
-It runs on a consumer GPU (RTX 3090) with Qwen2.5-3B / 7B, and is benchmarked side-by-side against
-**llama.cpp / vLLM / SGLang** on the same hardware and the same real-task trace.
-
----
-
-## Highlights
-
-- **Single-engine P/D disaggregation + shared KV** — two `llama_context`s (A = prefill, B = decode)
-  share one KV pool (`ctx_other = A`); no KV copy between engines.
-- **Continuous batching + prefix caching** — keeps **TPOT p95 flat** and **cold TTFT low & flat** under
-  concurrency (the two pain points of agent serving).
-- **Consumer-GPU ready** — RTX 3090, Qwen2.5-3B / 7B, ~24 GB.
-- **Honest, reproducible 4-way benchmark** — same harness, same trace, same `N`, serial measurement.
-- **Same-hardware comparison** — conclusions are *relative* to our own baselines, not the paper's.
-
-> **Scope:** this measures **serving performance**, not agent *quality*. The model is Qwen2.5-**BASE**
-> (no native tool-calling), so outputs are plan-style text.
+它在消费级 GPU（RTX 3090）上以 Qwen2.5-3B / 7B 运行，并与 **llama.cpp / vLLM / SGLang** 在**相同
+硬件、相同真实任务 trace** 上做四方对比。
 
 ---
 
-## Performance
+## 亮点
 
-### Qwen2.5-3B (4-way, N=3→6, tool_wait=0)
+- **单引擎 P/D 分离 + 共享 KV** —— 两个 `llama_context`（A = prefill，B = decode）共享一份 KV pool
+  （`ctx_other = A`）；引擎之间不需要拷贝 KV。
+- **连续批处理 + 前缀缓存** —— 在并发下保持 **TPOT p95 平稳**、**cold TTFT 低且平稳**（agent
+  serving 的两个痛点）。
+- **消费级 GPU 可用** —— RTX 3090、Qwen2.5-3B / 7B、~24 GB。
+- **诚实、可复现的 4-way 基准** —— 同一套 harness、同一 trace、同一 `N`、串行测量。
+- **同硬件比较** —— 结论是*相对*我们自己的基线，而不是论文的绝对数值。
+
+> **范围：** 本项目衡量的是 **serving 性能**，不是智能体*质量*。模型是 Qwen2.5-**BASE**（无原生
+> tool-calling），所以输出是计划式文本。
+
+---
+
+## 性能
+
+### Qwen2.5-3B（4-way，N=3→6，tool_wait=0）
 
 | Paradigm | Metric | OneKV engine | llama.cpp | vLLM | SGLang |
 |---|---|---|---|---|---|
@@ -46,7 +46,7 @@ It runs on a consumer GPU (RTX 3090) with Qwen2.5-3B / 7B, and is benchmarked si
 ![ReAct 3B](figures/react-4way-nscale.png)
 ![P&E 3B](figures/pe-4way-nscale.png)
 
-### Qwen2.5-7B (4-way, N=3→6, tool_wait=0)
+### Qwen2.5-7B（4-way，N=3→6，tool_wait=0）
 
 | Paradigm | Metric | OneKV engine | llama.cpp | vLLM | SGLang |
 |---|---|---|---|---|---|
@@ -60,89 +60,86 @@ It runs on a consumer GPU (RTX 3090) with Qwen2.5-3B / 7B, and is benchmarked si
 ![ReAct 7B](figures/react7-4way-nscale.png)
 ![P&E 7B](figures/pe7-4way-nscale.png)
 
-### Cross-model overview (3B vs 7B)
+### 跨模型总览（3B vs 7B）
 
-Overlay both models — **solid = Qwen2.5-3B, dashed = Qwen2.5-7B** — so you can read directly how the
-model size shifts each backend (N=3…6, tool_wait=0):
+把两个模型叠加在一起——**实线 = Qwen2.5-3B，虚线 = Qwen2.5-7B**——可以直接看出模型规模对每个
+后端的影响（N=3…6，tool_wait=0）：
 
 ![Cross-model overview](figures/crossmodel-overview.png)
 
-> Points: going 3B → 7B lowers every backend's throughput, but **the ranking is unchanged**
-> (vLLM ≈ SGLang > OneKV engine > llama.cpp). The engine's TPOT p95 stays **flat (~13 ms 3B / ~22 ms
-> 7B)** and its cold TTFT is the lowest — the latency-stability advantage widens on 7B.
+> 要点：3B → 7B 会让每个后端的 throughput 整体下降，但**排序不变**
+> （vLLM ≈ SGLang > OneKV engine > llama.cpp）。engine 的 TPOT p95 依旧**平稳（~13 ms 3B / ~22 ms
+> 7B）**，cold TTFT 最低——延迟稳定性的优势在 7B 上更明显。
 
-### Bottom line
+### 结论
 
-The OneKV engine is the **latency-stability leader**:
+OneKV engine 是**延迟稳定性领先者**：
 
-- **TPOT p95 stays flat** (3B ~12–14 ms, 7B ~20–22 ms) while llama.cpp explodes (50–126 ms) and
-  vLLM/SGLang rise (20–110 ms).
-- **Cold TTFT is lowest & roughly flat** (prefix-cache amortization; 3B ~310–385 ms, 7B ~520–650 ms)
-  while every baseline degrades with N.
-- **Throughput is not its strong suit**: `vLLM ≈ SGLang > OneKV > llama.cpp`. It trades a little
-  throughput for *stable TTFT/TPOT* — the core goal for agent serving.
+- **TPOT p95 平稳**（3B ~12–14 ms，7B ~20–22 ms）；llama.cpp 爆到 50–126 ms，vLLM/SGLang 升到
+  20–110 ms。
+- **cold TTFT 最低且基本平稳**（前缀缓存摊销；3B ~310–385 ms，7B ~520–650 ms），而所有基线都随 N 恶化。
+- **吞吐不是它的强项**：`vLLM ≈ SGLang > OneKV > llama.cpp`。它用一点吞吐换 **TTFT/TPOT 稳定**——
+  这正是 agent serving 的核心目标。
 
-> **Fairness note.** vLLM/SGLang are benchmarked with **adequate context** (vLLM `--max-model-len
-> 32768`, SGLang `--max-total-tokens 49152`). An earlier `--max-total-tokens 8192` starved SGLang's KV
-> pool and made it look worst — that was a harness bug, not an SGLang limitation. A context-window
-> sweep ([`docs/benchmark/methodology.md`](docs/benchmark/methodology.md) +
-> [`figures/context-windows-n6.png`](figures/context-windows-n6.png)) shows every backend is on a
-> plateau once context is adequate, so the gaps are real, not a config artifact.
+> **公平性说明。** vLLM/SGLang 用**足够的上下文**做基准（vLLM `--max-model-len 32768`，SGLang
+> `--max-total-tokens 49152`）。之前 `--max-total-tokens 8192` 把 SGLang 的 KV pool 饿死，让它看起来
+> 最差——那是 harness bug，不是 SGLang 的限制。一个上下文窗口扫描
+> （[`docs/benchmark/methodology.md`](docs/benchmark/methodology.md) +
+> [`figures/context-windows-n6.png`](figures/context-windows-n6.png)）显示：一旦上下文足够，每个后端
+> 都在平台期，所以这些差距是真实的，不是配置造成的。
 
 ---
 
-## Architecture
+## 架构
 
 ```
              ┌──────────────────────────────────────────────┐
-             │           one model · one KV cache          │
-             │        (llama_kv_cache, ctx_other = A)      │
+             │           一个模型 · 一份 KV cache           │
+             │        (llama_kv_cache, ctx_other = A)       │
              │                                              │
-             │   seq 0 = shared-prefix template             │
-             │        └─ copied to each session (seq_cp)   │
-             │   seq 1..N = live sessions                   │
+             │   seq 0 = 模板                                │
+             │        └─ 共享 system 前缀 (seq_cp)          │
+             │   seq 1..N = 在跑的会话                       │
              └──────────────────────────────────────────────┘
                    ▲                    ▲
-        write K/V │            read K/V │ + append new token
+        写 K/V │           读 K/V │ + 追加新 token
        ┌──────────┴─────────┐  ┌────────┴─────────┐
        │ context A (prefill) │  │ context B (decode) │
-       │ llama_decode(A,...) │  │ llama_decode(B,...) │
+       │ llama_decode(A, ...) │  │ llama_decode(B, ...) │
        │ CUDA stream: pre     │  │ CUDA stream: dec     │
        └──────────────────────┘  └──────────────────────┘
 ```
 
-- **A (prefill)** batches each session's *cold* prompt (shared system prefix prefilled once on `seq 0`
-  and `llama_memory_seq_cp`'d to each session) and *resume* prompts (tool results) into multi-sequence
-  `llama_decode(A)` calls.
-- **B (decode)** does continuous batching — one token per ready session per `llama_decode(B)` — reading
-  the KV that A wrote and appending each generated token.
-- The `g_kv` mutex only serializes host-side cell bookkeeping; the two kernels run on separate CUDA
-  streams.
+- **A（prefill）**：把每个会话的*冷* prompt（共享 system 前缀只预填一次，再用 `llama_memory_seq_cp`
+  复制到各会话）与 *resume* prompt（工具输出）打包成多序列 `llama_decode(A)`。
+- **B（decode）**：连续批处理——每个 `llama_decode(B)` 每个就绪会话只解码 1 个 token，读 A 写入的
+  KV 并追加新 token。
+- `g_kv` 互斥锁只串行化 host 侧 cell 记账；两个 kernel 跑在不同 CUDA stream 上。
 
-### Making two contexts share one KV (the hard part)
+### 怎么让两个 context 共享一份 KV（难点）
 
-A single llama.cpp `llama_context` is not re-entrant and its KV cache is bound to it. OneKV patches
-llama.cpp (see [`patches/`](patches/)) so two contexts share one pool:
+llama.cpp 的单个 `llama_context` 不可重入，其 KV cache 也与它绑定。OneKV 给 llama.cpp 打了补丁
+（见 [`patches/`](patches/)），使两个 context 共享一份 pool：
 
 | File | Change |
 |---|---|
-| `llama-model.cpp` | Qwen branch passes `mem_other` + a share callback → decode K/V points at prefill K/V. |
-| `llama-context.cpp` | Propagate `params.ctx_other` → `cparams.ctx_other`. |
-| `llama-kv-cache.cpp` | `apply_ubatch` lets the mirror write the shared cells; `seq_pos_min/max` read shared cells. |
-| `ggml-cuda-common.cuh` | `as_sidx()` keys cuBLAS handles/workspaces/pools by the active stream index. |
+| `llama-model.cpp` | Qwen 分支传 `mem_other` + share 回调 → decode 的 K/V 指向 prefill 的 K/V。 |
+| `llama-context.cpp` | 把 `params.ctx_other` 传到 `cparams.ctx_other`。 |
+| `llama-kv-cache.cpp` | `apply_ubatch` 允许镜像 context 写共享 cell；`seq_pos_min/max` 读共享 cell。 |
+| `ggml-cuda-common.cuh` | `as_sidx()` 按当前 stream 索引绑定 cuBLAS handle/workspace/pool。 |
 
-Engine source: [`src/runtime/onekv_engine.cpp`](src/runtime/onekv_engine.cpp).
+引擎源码：[`src/runtime/onekv_engine.cpp`](src/runtime/onekv_engine.cpp)。
 
 ---
 
-## Install
+## 安装
 
-### 1. Hardware / OS
-NVIDIA GPU (tested **RTX 3090**, 24 GB), **CUDA 12.8**, Ubuntu 22.04.
+### 1. 硬件 / 系统
+NVIDIA GPU（实测 **RTX 3090**，24 GB）、**CUDA 12.8**、Ubuntu 22.04。
 
-### 2. Models
-All four artifacts (Qwen2.5-3B/7B × GGUF/HF) and their server paths + SHA-256 are in
-[`configs/models/models.yaml`](configs/models/models.yaml).
+### 2. 模型
+四个产物（Qwen2.5-3B/7B × GGUF/HF）及其服务器路径 + SHA-256 见
+[`configs/models/models.yaml`](configs/models/models.yaml)。
 
 ```bash
 wget https://hf-mirror.com/hfd/hfd.sh && chmod a+x hfd.sh
@@ -153,87 +150,85 @@ hfd Qwen/Qwen2.5-3B-GGUF --include "*qwen2.5-3b-f16*.gguf"   # GGUF (engine + ll
 hfd Qwen/Qwen2.5-3B                                          # HF safetensors (vLLM/SGLang + traces)
 ```
 
-### 3. Build llama.cpp with the patches
-See [`docs/setup/llama-cpp-patch.md`](docs/setup/llama-cpp-patch.md) and
-[`docs/setup/environment.md`](docs/setup/environment.md) for the exact source/build flags/pinned env.
+### 3. 打补丁并编译 llama.cpp
+精确源码 / 编译选项 / 固定环境见
+[`docs/setup/llama-cpp-patch.md`](docs/setup/llama-cpp-patch.md) 与
+[`docs/setup/environment.md`](docs/setup/environment.md)。
 
 ```bash
 cmake -DHF_ENABLED=OFF -DBUILD_UI=OFF -B build .
 cmake --build build --target llama-cli llama-server
-# copy the 4 patched files from patches/ over the corresponding source, then rebuild
+# 把 patches/ 里 4 个文件覆盖到对应源码，然后重编译
 ```
 
-### 4. Python package
+### 4. Python 包
 ```bash
 pip install -e .   # requests, pyyaml, matplotlib, numpy, pytest
 ```
 
 ---
 
-## Usage
+## 使用
 
 ```bash
-# generate the unified 12-task trace (shared by ReAct & P&E)
+# 生成统一的 12 任务 trace（ReAct / P&E 共用）
 make trace
 
-# run the single-engine shared-KV runtime (A = # concurrent agents)
+# 运行单引擎共享 KV 运行时（A = 并发智能体数）
 make engine A=3
 
-# baselines (self-contained multi-phase prompt)
+# 基线（自包含 multi-phase prompt）
 make serve-llama A=3 S=12
 make serve-vllm  A=3 S=12
 make serve-sglang A=3 S=12
 
-# serial benchmark sweep (ReAct + P&E, N=3…6, one backend at a time)
+# 串行基准扫描（ReAct + P&E，N=3…6，一次只跑一个后端）
 make sweep
 
-# plots
-python scripts/plot_perparadigm.py      # per-paradigm 4-way (3B + 7B)
-python scripts/plot_context_windows.py  # context-window sensitivity
-python scripts/plot_crossmodel.py        # cross-model overview (3B vs 7B)
+# 画图
+python scripts/plot_perparadigm.py      # per-paradigm 4-way（3B + 7B）
+python scripts/plot_context_windows.py  # context-window 敏感度
+python scripts/plot_crossmodel.py        # 跨模型总览（3B vs 7B）
 ```
 
 ---
 
-## Reproducibility
+## 可复现性
 
-The full server environment (hardware, CUDA, llama.cpp version + build flags, model SHA-256, conda
-versions) is pinned in [`docs/setup/environment.md`](docs/setup/environment.md). Every backend is driven
-by the same harness, the same unified 12-task set, the same `N` and `tool_wait`, and measured **serially**
-(one backend at a time, GPU freed between runs).
+完整的服务器环境（硬件、CUDA、llama.cpp 版本 + 编译选项、模型 SHA-256、conda 版本）已固定在
+[`docs/setup/environment.md`](docs/setup/environment.md)。每个后端都由同一套 harness、同一 12
+任务集、同一 `N` 和 `tool_wait` 驱动，并且**串行测量**（一次一个后端，run 之间释放 GPU）。
 
 ---
 
-## Documentation
+## 文档
 
 | Doc | Content |
 |---|---|
-| [`docs/design/architecture.md`](docs/design/architecture.md) | System + engine + patch design. |
-| [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md) | Design decisions & differences vs. prior work. |
-| [`docs/setup/environment.md`](docs/setup/environment.md) | Pinned environment for bit-for-bit reproduction. |
-| [`docs/setup/llama-cpp-patch.md`](docs/setup/llama-cpp-patch.md) | The four shared-KV patches + build/verify. |
-| [`docs/benchmark/methodology.md`](docs/benchmark/methodology.md) | Workload, backends, metrics + context-fairness rules. |
-| [`docs/benchmark/results.md`](docs/benchmark/results.md) | Results, figures, how to reproduce. |
-| [`docs/notes/known-limitations.md`](docs/notes/known-limitations.md) | Honest boundaries + methodology pitfalls. |
-| [`docs/notes/pitfalls.md`](docs/notes/pitfalls.md) | Service-startup / benchmark lessons learned. |
-| [`results/`](results/) | Clean per-paradigm 4-way tables. |
-| [`REPORT.md`](REPORT.md) | Full written report (design, engine, results). |
+| [`docs/design/architecture.md`](docs/design/architecture.md) | 系统 + 引擎 + 补丁设计。 |
+| [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md) | 设计决策与差异（相对已有工作）。 |
+| [`docs/setup/environment.md`](docs/setup/environment.md) | 固定到字节级的环境（可复现）。 |
+| [`docs/setup/llama-cpp-patch.md`](docs/setup/llama-cpp-patch.md) | 4 个共享 KV 补丁 + 编译/验证。 |
+| [`docs/benchmark/methodology.md`](docs/benchmark/methodology.md) | workload、后端、指标 + context 公平性规则。 |
+| [`docs/benchmark/results.md`](docs/benchmark/results.md) | 结果、图表、复现方法。 |
+| [`docs/notes/known-limitations.md`](docs/notes/known-limitations.md) | 诚实边界 + 方法学坑。 |
+| [`docs/notes/pitfalls.md`](docs/notes/pitfalls.md) | 服务启动 / 基准测试经验教训。 |
+| [`results/`](results/) | 干净的 per-paradigm 4-way 表。 |
+| [`REPORT.md`](REPORT.md) | 完整报告（设计、引擎、结果）。 |
 
 ---
 
-## Honest limitations
+## 诚实边界 / 局限
 
-1. **Absolute numbers are not cross-hardware comparable** — RTX 3090 (82 SM). We always compare against
-   *our own* baselines on the same GPU and trace.
-2. **The 10-slot green-context pool + TPOT-driven rebinding are not implemented.** We achieve the
-   decode-protection benefit with **continuous batching**, which we measured to be cheaper (reserving
-   SMs actually hurt on the 3090). See [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md).
-3. **BASE model, no native tool-calling** → this measures serving performance, not agent quality.
-4. **Cross-model caveat:** both 3B and 7B are benchmarked with the same methodology; see the result
-   tables above.
+1. **绝对数值不可跨硬件比较** —— RTX 3090（82 SM）。我们始终与*自己的*、同 GPU、同 trace 的基线比较。
+2. **未实现论文的 10 槽 green-context pool + TPOT 驱动的重绑定**。我们用**连续批处理**来达到
+   "decode 保护"这一收益，实测在 3090 上做 SM 预留反而更差（见
+   [`docs/design/paper-alignment.md`](docs/design/paper-alignment.md)）。
+3. **BASE 模型，无原生 tool-calling** → 衡量的是 serving 性能，不是智能体质量。
+4. **跨模型**：3B 和 7B 都用同一套方法学做基准；见上表。
 
 ---
 
-## License
+## 许可证
 
-MIT — see [`LICENSE`](LICENSE).
+MIT —— 见 [`LICENSE`](LICENSE)。
